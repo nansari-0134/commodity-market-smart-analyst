@@ -1,0 +1,70 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Commodity Market Intelligence, Quantitative Research & LLM Market Narrative System">
+    <title>{% block title %}{{ APP_NAME }}{% endblock %}</title>
+    
+    <!-- Google Fonts: Outfit for clean sans-serif UI, JetBrains Mono for financial precision -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="{% static 'css/terminal.css' %}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <!-- Main Top Navigation -->
+    <header class="navbar">
+        <div class="brand-container">
+            <div class="brand-logo">CI</div>
+            <div>
+                <h1 class="brand-title" style="font-size: 1.15rem; margin: 0;">{{ APP_NAME }}</h1>
+                <div class="brand-subtitle">Quant & Market Intelligence Terminal • {{ CURRENT_PHASE }}</div>
+            </div>
+        </div>
+        <div class="nav-status-group">
+            <a href="{% url 'core:health_check' %}" style="text-decoration: none;" target="_blank">
+                <div class="status-pill">
+                    <span class="pulse-dot"></span>
+                    <span>SYSTEM ONLINE</span>
+                </div>
+            </a>
+            <div style="font-family: var(--font-mono); color: var(--text-secondary); font-size: 0.78rem;">
+                <span style="color: var(--text-muted);">UTC:</span> 
+                <span id="utc-clock">{{ SERVER_TIME_UTC|date:"Y-m-d H:i:s" }}Z</span>
+            </div>
+            <a href="/admin/" style="font-family: var(--font-mono); font-size: 0.78rem; color: var(--accent-cyan); text-decoration: none; border: 1px solid var(--border-subtle); padding: 0.3rem 0.6rem; border-radius: 4px;">
+                Admin Portal
+            </a>
+        </div>
+    </header>
+
+    <!-- Main View Content -->
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Terminal Footer -->
+    <footer class="footer">
+        <div>Commodity Market Intelligence & Quantitative Research System • v{{ APP_VERSION }} • Point-in-Time Verified</div>
+        <div style="margin-top: 0.35rem; color: var(--text-muted); font-size: 0.72rem;">
+            Source Independent • Modular Provider Abstraction • Quantitative Evidence Trail
+        </div>
+    </footer>
+
+    <script>
+        // Live UTC Clock updater
+        function updateClock() {
+            const now = new Date();
+            const utcString = now.toISOString().replace('T', ' ').substring(0, 19) + 'Z';
+            const el = document.getElementById('utc-clock');
+            if (el) el.textContent = utcString;
+        }
+        setInterval(updateClock, 1000);
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,7 @@
+-r base.txt
+
+# Development and testing tools
+pytest>=8.3.0
+pytest-django>=4.9.0
+ipython>=8.26.0
+ruff>=0.5.0
