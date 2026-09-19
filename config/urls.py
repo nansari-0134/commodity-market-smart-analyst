@@ -10,6 +10,8 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     # Core health checks and system status
     path("", include("apps.core.urls")),
+    # Metadata catalog APIs
+    path("api/metadata/", include("apps.metadata.urls")),
     # Main terminal / intelligence dashboard
     path("", include("apps.dashboard.urls")),
 ]
