@@ -30,22 +30,22 @@
     <div class="glass-panel metric-card">
         <div class="metric-label">Active Phase</div>
         <div class="metric-value">
-            <span style="color: var(--accent-cyan);">PHASE 01</span>
-            <span class="metric-badge">FOUNDATION</span>
+            <span style="color: var(--accent-cyan);">PHASE 02</span>
+            <span class="metric-badge">METADATA</span>
         </div>
         <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.4rem; font-family: var(--font-mono);">
-            Django 5.x + PostgreSQL Foundation
+            Metadata Schema & Taxonomy Layer
         </div>
     </div>
 
     <div class="glass-panel metric-card">
-        <div class="metric-label">Source Independence</div>
+        <div class="metric-label">Taxonomy Catalog</div>
         <div class="metric-value">
-            <span style="color: var(--accent-amber);">ABSTRACT</span>
-            <span class="metric-badge" style="background: rgba(245, 158, 11, 0.15); color: var(--accent-amber);">PLUGINS</span>
+            <span style="color: var(--accent-amber);">{{ domain_count }}</span>
+            <span class="metric-badge" style="background: rgba(245, 158, 11, 0.15); color: var(--accent-amber);">DOMAINS</span>
         </div>
         <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.4rem; font-family: var(--font-mono);">
-            Canonical Data Contracts & Adapters
+            {{ unit_count }} Units (UOM) • {{ freq_count }} Frequencies
         </div>
     </div>
 </div>
@@ -62,8 +62,11 @@
             </p>
         </div>
         <div style="display: flex; gap: 0.5rem;">
+            <a href="{% url 'metadata:metadata_summary' %}" target="_blank" class="status-pill" style="text-decoration: none;">
+                Metadata Catalog API ↗
+            </a>
             <a href="{% url 'core:api_health_check' %}" target="_blank" class="status-pill" style="text-decoration: none;">
-                API Diagnostics ↗
+                System Health ↗
             </a>
         </div>
     </div>

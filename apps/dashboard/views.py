@@ -16,9 +16,11 @@ def index(request):
     except Exception:
         db_healthy = False
 
+    from apps.metadata.models import DataDomainMaster, UnitMaster, FrequencyMaster
+
     phases = [
         {"id": "Phase 1", "name": "Django + PostgreSQL Foundation", "status": "ACTIVE / VERIFIED"},
-        {"id": "Phase 2", "name": "Metadata Schema", "status": "PENDING"},
+        {"id": "Phase 2", "name": "Metadata Schema", "status": "ACTIVE / VERIFIED"},
         {"id": "Phase 3", "name": "Exchange Master", "status": "PENDING"},
         {"id": "Phase 4", "name": "Commodity Master", "status": "PENDING"},
         {"id": "Phase 5", "name": "Product / Instrument / Contract Master", "status": "PENDING"},
@@ -42,6 +44,10 @@ def index(request):
         {"num": "10", "name": "MARKET NARRATIVE", "desc": "LLM evidence-based reasoning, scenarios & trades"},
     ]
 
+    domain_count = DataDomainMaster.objects.filter(is_active=True).count()
+    unit_count = UnitMaster.objects.filter(is_active=True).count()
+    freq_count = FrequencyMaster.objects.filter(is_active=True).count()
+
     context = {
         "page_title": "Terminal Overview",
         "db_healthy": db_healthy,
@@ -51,5 +57,8 @@ def index(request):
         "pipeline_stages": pipeline_stages,
         "app_name": getattr(settings, "APP_NAME", "Commodity Market Intelligence"),
         "version": getattr(settings, "APP_VERSION", "0.1.0-alpha"),
+        "domain_count": domain_count,
+        "unit_count": unit_count,
+        "freq_count": freq_count,
     }
     return render(request, "dashboard/index.html", context)
