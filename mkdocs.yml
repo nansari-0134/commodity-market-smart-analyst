@@ -1,0 +1,68 @@
+site_name: Commodity Market Intelligence & Quant Platform
+site_description: Architecture, Data Models, Data Provider Swapping Guide, and Phase Specifications.
+site_author: Quantitative Research & Systems Engineering Team
+copyright: "Copyright &copy; 2026. For analytical workflow automation only — Not financial advice or trading calls."
+
+repo_name: commodity-market-smart-analyst
+repo_url: https://github.com/nansari-0134/commodity-market-smart-analyst
+
+theme:
+  name: material
+  logo: assets/logo.webp
+  favicon: assets/logo.webp
+  language: en
+  palette:
+    scheme: default
+    primary: white
+    accent: indigo
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - navigation.tracking
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.snippets
+  - pymdownx.keys
+  - tables
+  - attr_list
+  - md_in_html
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+
+nav:
+  - System Overview: index.md
+  - Architecture & Core Domain:
+      - Core Infrastructure: modules/core-infrastructure.md
+      - Commodity Taxonomy & Units: modules/taxonomy-and-units.md
+      - Exchanges & Trading Calendars: modules/exchanges-and-calendars.md
+  - REST API Reference:
+      - API Overview & Quickstart: api/overview.md
+      - Metadata & Taxonomy Endpoints: api/metadata.md
+      - Exchanges & Calendars Endpoints: api/exchanges.md
+  - Developer Guides:
+      - Data Provider Integration: guides/data-sources.md
+      - Development & Operations: guides/development.md

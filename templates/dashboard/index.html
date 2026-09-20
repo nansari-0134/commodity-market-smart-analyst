@@ -30,22 +30,22 @@
     <div class="glass-panel metric-card">
         <div class="metric-label">Active Phase</div>
         <div class="metric-value">
-            <span style="color: var(--accent-cyan);">PHASE 02</span>
-            <span class="metric-badge">METADATA</span>
+            <span style="color: var(--accent-cyan);">PHASE 03</span>
+            <span class="metric-badge">EXCHANGES</span>
         </div>
         <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.4rem; font-family: var(--font-mono);">
-            Metadata Schema & Taxonomy Layer
+            Exchange Master & Trading Calendars
         </div>
     </div>
 
     <div class="glass-panel metric-card">
-        <div class="metric-label">Taxonomy Catalog</div>
+        <div class="metric-label">Venues & Calendars</div>
         <div class="metric-value">
-            <span style="color: var(--accent-amber);">{{ domain_count }}</span>
-            <span class="metric-badge" style="background: rgba(245, 158, 11, 0.15); color: var(--accent-amber);">DOMAINS</span>
+            <span style="color: var(--accent-amber);">{{ exchange_count }}</span>
+            <span class="metric-badge" style="background: rgba(245, 158, 11, 0.15); color: var(--accent-amber);">VENUES</span>
         </div>
         <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.4rem; font-family: var(--font-mono);">
-            {{ unit_count }} Units (UOM) • {{ freq_count }} Frequencies
+            {{ session_count }} Sessions • {{ holiday_count }} Holidays Tracked
         </div>
     </div>
 </div>
@@ -62,8 +62,11 @@
             </p>
         </div>
         <div style="display: flex; gap: 0.5rem;">
+            <a href="{% url 'exchanges:exchange_summary' %}" target="_blank" class="status-pill" style="text-decoration: none;">
+                Exchange API ↗
+            </a>
             <a href="{% url 'metadata:metadata_summary' %}" target="_blank" class="status-pill" style="text-decoration: none;">
-                Metadata Catalog API ↗
+                Metadata Catalog ↗
             </a>
             <a href="{% url 'core:api_health_check' %}" target="_blank" class="status-pill" style="text-decoration: none;">
                 System Health ↗
@@ -156,6 +159,15 @@
             <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">
                 Every claim links directly to quantitative features, normalized sources, and timestamped publications.
             </div>
+        </div>
+    </div>
+
+    <!-- Regulatory & Application Warning Disclaimer Banner -->
+    <div style="margin-top: 2rem; padding: 1rem 1.25rem; background: rgba(245, 158, 11, 0.04); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 8px; display: flex; align-items: flex-start; gap: 0.85rem;">
+        <span style="color: #f59e0b; font-size: 1.25rem; line-height: 1;">⚠️</span>
+        <div style="font-size: 0.76rem; color: var(--text-secondary); line-height: 1.55;">
+            <strong style="color: #f59e0b; text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.78rem;">Regulatory Notice & Standard Disclaimer:</strong>
+            This application is strictly an analytical, research, and workflow automation tool designed to make commodity market data processing easier and more efficient. It does <strong>NOT</strong> provide financial advice, investment recommendations, buy/sell signals, or "trading calls." All market data, forward curves, balance sheets, and AI-generated narratives are for informational research purposes only. Trading commodity futures and derivatives involves substantial risk of loss.
         </div>
     </div>
 </div>
