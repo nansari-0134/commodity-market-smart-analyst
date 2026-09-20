@@ -1,0 +1,1359 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Architecture, Data Models, Data Provider Swapping Guide, and Phase Specifications.">
+      
+      
+        <meta name="author" content="Quantitative Research & Systems Engineering Team">
+      
+      
+      
+        <link rel="prev" href="../../api/exchanges/">
+      
+      
+        <link rel="next" href="../development/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/logo.webp">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Data Provider Integration - Commodity Market Intelligence & Quant Platform</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="white" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#zero-friction-data-provider-architecture-integration-guide" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Commodity Market Intelligence &amp; Quant Platform" class="md-header__button md-logo" aria-label="Commodity Market Intelligence & Quant Platform" data-md-component="logo">
+      
+  <img src="../../assets/logo.webp" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Commodity Market Intelligence & Quant Platform
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Data Provider Integration
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/nansari-0134/commodity-market-smart-analyst" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    commodity-market-smart-analyst
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  System Overview
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../modules/core-infrastructure/" class="md-tabs__link">
+          
+  
+  
+  Architecture & Core Domain
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/overview/" class="md-tabs__link">
+          
+  
+  
+  REST API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="./" class="md-tabs__link">
+          
+  
+  
+  Developer Guides
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Commodity Market Intelligence &amp; Quant Platform" class="md-nav__button md-logo" aria-label="Commodity Market Intelligence & Quant Platform" data-md-component="logo">
+      
+  <img src="../../assets/logo.webp" alt="logo">
+
+    </a>
+    Commodity Market Intelligence & Quant Platform
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/nansari-0134/commodity-market-smart-analyst" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    commodity-market-smart-analyst
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture & Core Domain
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture & Core Domain
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/core-infrastructure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core Infrastructure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/taxonomy-and-units/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Commodity Taxonomy & Units
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/exchanges-and-calendars/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exchanges & Trading Calendars
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    REST API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    REST API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Overview & Quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/metadata/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Metadata & Taxonomy Endpoints
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/exchanges/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exchanges & Calendars Endpoints
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Developer Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Developer Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data Provider Integration
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data Provider Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-the-core-architecture-the-pluggable-provider-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. The Core Architecture: The Pluggable Provider Pattern
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-the-3-steps-to-swap-any-data-provider" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. The 3 Steps to Swap Any Data Provider
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. The 3 Steps to Swap Any Data Provider">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-create-a-provider-class" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Create a Provider Class
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-update-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Update Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-run-the-sync-command" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: Run the Sync Command
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-the-base-provider-contract-specification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. The Base Provider Contract Specification
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. The Base Provider Contract Specification">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-input-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Input Requirements
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-output-requirements-data-transfer-object" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Output Requirements (Data Transfer Object)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#error-handling-fallback-guarantees" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Error Handling &amp; Fallback Guarantees
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-universal-provider-registry-across-all-system-modules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Universal Provider Registry Across All System Modules
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-developer-checklist-for-adding-any-new-data-provider" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Developer Checklist for Adding Any New Data Provider
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development & Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-the-core-architecture-the-pluggable-provider-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. The Core Architecture: The Pluggable Provider Pattern
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-the-3-steps-to-swap-any-data-provider" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. The 3 Steps to Swap Any Data Provider
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. The 3 Steps to Swap Any Data Provider">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-create-a-provider-class" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Create a Provider Class
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-update-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Update Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-run-the-sync-command" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: Run the Sync Command
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-the-base-provider-contract-specification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. The Base Provider Contract Specification
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. The Base Provider Contract Specification">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-input-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Input Requirements
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-output-requirements-data-transfer-object" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Output Requirements (Data Transfer Object)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#error-handling-fallback-guarantees" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Error Handling &amp; Fallback Guarantees
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-universal-provider-registry-across-all-system-modules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Universal Provider Registry Across All System Modules
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-developer-checklist-for-adding-any-new-data-provider" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Developer Checklist for Adding Any New Data Provider
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="zero-friction-data-provider-architecture-integration-guide">Zero-Friction Data Provider Architecture &amp; Integration Guide</h1>
+<p>The <strong>Commodity Market Intelligence Platform</strong> is built on an architectural guarantee: <strong>changing an external data vendor must require zero changes to core business logic, database models, REST APIs, or downstream quantitative analytics.</strong></p>
+<hr />
+<h2 id="1-the-core-architecture-the-pluggable-provider-pattern">1. The Core Architecture: The Pluggable Provider Pattern</h2>
+<p>In typical financial software, external API logic is often coupled directly with database models and views. If a vendor changes their API schema, deprecates an endpoint, or raises their prices, the entire application breaks.</p>
+<p>In our system, every external data source sits behind a <strong>3-Layer Pluggable Boundary</strong>:</p>
+<pre class="mermaid"><code>graph TD
+    subgraph L1 ["Layer 1: Configuration (.env / settings.py)"]
+        CFG["EXCHANGE_HOLIDAY_PROVIDER = 'apps.exchanges.providers.bloomberg.BloombergProvider'"]
+    end
+
+    subgraph L2 ["Layer 2: Provider Contract (Abstract Interface)"]
+        Contract["BaseHolidayProvider (ABC)&lt;br/&gt;fetch_holidays: returns list of RawHolidayRecord"]
+        P1["NagerDateProvider (Default Free)"]
+        P2["BloombergProvider (Enterprise)"]
+        P3["RefinitivProvider (Enterprise)"]
+        P4["CustomInternalProvider (In-house)"]
+    end
+
+    subgraph L3 ["Layer 3: Immutable Core (Never Modified)"]
+        Calib["Institutional Calibration Engine&lt;br/&gt;Trading vs Settlement, Rolled Dates, Early Closes"]
+        Models[("Canonical Models (ExchangeHoliday)")]
+        APIs["REST Endpoints &amp; Quant Engines"]
+    end
+
+    CFG --&gt; Contract
+    P1 -. implements .-&gt; Contract
+    P2 -. implements .-&gt; Contract
+    P3 -. implements .-&gt; Contract
+    P4 -. implements .-&gt; Contract
+    Contract --&gt;|Normalized DTOs| Calib
+    Calib --&gt; Models
+    Models --&gt; APIs</code></pre>
+<hr />
+<h2 id="2-the-3-steps-to-swap-any-data-provider">2. The 3 Steps to Swap Any Data Provider</h2>
+<p>When someone wants to replace a default data source with a new provider (e.g. Bloomberg, Refinitiv, CME Datamine, or internal proprietary feeds), they only need to perform <strong>3 simple steps</strong>:</p>
+<h3 id="step-1-create-a-provider-class">Step 1: Create a Provider Class</h3>
+<p>Create a new file in the app's <code>providers/</code> folder implementing the standard base contract:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># apps/exchanges/providers/bloomberg.py</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="kn">import</span><span class="w"> </span><span class="nn">httpx</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">apps.exchanges.providers.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseHolidayProvider</span><span class="p">,</span> <span class="n">RawHolidayRecord</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="k">class</span><span class="w"> </span><span class="nc">BloombergHolidayProvider</span><span class="p">(</span><span class="n">BaseHolidayProvider</span><span class="p">):</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="sd">"""Fetches exchange calendar closures from Bloomberg B-PIPE / Web API."""</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">fetch_holidays</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exchange</span><span class="p">,</span> <span class="n">year</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">RawHolidayRecord</span><span class="p">]:</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>        <span class="n">endpoint</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"https://api.bloomberg.com/eikon/v1/calendars/</span><span class="si">{</span><span class="n">exchange</span><span class="o">.</span><span class="n">mic</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">"</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>        <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"Authorization"</span><span class="p">:</span> <span class="s2">"Bearer YOUR_API_KEY"</span><span class="p">}</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>        <span class="k">with</span> <span class="n">httpx</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mf">10.0</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>            <span class="n">resp</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">)</span>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>            <span class="n">resp</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>            <span class="n">data</span> <span class="o">=</span> <span class="n">resp</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>        <span class="n">records</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"holidays"</span><span class="p">,</span> <span class="p">[]):</span>
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>            <span class="n">records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>                <span class="n">RawHolidayRecord</span><span class="p">(</span>
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>                    <span class="n">date</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s2">"date"</span><span class="p">],</span> <span class="s2">"%Y-%m-</span><span class="si">%d</span><span class="s2">"</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">(),</span>
+</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>                    <span class="n">name</span><span class="o">=</span><span class="n">item</span><span class="p">[</span><span class="s2">"holiday_name"</span><span class="p">],</span>
+</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>                    <span class="n">country_code</span><span class="o">=</span><span class="n">exchange</span><span class="o">.</span><span class="n">country</span><span class="p">,</span>
+</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>                <span class="p">)</span>
+</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>            <span class="p">)</span>
+</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>        <span class="k">return</span> <span class="n">records</span>
+</span></code></pre></div>
+<h3 id="step-2-update-configuration">Step 2: Update Configuration</h3>
+<p>Point to your new provider class in <code>.env</code> or <code>config/settings/base.py</code>:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># In .env:</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="nv">EXCHANGE_HOLIDAY_PROVIDER</span><span class="o">=</span><span class="s2">"apps.exchanges.providers.bloomberg.BloombergHolidayProvider"</span>
+</span></code></pre></div>
+<h3 id="step-3-run-the-sync-command">Step 3: Run the Sync Command</h3>
+<div class="language-powershell highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">python</span> <span class="n">manage</span><span class="p">.</span><span class="n">py</span> <span class="n">sync_exchange_holidays</span> <span class="p">-</span><span class="n">-exchange</span> <span class="n">NYMEX</span> <span class="p">-</span><span class="n">-year</span> <span class="n">2026</span>
+</span></code></pre></div>
+<p><strong>That's it!</strong>
+- <img alt="✅" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/2705.svg" title=":white_check_mark:" /> <strong>Zero changes</strong> to Django models (<code>ExchangeMaster</code>, <code>ExchangeHoliday</code>).
+- <img alt="✅" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/2705.svg" title=":white_check_mark:" /> <strong>Zero changes</strong> to REST API views or serializers.
+- <img alt="✅" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/2705.svg" title=":white_check_mark:" /> <strong>Zero changes</strong> to downstream quantitative curves, charts, or alerts.
+- <img alt="✅" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/2705.svg" title=":white_check_mark:" /> The calibration engine automatically applies trading vs. settlement rules, Black Friday early settlement, and MCX split sessions to the raw dates.</p>
+<hr />
+<h2 id="3-the-base-provider-contract-specification">3. The Base Provider Contract Specification</h2>
+<p>Every data provider interface in the platform enforces strict typing using Python's <code>abc.ABC</code> and dataclasses.</p>
+<h3 id="the-input-requirements">The Input Requirements</h3>
+<p>A provider function receives only canonical entity objects or standardized scalars:
+- <code>exchange</code>: The <code>ExchangeMaster</code> instance (provides <code>exchange.code</code>, <code>exchange.mic</code>, <code>exchange.country</code>, <code>exchange.timezone</code>).
+- <code>year</code>: The 4-digit integer year (e.g. <code>2026</code>).</p>
+<h3 id="the-output-requirements-data-transfer-object">The Output Requirements (Data Transfer Object)</h3>
+<p>The provider must return a list of typed <code>RawHolidayRecord</code> objects:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">date</span> <span class="k">as</span> <span class="n">dt_date</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="k">class</span><span class="w"> </span><span class="nc">RawHolidayRecord</span><span class="p">:</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    <span class="n">date</span><span class="p">:</span> <span class="n">dt_date</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>    <span class="n">country_code</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>    <span class="n">source_api</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"EXTERNAL_PROVIDER"</span>
+</span></code></pre></div>
+<h3 id="error-handling-fallback-guarantees">Error Handling &amp; Fallback Guarantees</h3>
+<ol>
+<li><strong>No System Crashes</strong>: If an external provider throws an HTTP error, socket timeout, or 401 Unauthorized, the provider wrapper catches the exception and logs a structured warning.</li>
+<li><strong>Automatic Circuit Breaker</strong>: When an external provider fails, the system automatically activates the <strong>Deterministic Fallback Engine</strong> (<code>DEFAULT_CORE_HOLIDAYS</code>), ensuring zero downtime in production and 100% offline capability in testing environments.</li>
+</ol>
+<hr />
+<h2 id="4-universal-provider-registry-across-all-system-modules">4. Universal Provider Registry Across All System Modules</h2>
+<p>We apply this exact pluggable architecture across every data domain in the 40-phase platform:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Data Domain</th>
+<th style="text-align: left;">Module</th>
+<th style="text-align: left;">Active Default Provider</th>
+<th style="text-align: left;">Target Interface Contract</th>
+<th style="text-align: left;">Future Institutional Providers</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Exchange Holidays</strong></td>
+<td style="text-align: left;"><code>apps/exchanges</code></td>
+<td style="text-align: left;">Nager.Date API</td>
+<td style="text-align: left;"><code>BaseHolidayProvider</code></td>
+<td style="text-align: left;">Bloomberg SIFMA, Refinitiv, CME Direct</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Commodity Specifications</strong></td>
+<td style="text-align: left;"><code>apps/commodities</code></td>
+<td style="text-align: left;">Static Reference Master</td>
+<td style="text-align: left;"><code>BaseCommodityCatalogProvider</code></td>
+<td style="text-align: left;">Exchange Product Directories</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Futures Reference Specs</strong></td>
+<td style="text-align: left;"><code>apps/contracts</code></td>
+<td style="text-align: left;">Canonical Specs</td>
+<td style="text-align: left;"><code>BaseContractSpecProvider</code></td>
+<td style="text-align: left;">CME Datamine, ICE Reference Data</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Market Data (OHLCV)</strong></td>
+<td style="text-align: left;"><code>apps/market_data</code></td>
+<td style="text-align: left;">Public / Open Market Feed</td>
+<td style="text-align: left;"><code>BaseMarketDataProvider</code></td>
+<td style="text-align: left;">B-PIPE, Refinitiv Real-Time, Polygon</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>CFTC COT Positioning</strong></td>
+<td style="text-align: left;"><code>apps/positioning</code></td>
+<td style="text-align: left;">CFTC Socrata API</td>
+<td style="text-align: left;"><code>BaseCOTProvider</code></td>
+<td style="text-align: left;">CFTC Bulk FTP, Bloomberg COT</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Weather &amp; Climate</strong></td>
+<td style="text-align: left;"><code>apps/weather</code></td>
+<td style="text-align: left;">NOAA / Open-Meteo</td>
+<td style="text-align: left;"><code>BaseWeatherProvider</code></td>
+<td style="text-align: left;">ECMWF, Copernicus, Maxar Weather</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Physical Inventories</strong></td>
+<td style="text-align: left;"><code>apps/fundamentals</code></td>
+<td style="text-align: left;">EIA API v2 / USDA FAS</td>
+<td style="text-align: left;"><code>BaseInventoryProvider</code></td>
+<td style="text-align: left;">Kpler, Vortexa, Kayrros Satellite</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-developer-checklist-for-adding-any-new-data-provider">5. Developer Checklist for Adding Any New Data Provider</h2>
+<p>Before committing a new provider adapter to the codebase, verify:</p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <strong>Contract Compliance</strong>: Does your class inherit from the domain's <code>BaseProvider</code>?</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <strong>Deterministic Output</strong>: Does it return normalized DTOs (<code>RawHolidayRecord</code>, <code>RawPriceBar</code>, etc.) rather than raw vendor JSON?</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <strong>Timezone Normalization</strong>: Are all timestamps converted to UTC before returning?</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <strong>Graceful Exception Handling</strong>: Does it catch <code>httpx.RequestError</code> or timeout exceptions and avoid crashing the main thread?</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <strong>Config Switchable</strong>: Can the system switch back and forth between providers by simply altering <code>.env</code>?</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <strong>Unit Tests</strong>: Have you added mock tests verifying the parser against sample vendor JSON payloads?</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2026. For analytical workflow automation only — Not financial advice or trading calls.
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "navigation.tracking", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
