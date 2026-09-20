@@ -17,11 +17,12 @@ def index(request):
         db_healthy = False
 
     from apps.metadata.models import DataDomainMaster, UnitMaster, FrequencyMaster
+    from apps.exchanges.models import ExchangeMaster, ExchangeTradingSession, ExchangeHoliday
 
     phases = [
         {"id": "Phase 1", "name": "Django + PostgreSQL Foundation", "status": "ACTIVE / VERIFIED"},
         {"id": "Phase 2", "name": "Metadata Schema", "status": "ACTIVE / VERIFIED"},
-        {"id": "Phase 3", "name": "Exchange Master", "status": "PENDING"},
+        {"id": "Phase 3", "name": "Exchange Master", "status": "ACTIVE / VERIFIED"},
         {"id": "Phase 4", "name": "Commodity Master", "status": "PENDING"},
         {"id": "Phase 5", "name": "Product / Instrument / Contract Master", "status": "PENDING"},
         {"id": "Phase 6", "name": "Dataset Master", "status": "PENDING"},
@@ -47,6 +48,9 @@ def index(request):
     domain_count = DataDomainMaster.objects.filter(is_active=True).count()
     unit_count = UnitMaster.objects.filter(is_active=True).count()
     freq_count = FrequencyMaster.objects.filter(is_active=True).count()
+    exchange_count = ExchangeMaster.objects.filter(is_active=True).count()
+    session_count = ExchangeTradingSession.objects.filter(is_active=True).count()
+    holiday_count = ExchangeHoliday.objects.filter(is_active=True).count()
 
     context = {
         "page_title": "Terminal Overview",
@@ -60,5 +64,8 @@ def index(request):
         "domain_count": domain_count,
         "unit_count": unit_count,
         "freq_count": freq_count,
+        "exchange_count": exchange_count,
+        "session_count": session_count,
+        "holiday_count": holiday_count,
     }
     return render(request, "dashboard/index.html", context)

@@ -433,6 +433,11 @@ class Command(BaseCommand):
             {"code": "EUR", "name": "Euro", "symbol": "€", "type": UnitType.CURRENCY, "base": "USD", "factor": Decimal("1.08"), "desc": "Euro currency"},
             {"code": "GBP", "name": "British Pound", "symbol": "£", "type": UnitType.CURRENCY, "base": "USD", "factor": Decimal("1.29"), "desc": "British Pound"},
             {"code": "CNY", "name": "Chinese Yuan", "symbol": "¥", "type": UnitType.CURRENCY, "base": "USD", "factor": Decimal("0.14"), "desc": "Renminbi / Yuan"},
+            {"code": "BRL", "name": "Brazilian Real", "symbol": "R$", "type": UnitType.CURRENCY, "base": "USD", "factor": Decimal("0.18"), "desc": "Brazilian Real (B3 quote currency)"},
+            {"code": "MYR", "name": "Malaysian Ringgit", "symbol": "RM", "type": UnitType.CURRENCY, "base": "USD", "factor": Decimal("0.23"), "desc": "Malaysian Ringgit (BMD Palm Oil quote currency)"},
+            {"code": "AED", "name": "UAE Dirham", "symbol": "د.إ", "type": UnitType.CURRENCY, "base": "USD", "factor": Decimal("0.2723"), "desc": "UAE Dirham (ICE Abu Dhabi base)"},
+            {"code": "INR", "name": "Indian Rupee", "symbol": "₹", "type": UnitType.CURRENCY, "base": "USD", "factor": Decimal("0.012"), "desc": "Indian Rupee (MCX quote currency)"},
+            {"code": "JPY", "name": "Japanese Yen", "symbol": "¥", "type": UnitType.CURRENCY, "base": "USD", "factor": Decimal("0.0067"), "desc": "Japanese Yen (TOCOM/OSE quote currency)"},
 
             # Price per Unit
             {"code": "USD_BBL", "name": "US Dollars per Barrel", "symbol": "$/bbl", "type": UnitType.PRICE_PER_UNIT, "base": None, "factor": Decimal("1.0"), "desc": "Crude oil / refined products price quote"},
