@@ -56,6 +56,7 @@ LOCAL_APPS = [
     "apps.dashboard.apps.DashboardConfig",
     "apps.metadata.apps.MetadataConfig",
     "apps.exchanges.apps.ExchangesConfig",
+    "apps.commodities.apps.CommoditiesConfig",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS

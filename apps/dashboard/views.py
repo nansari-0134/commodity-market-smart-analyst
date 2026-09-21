@@ -18,12 +18,13 @@ def index(request):
 
     from apps.metadata.models import DataDomainMaster, UnitMaster, FrequencyMaster
     from apps.exchanges.models import ExchangeMaster, ExchangeTradingSession, ExchangeHoliday
+    from apps.commodities.models import CommodityMaster, CommodityExchangeListing
 
     phases = [
         {"id": "Phase 1", "name": "Django + PostgreSQL Foundation", "status": "ACTIVE / VERIFIED"},
         {"id": "Phase 2", "name": "Metadata Schema", "status": "ACTIVE / VERIFIED"},
         {"id": "Phase 3", "name": "Exchange Master", "status": "ACTIVE / VERIFIED"},
-        {"id": "Phase 4", "name": "Commodity Master", "status": "PENDING"},
+        {"id": "Phase 4", "name": "Commodity Master", "status": "ACTIVE / VERIFIED"},
         {"id": "Phase 5", "name": "Product / Instrument / Contract Master", "status": "PENDING"},
         {"id": "Phase 6", "name": "Dataset Master", "status": "PENDING"},
         {"id": "Phase 7", "name": "Variable Master", "status": "PENDING"},
@@ -51,6 +52,8 @@ def index(request):
     exchange_count = ExchangeMaster.objects.filter(is_active=True).count()
     session_count = ExchangeTradingSession.objects.filter(is_active=True).count()
     holiday_count = ExchangeHoliday.objects.filter(is_active=True).count()
+    commodity_count = CommodityMaster.objects.filter(is_active=True).count()
+    listing_count = CommodityExchangeListing.objects.filter(is_active=True).count()
 
     context = {
         "page_title": "Terminal Overview",
@@ -67,5 +70,7 @@ def index(request):
         "exchange_count": exchange_count,
         "session_count": session_count,
         "holiday_count": holiday_count,
+        "commodity_count": commodity_count,
+        "listing_count": listing_count,
     }
     return render(request, "dashboard/index.html", context)

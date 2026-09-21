@@ -14,6 +14,8 @@ urlpatterns = [
     path("api/metadata/", include("apps.metadata.urls")),
     # Exchanges & Trading Calendars
     path("api/exchanges/", include("apps.exchanges.urls")),
+    # Commodity Master & Deliverable Specifications
+    path("api/commodities/", include("apps.commodities.urls")),
     # Main terminal / intelligence dashboard
     path("", include("apps.dashboard.urls")),
 ]

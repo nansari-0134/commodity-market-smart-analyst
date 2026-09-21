@@ -130,7 +130,102 @@ class RawHolidayRecord:
 
 ---
 
-## 4. Universal Provider Registry Across All System Modules
+## 4. Case Study 2: Swapping Commodity Specifications Provider (`apps/commodities`)
+
+The same pluggable provider contract governs physical commodity definitions and multi-venue exchange listings.
+
+### Step 1: Implement `BaseCommodityCatalogProvider`
+Create your adapter class inheriting from `BaseCommodityCatalogProvider` in `apps/commodities/providers/` (e.g. `cme_provider.py`):
+
+```python
+from decimal import Decimal
+from typing import List, Optional
+from apps.commodities.providers.base import (
+    BaseCommodityCatalogProvider,
+    RawCommoditySpec,
+    RawExchangeListingSpec,
+)
+
+class CMEDatamineCatalogProvider(BaseCommodityCatalogProvider):
+    """Fetches commodity definitions and exchange listings from CME Datamine API."""
+
+    def __init__(self, api_key: str = ""):
+        self.api_key = api_key
+
+    def get_commodities(self) -> List[RawCommoditySpec]:
+        # 1. Fetch raw JSON payload from external API
+        # 2. Normalize into canonical RawCommoditySpec and RawExchangeListingSpec DTOs
+        # 3. Return clean list with zero vendor dictionary leakage
+        return [
+            RawCommoditySpec(
+                code="CL",
+                name="Light Sweet Crude Oil (WTI)",
+                sector="ENERGY",
+                group="CRUDE_OIL",
+                primary_exchange_code="NYMEX",
+                base_unit_code="BBL",
+                pricing_unit_code="USD_BBL",
+                standard_lot_size=Decimal("1000.0"),
+                standard_lot_unit_code="BBL",
+                minimum_tick_size=Decimal("0.01"),
+                tick_value=Decimal("10.00"),
+                tick_currency="USD",
+                settlement_method="PHYSICAL",
+                deliverable_grade_standard="Light Sweet Crude (API 37°-42°, Sulfur <= 0.42%)",
+                primary_delivery_hub="Cushing, Oklahoma",
+                listings=[
+                    RawExchangeListingSpec(
+                        exchange_code="NYMEX",
+                        ticker_symbol="CL",
+                        contract_size=Decimal("1000.0"),
+                        contract_unit_code="BBL",
+                        settlement_method="PHYSICAL",
+                        is_primary_benchmark=True,
+                        typical_daily_volume=950000,
+                    ),
+                    RawExchangeListingSpec(
+                        exchange_code="MCX",
+                        ticker_symbol="CRUDEOIL",
+                        contract_size=Decimal("100.0"),
+                        contract_unit_code="BBL",
+                        settlement_method="CASH",
+                        trading_currency="INR",
+                        typical_daily_volume=85000,
+                    ),
+                ],
+            )
+        ]
+
+    def get_commodity(self, code: str) -> Optional[RawCommoditySpec]:
+        for c in self.get_commodities():
+            if c.code.upper() == code.upper():
+                return c
+        return None
+```
+
+### Step 2: Register in `providers/factory.py` & `.env`
+Update `apps/commodities/providers/factory.py`:
+```python
+elif provider_type == "cme_datamine":
+    from .cme_provider import CMEDatamineCatalogProvider
+    return CMEDatamineCatalogProvider(api_key=settings.CME_DATAMINE_API_KEY)
+```
+
+In `.env`:
+```bash
+COMMODITY_CATALOG_PROVIDER="cme_datamine"
+CME_DATAMINE_API_KEY="your-api-key"
+```
+
+### Step 3: Run the Seeder
+```powershell
+python manage.py seed_commodities
+```
+The database models, REST endpoints, and UI dashboard update automatically with zero code changes.
+
+---
+
+## 5. Universal Provider Registry Across All System Modules
 
 We apply this exact pluggable architecture across every data domain in the 40-phase platform:
 

@@ -30,22 +30,22 @@
     <div class="glass-panel metric-card">
         <div class="metric-label">Active Phase</div>
         <div class="metric-value">
-            <span style="color: var(--accent-cyan);">PHASE 03</span>
-            <span class="metric-badge">EXCHANGES</span>
+            <span style="color: var(--accent-cyan);">PHASE 04</span>
+            <span class="metric-badge">COMMODITIES</span>
         </div>
         <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.4rem; font-family: var(--font-mono);">
-            Exchange Master & Trading Calendars
+            Commodity Master & Multi-Venue
         </div>
     </div>
 
     <div class="glass-panel metric-card">
-        <div class="metric-label">Venues & Calendars</div>
+        <div class="metric-label">Benchmark Commodities</div>
         <div class="metric-value">
-            <span style="color: var(--accent-amber);">{{ exchange_count }}</span>
-            <span class="metric-badge" style="background: rgba(245, 158, 11, 0.15); color: var(--accent-amber);">VENUES</span>
+            <span style="color: var(--accent-amber);">{{ commodity_count }}</span>
+            <span class="metric-badge" style="background: rgba(245, 158, 11, 0.15); color: var(--accent-amber);">ASSETS</span>
         </div>
         <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.4rem; font-family: var(--font-mono);">
-            {{ session_count }} Sessions • {{ holiday_count }} Holidays Tracked
+            {{ listing_count }} Multi-Exchange Listings • {{ exchange_count }} Venues
         </div>
     </div>
 </div>
@@ -62,6 +62,9 @@
             </p>
         </div>
         <div style="display: flex; gap: 0.5rem;">
+            <a href="{% url 'commodities:commodity_summary' %}" target="_blank" class="status-pill" style="text-decoration: none;">
+                Commodities API ↗
+            </a>
             <a href="{% url 'exchanges:exchange_summary' %}" target="_blank" class="status-pill" style="text-decoration: none;">
                 Exchange API ↗
             </a>

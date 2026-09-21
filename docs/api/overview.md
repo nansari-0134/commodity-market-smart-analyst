@@ -79,3 +79,8 @@ http://127.0.0.1:8000/api/
 | **Trading & Settlement Calendar** | [`/api/exchanges/{code_or_mic}/is-trading-day/`](exchanges.md) | `GET` | Real-time diagnostic evaluation of trading vs settlement status. |
 | **Exchange Holidays** | [`/api/exchanges/{code_or_mic}/holidays/`](exchanges.md) | `GET` | Full calendar closure and early-close records for a venue. |
 | **Exchange Summary** | [`/api/exchanges/summary/`](exchanges.md) | `GET` | Aggregate overview of venues, operating sessions, and tracked holidays. |
+| **Commodity Catalog** | [`/api/commodities/`](commodities.md) | `GET` | 23 Benchmark commodities with sector, settlement, and exchange filtering. |
+| **Commodity Detail** | [`/api/commodities/{identifier}/`](commodities.md) | `GET` | Complete profile with deliverable chemistry, delivery hub, and multi-venue listings. |
+| **Commodity Exchange Listings** | [`/api/commodities/{identifier}/listings/`](commodities.md) | `GET` | Multi-exchange active contracts with volume & open interest. |
+| **Commodity Summary** | [`/api/commodities/summary/`](commodities.md) | `GET` | Statistical counts by sector, settlement type, and exchange rankings. |
+| **Commodity Sectors** | [`/api/commodities/sectors/`](commodities.md) | `GET` | List of 7 sectors and canonical industry groups. |
