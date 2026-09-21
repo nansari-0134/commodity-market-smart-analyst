@@ -1,0 +1,29 @@
+Project1----------->LLM finetuning Hiring Usecase
+
+-Input Job Desc, Resume
+- Output: 
+#1: 10 topics based JD and Resume
+#2: Conversational LLM  |^
+#3: Gap Analysis LLM    V|
+#4: End output Report of candidate wrt resume & JD
+
+
+
+
+
+Project2---------->Embedding and Reranker finetuning    ->Books Recommendation
+
+
+
+
+
+
+Pre-training-general LLM-----
+CPT-coding--
+Fine tuning-organisation coding standard--
+Non-finetuning Cases-------
+
+
+
+
+

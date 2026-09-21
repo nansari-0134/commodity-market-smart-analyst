@@ -47,6 +47,7 @@ graph TD
 * **Physical Commodity Master**: Canonical specifications for 23 physical benchmark commodities across 7 sectors, including chemical grade standards, delivery hubs, and crop seasonality.
 * **Multi-Venue Fungibility & Liquidity Filtering**: Maps cross-exchange listings with localized lot sizes and currency quotes, tracking ADV and Open Interest to isolate active liquidity.
 * **Futures & Contract Master (Phase 5)**: Canonical derivative specifications, standard commodity month codes (F-Z), institutional expiry date calculation, and benchmark index roll schedules (GSCI, BCOM).
+* **Dataset Master & Catalog (Phase 6)**: Canonical registry of 23 benchmark datasets, multi-asset commodity linkages, update cadences, ingestion modes, and pipeline SLAs.
 * **Real-Time Intelligence Terminal**: High-density dark-theme surveillance dashboard displaying operational telemetry, database health, pipeline metrics, and system diagnostics.
 * **High-Performance REST API Suite**: Production-grade endpoints for metadata, exchanges, commodities, contract specifications, and forward delivery cycles with rich filtering.
 * **Fact-Anchored LLM Market Narratives**: Evidence-linked commentary engine anchoring generative narrative synthesis directly to quantitative features and official data releases.
@@ -77,8 +78,9 @@ graph TD
 | **Core Infrastructure** | [Architecture Guide](modules/core-infrastructure.md) | Django 5.2, PostgreSQL, Docker, Abstract Models, Health Probes | :white_check_mark: Active |
 | **Taxonomy & Metadata** | [Taxonomy & Units](modules/taxonomy-and-units.md) | 34 Data Domains, 45 Commodity Units, Conversion Engine, 15 Frequencies | :white_check_mark: Active |
 | **Exchanges & Calendars** | [Exchange Master](modules/exchanges-and-calendars.md) | 15 Venues, 18 Sessions, Calendars, Trading vs. Settlement Rules | :white_check_mark: Active |
-| **Commodity Master** | [Commodity Master](modules/commodity-master.md) | 23 Commodities, Grade Chemistry, Multi-Exchange Listings | :white_check_mark: Active |
-| **Futures & Derivatives** | [Contracts Master](modules/contracts-and-derivatives.md) | 25 Benchmark Specs, 200+ Prompt Expiries, Algorithmic Rules, Roll Schedules | :white_check_mark: Active |
+| **Commodity Master** | [Physical Commodities](modules/commodity-master.md) | 23 Commodities, Grade Chemistry, Multi-Exchange Listings | :white_check_mark: Active |
+| **Futures & Derivatives** | [Futures & Contract Specifications](modules/contracts-and-derivatives.md) | 25 Benchmark Specs, 200+ Prompt Expiries, Algorithmic Rules, Roll Schedules | :white_check_mark: Active |
+| **Dataset Master & Catalog** | [Dataset Master](modules/dataset-master.md) | 23 Benchmark Datasets, Multi-Asset Linkages, Release Schedules, SLAs | :white_check_mark: Active |
 | **Market Data & Curves** | Quant Analytics | High-frequency OHLCV, Forward Curves, Intraday Volatility Surfaces | :soon: Planned |
 | **Supply & Demand** | Balance Sheets | USDA, EIA, IEA, Production/Consumption Fundamentals | :soon: Planned |
 | **LLM Market Narratives** | AI Intelligence | Point-in-time Market Commentary, RAG Retrieval, Risk Summaries | :soon: Planned |

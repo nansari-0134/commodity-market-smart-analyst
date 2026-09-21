@@ -289,7 +289,64 @@ The command automatically instantiates the provider, normalizes contract specs, 
 
 ---
 
-## 6. Universal Provider Registry Across All System Modules
+## 6. Case Study 4: Swapping the Dataset Master Catalog Provider
+
+In **Phase 6: Dataset Master**, the catalog of observable dataset definitions across categories (prices, inventories, balance sheets, weather, positioning) is governed by `BaseDatasetCatalogProvider`.
+
+Suppose an enterprise data governance team maintains their central dataset registry in **AWS Glue Data Catalog**, **Snowflake Data Marketplace**, or an internal metadata microservice.
+
+### Step 1: Implement `BaseDatasetCatalogProvider`
+Create `apps/datasets/providers/aws_glue_catalog.py`:
+
+```python
+from typing import List, Optional
+from apps.datasets.providers.base import BaseDatasetCatalogProvider, RawDatasetSpec
+
+class AWSGlueDatasetCatalogProvider(BaseDatasetCatalogProvider):
+    """Synchronizes dataset catalog specifications from AWS Glue Data Catalog."""
+
+    def get_datasets(self) -> List[RawDatasetSpec]:
+        # Connect to AWS Glue / Boto3 client
+        # Fetch metadata tables and transform to RawDatasetSpec DTOs
+        return [
+            RawDatasetSpec(
+                code="EIA_WPSR_PETROLEUM",
+                name="EIA Weekly Petroleum Status Report",
+                description="Weekly US crude oil inventories and refinery runs.",
+                domain_code="ENERGY",
+                frequency_code="WEEKLY",
+                source_authority="US Energy Information Administration (EIA)",
+                data_category="INVENTORIES_STOCKS",
+                update_cadence="WEEKLY_FIXED_DAY",
+                ingestion_mode="PULL_SCHEDULED_BATCH",
+                sla_max_delay_minutes=15,
+                primary_commodity_code="CL",
+                commodity_codes=["CL", "BRENT"],
+            ),
+        ]
+
+    def get_dataset(self, code: str) -> Optional[RawDatasetSpec]:
+        for spec in self.get_datasets():
+            if spec.code.upper() == code.upper():
+                return spec
+        return None
+```
+
+### Step 2: Configure Environment Variable
+In `.env` or Django settings:
+```bash
+DATASET_CATALOG_PROVIDER="apps.datasets.providers.aws_glue_catalog.AWSGlueDatasetCatalogProvider"
+```
+
+### Step 3: Run the Dataset Catalog Seeder
+```powershell
+python manage.py seed_datasets
+```
+The seeder resolves domain taxonomy foreign keys, links multiple commodities via ManyToMany, validates update cadences, and maintains strict idempotency.
+
+---
+
+## 7. Universal Provider Registry Across All System Modules
 
 We apply this exact pluggable architecture across every data domain in the 40-phase platform:
 
@@ -298,6 +355,7 @@ We apply this exact pluggable architecture across every data domain in the 40-ph
 | **Exchange Holidays** | `apps/exchanges` | Nager.Date API | `BaseHolidayProvider` | Bloomberg SIFMA, Refinitiv, CME Direct |
 | **Commodity Specifications** | `apps/commodities` | Static Reference Master | `BaseCommodityCatalogProvider` | Exchange Product Directories |
 | **Futures Reference Specs** | `apps/contracts` | Static Canonical Catalog | `BaseContractSpecProvider` | CME Datamine, ICE Reference Data |
+| **Dataset Master Catalog** | `apps/datasets` | Static Benchmark Catalog | `BaseDatasetCatalogProvider` | AWS Glue, Snowflake Marketplace, Collibra |
 | **Market Data (OHLCV)** | `apps/market_data` | Public / Open Market Feed | `BaseMarketDataProvider` | B-PIPE, Refinitiv Real-Time, Polygon |
 | **CFTC COT Positioning** | `apps/positioning` | CFTC Socrata API | `BaseCOTProvider` | CFTC Bulk FTP, Bloomberg COT |
 | **Weather & Climate** | `apps/weather` | NOAA / Open-Meteo | `BaseWeatherProvider` | ECMWF, Copernicus, Maxar Weather |
@@ -305,7 +363,7 @@ We apply this exact pluggable architecture across every data domain in the 40-ph
 
 ---
 
-## 7. Developer Checklist for Adding Any New Data Provider
+## 8. Developer Checklist for Adding Any New Data Provider
 
 Before committing a new provider adapter to the codebase, verify:
 

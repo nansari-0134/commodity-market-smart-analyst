@@ -30,11 +30,11 @@
     <div class="glass-panel metric-card">
         <div class="metric-label">Active Phase</div>
         <div class="metric-value">
-            <span style="color: var(--accent-cyan);">PHASE 05</span>
-            <span class="metric-badge">CONTRACTS</span>
+            <span style="color: var(--accent-cyan);">PHASE 06</span>
+            <span class="metric-badge">DATASETS</span>
         </div>
         <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.4rem; font-family: var(--font-mono);">
-            {{ contract_spec_count }} Specs • {{ contract_expiry_count }} Expiries
+            {{ dataset_count }} Datasets • {{ contract_spec_count }} Specs
         </div>
     </div>
 
@@ -62,6 +62,9 @@
             </p>
         </div>
         <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <a href="{% url 'datasets:dataset-summary' %}" target="_blank" class="status-pill" style="text-decoration: none;">
+                Datasets API ↗
+            </a>
             <a href="{% url 'contracts:summary' %}" target="_blank" class="status-pill" style="text-decoration: none;">
                 Contracts API ↗
             </a>

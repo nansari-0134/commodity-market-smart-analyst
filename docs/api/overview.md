@@ -89,3 +89,6 @@ http://127.0.0.1:8000/api/
 | **Contract Expiries** | [`/api/contracts/expiries/`](contracts.md) | `GET` | List tradable delivery contract months with last trading day and notice dates. |
 | **Contract Expiry Detail** | [`/api/contracts/expiries/{lookup}/`](contracts.md) | `GET` | Single delivery contract details (e.g. `CLZ26`, `ZCH27`). |
 | **Contracts Summary** | [`/api/contracts/summary/`](contracts.md) | `GET` | Aggregate counts of specifications, active forward curves, and venues. |
+| **Dataset Catalog** | [`/api/datasets/`](datasets.md) | `GET` | Canonical dataset catalog with category, cadence, and commodity filtering. |
+| **Dataset Detail** | [`/api/datasets/{code_or_uuid}/`](datasets.md) | `GET` | Full dataset metadata, release schedules, SLAs, and multi-asset links. |
+| **Dataset Summary** | [`/api/datasets/summary/`](datasets.md) | `GET` | Aggregate counts by data category, update cadence, and acquisition modes. |
