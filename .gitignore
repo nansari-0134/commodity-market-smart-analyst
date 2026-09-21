@@ -27,4 +27,7 @@ data/processed/
 
 .DS_Store
 Thumbs.db
-site/
+site/
+
+AGENTS.md
+PROJECT_CONTEXT.md

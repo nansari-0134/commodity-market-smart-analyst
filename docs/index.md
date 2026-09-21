@@ -44,7 +44,7 @@ graph TD
 | **Core Infrastructure** | [Architecture Guide](modules/core-infrastructure.md) | Django 5.2, PostgreSQL, Docker, Abstract Models, Health Probes | :white_check_mark: Active |
 | **Taxonomy & Metadata** | [Taxonomy & Units](modules/taxonomy-and-units.md) | 34 Data Domains, 45 Commodity Units, Conversion Engine, 15 Frequencies | :white_check_mark: Active |
 | **Exchanges & Calendars** | [Exchange Master](modules/exchanges-and-calendars.md) | 15 Venues, 18 Sessions, Calendars, Trading vs. Settlement Rules | :white_check_mark: Active |
-| **Commodity Master** | Reference Catalog | Physical Commodity Specifications, Deliverable Grade Standards | :construction: In Progress |
+| **Commodity Master** | [Commodity Master](modules/commodity-master.md) | 23 Commodities, Grade Chemistry, Multi-Exchange Listings | :white_check_mark: Active |
 | **Futures & Derivatives** | Contract Reference | Active Contract Specifications, Expiry Cycles, Roll Schedules | :soon: Planned |
 | **Market Data & Curves** | Quant Analytics | High-frequency OHLCV, Forward Curves, Intraday Volatility Surfaces | :soon: Planned |
 | **Supply & Demand** | Balance Sheets | USDA, EIA, IEA, Production/Consumption Fundamentals | :soon: Planned |
