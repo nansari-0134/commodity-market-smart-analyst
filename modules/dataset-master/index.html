@@ -13,10 +13,10 @@
       
       
       
-        <link rel="prev" href="../commodity-master/">
+        <link rel="prev" href="../contracts-and-derivatives/">
       
       
-        <link rel="next" href="../dataset-master/">
+        <link rel="next" href="../../api/overview/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>Futures & Contract Specifications - Commodity Market Intelligence & Quant Platform</title>
+        <title>Dataset Master & Catalog - Commodity Market Intelligence & Quant Platform</title>
       
     
     
@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#contracts-derivatives-master" class="md-skip">
+        <a href="#dataset-master-catalog-architecture" class="md-skip">
           Skip to content
         </a>
       
@@ -109,7 +109,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Futures & Contract Specifications
+              Dataset Master & Catalog
             
           </span>
         </div>
@@ -515,6 +515,34 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts-and-derivatives/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Futures & Contract Specifications
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -534,7 +562,7 @@
   <span class="md-ellipsis">
     
   
-    Futures & Contract Specifications
+    Dataset Master & Catalog
   
 
     
@@ -552,7 +580,7 @@
   <span class="md-ellipsis">
     
   
-    Futures & Contract Specifications
+    Dataset Master & Catalog
   
 
     
@@ -589,10 +617,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#2-standard-commodity-month-codes-fz" class="md-nav__link">
+  <a href="#2-canonical-data-categories" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Standard Commodity Month Codes (F–Z)
+        2. Canonical Data Categories
       
     </span>
   </a>
@@ -600,22 +628,44 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#3-algorithmic-expiry-calculation-engine" class="md-nav__link">
+  <a href="#3-update-cadences-ingestion-modes-slas" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. Algorithmic Expiry Calculation Engine
+        3. Update Cadences, Ingestion Modes &amp; SLAs
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="3. Algorithmic Expiry Calculation Engine">
+    <nav class="md-nav" aria-label="3. Update Cadences, Ingestion Modes &amp; SLAs">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#implemented-institutional-expiry-rules" class="md-nav__link">
+  <a href="#update-cadences" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Implemented Institutional Expiry Rules
+        Update Cadences
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ingestion-modes-pipeline-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ingestion Modes &amp; Pipeline Architecture
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sla-latency-monitoring" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SLA &amp; Latency Monitoring
       
     </span>
   </a>
@@ -628,10 +678,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#4-benchmark-forward-curve-roll-schedules" class="md-nav__link">
+  <a href="#4-multi-asset-commodity-linkage" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4. Benchmark Forward Curve Roll Schedules
+        4. Multi-Asset &amp; Commodity Linkage
       
     </span>
   </a>
@@ -639,33 +689,50 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#5-model-reference-database-tables" class="md-nav__link">
+  <a href="#5-pluggable-catalog-provider-architecture" class="md-nav__link">
     <span class="md-ellipsis">
       
-        5. Model Reference &amp; Database Tables
+        5. Pluggable Catalog Provider Architecture
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="5. Model Reference &amp; Database Tables">
+    <nav class="md-nav" aria-label="5. Pluggable Catalog Provider Architecture">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#contractspecification-contracts_specification" class="md-nav__link">
+  <a href="#static-vs-external-catalog-providers" class="md-nav__link">
     <span class="md-ellipsis">
       
-        ContractSpecification (contracts_specification)
+        Static vs External Catalog Providers
       
     </span>
   </a>
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#contractexpiry-contracts_expiry" class="md-nav__link">
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-model-reference-database-tables" class="md-nav__link">
     <span class="md-ellipsis">
       
-        ContractExpiry (contracts_expiry)
+        6. Model Reference &amp; Database Tables
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Model Reference &amp; Database Tables">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#datasetmaster-datasets_master" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DatasetMaster (datasets_master)
       
     </span>
   </a>
@@ -681,34 +748,6 @@
   
 </nav>
       
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../dataset-master/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Dataset Master & Catalog
-  
-
-    
-  </span>
-  
-  
-
-      </a>
     </li>
   
 
@@ -1105,10 +1144,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#2-standard-commodity-month-codes-fz" class="md-nav__link">
+  <a href="#2-canonical-data-categories" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Standard Commodity Month Codes (F–Z)
+        2. Canonical Data Categories
       
     </span>
   </a>
@@ -1116,22 +1155,44 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#3-algorithmic-expiry-calculation-engine" class="md-nav__link">
+  <a href="#3-update-cadences-ingestion-modes-slas" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. Algorithmic Expiry Calculation Engine
+        3. Update Cadences, Ingestion Modes &amp; SLAs
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="3. Algorithmic Expiry Calculation Engine">
+    <nav class="md-nav" aria-label="3. Update Cadences, Ingestion Modes &amp; SLAs">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#implemented-institutional-expiry-rules" class="md-nav__link">
+  <a href="#update-cadences" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Implemented Institutional Expiry Rules
+        Update Cadences
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ingestion-modes-pipeline-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ingestion Modes &amp; Pipeline Architecture
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sla-latency-monitoring" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SLA &amp; Latency Monitoring
       
     </span>
   </a>
@@ -1144,10 +1205,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#4-benchmark-forward-curve-roll-schedules" class="md-nav__link">
+  <a href="#4-multi-asset-commodity-linkage" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4. Benchmark Forward Curve Roll Schedules
+        4. Multi-Asset &amp; Commodity Linkage
       
     </span>
   </a>
@@ -1155,33 +1216,50 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#5-model-reference-database-tables" class="md-nav__link">
+  <a href="#5-pluggable-catalog-provider-architecture" class="md-nav__link">
     <span class="md-ellipsis">
       
-        5. Model Reference &amp; Database Tables
+        5. Pluggable Catalog Provider Architecture
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="5. Model Reference &amp; Database Tables">
+    <nav class="md-nav" aria-label="5. Pluggable Catalog Provider Architecture">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#contractspecification-contracts_specification" class="md-nav__link">
+  <a href="#static-vs-external-catalog-providers" class="md-nav__link">
     <span class="md-ellipsis">
       
-        ContractSpecification (contracts_specification)
+        Static vs External Catalog Providers
       
     </span>
   </a>
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#contractexpiry-contracts_expiry" class="md-nav__link">
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-model-reference-database-tables" class="md-nav__link">
     <span class="md-ellipsis">
       
-        ContractExpiry (contracts_expiry)
+        6. Model Reference &amp; Database Tables
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Model Reference &amp; Database Tables">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#datasetmaster-datasets_master" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DatasetMaster (datasets_master)
       
     </span>
   </a>
@@ -1213,142 +1291,195 @@
   
 
 
-<h1 id="contracts-derivatives-master">Contracts &amp; Derivatives Master</h1>
-<p>The <code>apps/contracts</code> module establishes the canonical catalog of commodity futures contract specifications, standardized month codes (F–Z), prompt delivery cycles, deterministic expiry calculation arithmetic, and benchmark forward curve roll conventions.</p>
+<h1 id="dataset-master-catalog-architecture">Dataset Master &amp; Catalog Architecture</h1>
+<p>The <code>apps/datasets</code> module establishes the canonical catalog of commodity market datasets, reporting cadences, ingestion protocols, source authorities, point-in-time revision policies, and service level agreements (SLAs).</p>
 <hr />
 <h2 id="1-domain-concept-architectural-role">1. Domain Concept &amp; Architectural Role</h2>
-<p>While <code>apps/commodities</code> defines the underlying physical asset (e.g. Light Sweet Crude Oil, Yellow Corn, Gold bullion), financial markets trade <strong>derivative contracts</strong> with specific delivery months, lot sizes, tick sizes, and termination schedules.</p>
-<p>A single physical commodity can underpin multiple derivative instruments:
-* <strong>Benchmark Futures</strong>: Standardized, exchange-traded commitments for physical delivery or cash settlement (e.g., NYMEX WTI <code>CL</code>, ICE Brent <code>B</code>, CBOT Corn <code>ZC</code>).
-* <strong>Active Delivery Cycles</strong>: While some contracts trade in all 12 calendar months (e.g., Crude Oil, Natural Gas), agricultural contracts trade in specific seasonal cycles (e.g., Corn trades March <code>H</code>, May <code>K</code>, July <code>N</code>, September <code>U</code>, December <code>Z</code>).
-* <strong>Institutional Expiry Rules</strong>: Trading cessation dates follow precise, exchange-mandated calendar rules that account for exchange holidays and weekend shifts.
-* <strong>Continuous Forward Curves</strong>: Creating continuous benchmark series requires deterministic index roll windows (e.g., S&amp;P GSCI rolls from the 5th to the 9th business day of each month).</p>
+<p>Commodity intelligence systems rely on heterogeneous data streams spanning financial market prices, governmental fundamental balance sheets, corporate inventory surveys, satellite weather observations, customs trade flows, and regulatory trader positioning.</p>
+<p>Without a centralized catalog, quantitative research and ETL pipelines suffer from severe architectural challenges:
+* <strong>Vendor Coupling</strong>: Codebases become hardcoded to specific vendor table schemas and delivery mechanisms.
+* <strong>Lookahead Bias</strong>: Backtesting engines evaluate historical data using the release date or revision status available today rather than at the historical point in time.
+* <strong>Lack of Multi-Asset Clarity</strong>: Crucial reports like the <strong>USDA WASDE</strong> (World Agricultural Supply and Demand Estimates) or the <strong>CFTC Commitments of Traders (COT)</strong> cover dozens of commodities simultaneously; systems that force a strict 1-to-1 dataset-to-commodity mapping break down.
+* <strong>Pipeline Blindness</strong>: Data pipelines fail silently when releases are delayed or schemas drift without clear SLAs or cadence definitions.</p>
+<p>The <code>DatasetMaster</code> solves these challenges by acting as the single source of truth for <strong>dataset definitions and governance</strong>:</p>
 <pre class="mermaid"><code>graph TD
-    A[CommodityMaster&lt;br/&gt;e.g. Light Sweet Crude] --&gt; B[ContractSpecification&lt;br/&gt;NYMEX:CL, ICE:B, MCX:CRUDEOIL]
-    B --&gt; C[ContractExpiry&lt;br/&gt;CLZ26 - Dec 2026]
-    B --&gt; D[ContractExpiry&lt;br/&gt;CLF27 - Jan 2027]
-    B --&gt; E[ContractExpiry&lt;br/&gt;CLG27 - Feb 2027]
-    C --&gt; F[ContractExpiryService&lt;br/&gt;Exchange Holiday &amp; Calendar Math]
-    F --&gt; G[Deterministic Last Trading Day&lt;br/&gt;First Notice Day &amp; Settlement]</code></pre>
+    A[External Publishing Authorities&lt;br/&gt;USDA, EIA, CFTC, CME, NOAA, IEA] --&gt; B[Pluggable Dataset Provider&lt;br/&gt;BaseDatasetCatalogProvider]
+    B --&gt; C[DatasetMaster Catalog&lt;br/&gt;Code, Category, Cadence, Ingestion, SLAs]
+    C --&gt; D[Multi-Asset Linkage&lt;br/&gt;Primary Commodity + ManyToMany Commodities]
+    C --&gt; E[ETL &amp; Ingestion Scheduler&lt;br/&gt;Cadence, Release Schedules, SLAs]
+    C --&gt; F[Point-in-Time Revision Policies&lt;br/&gt;Zero Lookahead Bias Enforcement]</code></pre>
 <hr />
-<h2 id="2-standard-commodity-month-codes-fz">2. Standard Commodity Month Codes (F–Z)</h2>
-<p>Commodity derivatives globally adhere to a standardized single-letter month coding system:</p>
+<h2 id="2-canonical-data-categories">2. Canonical Data Categories</h2>
+<p>Datasets are categorized into 9 distinct functional domains:</p>
 <table>
 <thead>
 <tr>
-<th style="text-align: center;">Letter Code</th>
-<th style="text-align: left;">Month</th>
-<th style="text-align: left;">Primary Seasonal Relevance</th>
-<th style="text-align: left;">Example Symbol</th>
+<th style="text-align: left;">Category Code</th>
+<th style="text-align: left;">Category Name</th>
+<th style="text-align: left;">Typical Source Authorities</th>
+<th style="text-align: left;">Representative Benchmark Series</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align: center;"><strong>F</strong></td>
-<td style="text-align: left;">January</td>
-<td style="text-align: left;">Winter heating demand / Southern hemisphere planting</td>
-<td style="text-align: left;"><code>CLF27</code>, <code>ZSF27</code></td>
+<td style="text-align: left;"><code>MARKET_PRICES</code></td>
+<td style="text-align: left;">Market Prices &amp; Spreads</td>
+<td style="text-align: left;">CME, ICE, LME, SHFE, MCX</td>
+<td style="text-align: left;">Daily settlement prices, continuous front-month curves, intraday tick bars.</td>
 </tr>
 <tr>
-<td style="text-align: center;"><strong>G</strong></td>
-<td style="text-align: left;">February</td>
-<td style="text-align: left;">Winter inventory drawdowns / Livestock cycles</td>
-<td style="text-align: left;"><code>GCG27</code>, <code>LEG27</code></td>
+<td style="text-align: left;"><code>INVENTORIES_STOCKS</code></td>
+<td style="text-align: left;">Inventories &amp; Warehouse Stocks</td>
+<td style="text-align: left;">EIA, LME, API, USDA</td>
+<td style="text-align: left;">US Crude inventories (Cushing), LME registered warrant stocks, port grain elevator stocks.</td>
 </tr>
 <tr>
-<td style="text-align: center;"><strong>H</strong></td>
-<td style="text-align: left;">March</td>
-<td style="text-align: left;">Spring planting transition / First Q1 delivery</td>
-<td style="text-align: left;"><code>ZCH27</code>, <code>SBO27</code></td>
+<td style="text-align: left;"><code>SUPPLY_DEMAND</code></td>
+<td style="text-align: left;">Supply &amp; Demand Balances</td>
+<td style="text-align: left;">USDA, IEA, OPEC, CONAB</td>
+<td style="text-align: left;">Global balance sheets, ending stocks, crush volumes, domestic disappearance.</td>
 </tr>
 <tr>
-<td style="text-align: center;"><strong>J</strong></td>
-<td style="text-align: left;">April</td>
-<td style="text-align: left;">US Spring field preparation / Sugar crushing</td>
-<td style="text-align: left;"><code>GCJ27</code>, <code>LEJ27</code></td>
+<td style="text-align: left;"><code>TRADE_FLOWS</code></td>
+<td style="text-align: left;">Trade Flows &amp; Customs</td>
+<td style="text-align: left;">USDA FAS, General Administration of Customs</td>
+<td style="text-align: left;">Weekly export inspections, vessel tracking, bilateral trade matrices.</td>
 </tr>
 <tr>
-<td style="text-align: center;"><strong>K</strong></td>
-<td style="text-align: left;">May</td>
-<td style="text-align: left;">US corn &amp; soybean planting window</td>
-<td style="text-align: left;"><code>ZCK27</code>, <code>ZSK27</code></td>
+<td style="text-align: left;"><code>POSITIONING</code></td>
+<td style="text-align: left;">Trader Positioning &amp; COT</td>
+<td style="text-align: left;">CFTC, ICE Europe</td>
+<td style="text-align: left;">Disaggregated COT, managed money net length, commercial hedging commitments.</td>
 </tr>
 <tr>
-<td style="text-align: center;"><strong>M</strong></td>
-<td style="text-align: left;">June</td>
-<td style="text-align: left;">North American summer weather market / LME mid-year</td>
-<td style="text-align: left;"><code>GCM27</code>, <code>CAM27</code></td>
+<td style="text-align: left;"><code>WEATHER_CLIMATE</code></td>
+<td style="text-align: left;">Weather &amp; Satellite Climate</td>
+<td style="text-align: left;">NOAA, ECMWF, NASA</td>
+<td style="text-align: left;">Soil moisture anomalies, cumulative precipitation, ENSO (El Niño / La Niña) indices.</td>
 </tr>
 <tr>
-<td style="text-align: center;"><strong>N</strong></td>
-<td style="text-align: left;">July</td>
-<td style="text-align: left;">US corn pollination / Northern hemisphere summer peak</td>
-<td style="text-align: left;"><code>ZCN27</code>, <code>CTN27</code></td>
+<td style="text-align: left;"><code>MACROECONOMIC</code></td>
+<td style="text-align: left;">Macroeconomic &amp; FX Rates</td>
+<td style="text-align: left;">Federal Reserve (FRED), IMF, World Bank</td>
+<td style="text-align: left;">US Dollar Index (DXY), shipping freight indices (Baltic Dry Index), central bank interest rates.</td>
 </tr>
 <tr>
-<td style="text-align: center;"><strong>Q</strong></td>
-<td style="text-align: left;">August</td>
-<td style="text-align: left;">US soybean pod setting / Peak summer power demand</td>
-<td style="text-align: left;"><code>GCQ27</code>, <code>HEQ27</code></td>
+<td style="text-align: left;"><code>PRODUCTION_CAPACITY</code></td>
+<td style="text-align: left;">Production &amp; Extraction</td>
+<td style="text-align: left;">Baker Hughes, OPEC, USGS</td>
+<td style="text-align: left;">Active oil/gas rig counts, refinery utilization rates, mine output reports.</td>
 </tr>
 <tr>
-<td style="text-align: center;"><strong>U</strong></td>
-<td style="text-align: left;">September</td>
-<td style="text-align: left;">US crop harvest commencement / Autumn refinery maintenance</td>
-<td style="text-align: left;"><code>ZCU27</code>, <code>CLU27</code></td>
-</tr>
-<tr>
-<td style="text-align: center;"><strong>V</strong></td>
-<td style="text-align: left;">October</td>
-<td style="text-align: left;">Peak US harvest pressure / Heating season build</td>
-<td style="text-align: left;"><code>GCV27</code>, <code>SBV27</code></td>
-</tr>
-<tr>
-<td style="text-align: center;"><strong>X</strong></td>
-<td style="text-align: left;">November</td>
-<td style="text-align: left;">South American planting progress / Final crop size</td>
-<td style="text-align: left;"><code>ZSX27</code>, <code>CLX27</code></td>
-</tr>
-<tr>
-<td style="text-align: center;"><strong>Z</strong></td>
-<td style="text-align: left;">December</td>
-<td style="text-align: left;">Annual index rebalancing / EUA compliance deadline</td>
-<td style="text-align: left;"><code>CLZ26</code>, <code>FEUAZ26</code></td>
+<td style="text-align: left;"><code>ENVIRONMENTAL</code></td>
+<td style="text-align: left;">Environmental &amp; Emissions</td>
+<td style="text-align: left;">EU ETS, California CARB</td>
+<td style="text-align: left;">Carbon credit allowances, renewable fuel standard (RFS) RIN generation.</td>
 </tr>
 </tbody>
 </table>
 <hr />
-<h2 id="3-algorithmic-expiry-calculation-engine">3. Algorithmic Expiry Calculation Engine</h2>
-<p>The platform implements <code>ContractExpiryService</code>, which integrates directly with <code>ExchangeCalendarService</code> to compute exact trading days and delivery windows deterministically without lookahead bias:</p>
-<h3 id="implemented-institutional-expiry-rules">Implemented Institutional Expiry Rules</h3>
+<h2 id="3-update-cadences-ingestion-modes-slas">3. Update Cadences, Ingestion Modes &amp; SLAs</h2>
+<h3 id="update-cadences">Update Cadences</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Cadence</th>
+<th style="text-align: left;">Description</th>
+<th style="text-align: left;">Example Datasets</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>REALTIME_STREAM</code></td>
+<td style="text-align: left;">Continuous tick or streaming trade feed.</td>
+<td style="text-align: left;">Order book depth, real-time FX/futures ticks.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>HOURLY</code></td>
+<td style="text-align: left;">Hourly periodic snapshots.</td>
+<td style="text-align: left;">Pipeline flows, intraday electricity nodal prices.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>DAILY_EOD</code></td>
+<td style="text-align: left;">Daily closing/settlement snapshot.</td>
+<td style="text-align: left;">Exchange settlement prices, official currency fixings.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>WEEKLY_FIXED_DAY</code></td>
+<td style="text-align: left;">Released weekly on a predetermined calendar day.</td>
+<td style="text-align: left;">EIA Petroleum (Wed 10:30 ET), CFTC COT (Fri 15:30 ET).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>MONTHLY_CALENDAR_DAY</code></td>
+<td style="text-align: left;">Released monthly around a specific calendar date.</td>
+<td style="text-align: left;">USDA WASDE (9th-12th of month), OPEC Monthly Oil Report.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>QUARTERLY</code></td>
+<td style="text-align: left;">Quarterly institutional updates.</td>
+<td style="text-align: left;">USDA Grain Stocks, corporate inventory filings.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>SEASONAL_CROP_CYCLE</code></td>
+<td style="text-align: left;">Published only during the active agricultural season.</td>
+<td style="text-align: left;">USDA NASS Crop Progress &amp; Condition (April–November).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>EVENT_DRIVEN</code></td>
+<td style="text-align: left;">Published on an ad-hoc or unannounced basis.</td>
+<td style="text-align: left;">Emergency OPEC+ ministerial communiqués, unscheduled refinery outages.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ingestion-modes-pipeline-architecture">Ingestion Modes &amp; Pipeline Architecture</h3>
+<p>The platform categorizes how data enters the analytical pipeline:</p>
 <ol>
-<li><strong><code>DAY_OF_PRIOR_MONTH_WITH_BUS_OFFSET</code></strong> (e.g. NYMEX Light Sweet Crude Oil <code>CL</code>):
-   Trading terminates on the <strong>25th calendar day</strong> of the month preceding the delivery month. If the 25th is a weekend or an official exchange holiday, trading ceases on the <strong>3rd business day prior</strong> to the 25th.</li>
-<li><strong><code>LAST_BUSINESS_DAY_OF_TWO_MONTHS_PRIOR</code></strong> (e.g. ICE Brent Crude <code>B</code>):
-   Trading ceases on the <strong>last business day of the second month preceding the delivery month</strong> (e.g., February delivery contract ceases on the last business day of December).</li>
-<li><strong><code>BUSINESS_DAY_BEFORE_DAY_OF_MONTH</code></strong> (e.g. CBOT Corn <code>ZC</code>, Soybeans <code>ZS</code>, Wheat <code>ZW</code>):
-   Trading terminates on the <strong>business day immediately preceding the 15th calendar day</strong> of the contract delivery month.</li>
-<li><strong><code>DAYS_BEFORE_MONTH_START</code></strong> (e.g. NYMEX Henry Hub Natural Gas <code>NG</code>, ICE Coffee <code>KC</code>):
-   Trading terminates exactly $N$ business days prior to the first calendar day of the contract delivery month (e.g. 3 business days for Natural Gas).</li>
-<li><strong><code>LAST_BUSINESS_DAY_OF_PRIOR_MONTH</code></strong> (e.g. NYMEX RBOB <code>RB</code>, Heating Oil <code>HO</code>, ICE Sugar <code>SB</code>):
-   Trading ceases on the final business day of the calendar month immediately preceding delivery.</li>
-<li><strong><code>THIRD_WEDNESDAY_OF_MONTH</code></strong> (e.g. LME Copper <code>CA</code>, Aluminum <code>AH</code>):
-   Settles on the third Wednesday of the delivery month, rolling to the preceding business day if an exchange holiday.</li>
-<li><strong><code>FIFTH_BUSINESS_DAY_BEFORE_MONTH_END</code></strong> (e.g. COMEX Gold <code>GC</code>, Silver <code>SI</code>, Copper <code>HG</code>):
-   Trading terminates the third business day prior to the final business day of the delivery month.</li>
+<li><strong><code>PULL_SCHEDULED_BATCH</code></strong>: Cron or Celery Beat scheduler queries remote REST APIs or FTP servers at scheduled publication times.</li>
+<li><strong><code>PULL_POLL_CHANGE_DETECTION</code></strong>: High-frequency polling utilizing HTTP <code>ETag</code> or <code>If-Modified-Since</code> headers to ingest data within seconds of publication.</li>
+<li><strong><code>PUSH_WEBHOOK_STREAM</code></strong>: Inbound webhook receivers or streaming sockets push observations into the platform.</li>
+<li><strong><code>PUSH_MESSAGE_QUEUE</code></strong>: Enterprise event streaming via Apache Kafka or RabbitMQ.</li>
+<li><strong><code>MANUAL_INGESTION</code></strong>: Controlled analyst upload portal for bespoke non-digital industry reports.</li>
 </ol>
+<h3 id="sla-latency-monitoring">SLA &amp; Latency Monitoring</h3>
+<p>Each dataset defines <code>sla_max_delay_minutes</code>:
+* <strong>Threshold Calculation</strong>: Measures the elapsed duration between scheduled publication time and completed database ingestion.
+* <strong>Automated Alerting</strong>: If the delay exceeds the SLA threshold, system telemetry registers a warning state on the Operations Dashboard.</p>
 <hr />
-<h2 id="4-benchmark-forward-curve-roll-schedules">4. Benchmark Forward Curve Roll Schedules</h2>
-<p>To build continuous time series (e.g., Front-Month continuous WTI <code>CL01</code>, Second-Month <code>CL02</code>), market participants follow systematic index roll schedules:</p>
+<h2 id="4-multi-asset-commodity-linkage">4. Multi-Asset &amp; Commodity Linkage</h2>
+<p>Macroeconomic and governmental reports often cover multiple physical commodities simultaneously. <code>DatasetMaster</code> models this flexibility using a dual-link structure:</p>
+<ol>
+<li><strong><code>primary_commodity</code> (<code>ForeignKey</code>, optional)</strong>: Identifies the single benchmark asset when a dataset is dedicated to one commodity (e.g. Baker Hughes Rig Count -&gt; Crude Oil, LME Copper Stocks -&gt; Copper).</li>
+<li><strong><code>commodities</code> (<code>ManyToManyField</code>, optional)</strong>: Links all underlying commodities for comprehensive multi-asset balance sheets (e.g., USDA WASDE covers Corn, Soybeans, Wheat, Cotton; CFTC COT covers Energy, Metals, and Ags).</li>
+</ol>
+<p>This enables analytical queries like:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Retrieve all datasets affecting Corn fundamentals</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">corn_datasets</span> <span class="o">=</span> <span class="n">DatasetMaster</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">Q</span><span class="p">(</span><span class="n">primary_commodity__code</span><span class="o">=</span><span class="s2">"CORN"</span><span class="p">)</span> <span class="o">|</span> <span class="n">Q</span><span class="p">(</span><span class="n">commodities__code</span><span class="o">=</span><span class="s2">"CORN"</span><span class="p">)</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="p">)</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+</span></code></pre></div></p>
+<hr />
+<h2 id="5-pluggable-catalog-provider-architecture">5. Pluggable Catalog Provider Architecture</h2>
+<p>In accordance with Core Directive #1 (Source Independence), dataset definitions are completely decoupled from storage mechanisms using the Strategy + Factory pattern:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># apps/datasets/providers/base.py</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="k">class</span><span class="w"> </span><span class="nc">BaseDatasetCatalogProvider</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="nd">@abstractmethod</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_datasets</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">RawDatasetSpec</span><span class="p">]:</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">        </span><span class="sd">"""Fetch all canonical dataset specifications."""</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>        <span class="k">pass</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    <span class="nd">@abstractmethod</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">code</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">RawDatasetSpec</span><span class="p">]:</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">        </span><span class="sd">"""Retrieve a single dataset specification by code."""</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>        <span class="k">pass</span>
+</span></code></pre></div>
+<h3 id="static-vs-external-catalog-providers">Static vs External Catalog Providers</h3>
 <ul>
-<li><strong>S&amp;P GSCI Roll Window</strong>: 5th through 9th business day of each calendar month (rolls 20% of position each day).</li>
-<li><strong>Bloomberg Commodity Index (BCOM) Roll Window</strong>: 6th through 10th business day of each month.</li>
-<li><strong>LME Prompt Window</strong>: Daily prompt contracts roll into the Third Wednesday prompt monthly settlement.</li>
-<li><strong>Agricultural Seasonal Rolls</strong>: Grains roll only during active contract months (e.g., rolling March <code>H</code> into May <code>K</code> during February/early March).</li>
+<li><strong><code>StaticDatasetCatalogProvider</code></strong>: Standard built-in provider populating 23 institutional benchmark datasets across energy, agriculture, metals, weather, and macro indicators.</li>
+<li><strong>Custom Enterprise Providers</strong>: Data teams can implement custom providers that synchronize datasets from AWS Glue Data Catalog, Snowflake Data Marketplace, or internal metadata repositories by implementing <code>BaseDatasetCatalogProvider</code> and updating <code>DATASET_CATALOG_PROVIDER</code> in settings.</li>
 </ul>
 <hr />
-<h2 id="5-model-reference-database-tables">5. Model Reference &amp; Database Tables</h2>
-<h3 id="contractspecification-contracts_specification"><code>ContractSpecification</code> (<code>contracts_specification</code>)</h3>
+<h2 id="6-model-reference-database-tables">6. Model Reference &amp; Database Tables</h2>
+<h3 id="datasetmaster-datasets_master"><code>DatasetMaster</code> (<code>datasets_master</code>)</h3>
 <table>
 <thead>
 <tr>
@@ -1364,151 +1495,109 @@
 <td style="text-align: left;">Primary key.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>commodity</code></td>
-<td style="text-align: left;"><code>ForeignKey</code></td>
-<td style="text-align: left;">Underlying physical commodity (<code>apps.commodities.CommodityMaster</code>).</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>exchange</code></td>
-<td style="text-align: left;"><code>ForeignKey</code></td>
-<td style="text-align: left;">Operating venue (<code>apps.exchanges.ExchangeMaster</code>).</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>symbol_root</code></td>
-<td style="text-align: left;"><code>CharField(20)</code></td>
-<td style="text-align: left;">Exchange ticker root (e.g. <code>CL</code>, <code>B</code>, <code>NG</code>, <code>ZC</code>, <code>GC</code>).</td>
+<td style="text-align: left;"><code>code</code></td>
+<td style="text-align: left;"><code>CharField(60)</code></td>
+<td style="text-align: left;">Unique canonical identifier (e.g. <code>USDA_WASDE</code>, <code>EIA_WPSR_PETROLEUM</code>).</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>name</code></td>
 <td style="text-align: left;"><code>CharField(150)</code></td>
-<td style="text-align: left;">Full commercial name (e.g. <em>"Light Sweet Crude Oil (WTI) Futures"</em>).</td>
+<td style="text-align: left;">Full commercial/institutional title.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>instrument_type</code></td>
-<td style="text-align: left;"><code>CharField(30)</code></td>
-<td style="text-align: left;"><code>FUTURES</code>, <code>OPTIONS_AMERICAN</code>, <code>OPTIONS_EUROPEAN</code>, <code>CALENDAR_SPREAD</code>.</td>
+<td style="text-align: left;"><code>description</code></td>
+<td style="text-align: left;"><code>TextField</code></td>
+<td style="text-align: left;">Detailed methodology and coverage description.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>contract_size</code></td>
-<td style="text-align: left;"><code>Decimal(14,4)</code></td>
-<td style="text-align: left;">Multiplier (e.g. <code>1000.0</code> for WTI = 1,000 bbl).</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>contract_unit</code></td>
+<td style="text-align: left;"><code>domain</code></td>
 <td style="text-align: left;"><code>ForeignKey</code></td>
-<td style="text-align: left;">Unit of measure for quantity (<code>BBL</code>, <code>BU</code>, <code>MT</code>, <code>TOZ</code>).</td>
+<td style="text-align: left;">Data domain taxonomy classification (<code>metadata.DataDomainMaster</code>).</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>price_quote_unit</code></td>
+<td style="text-align: left;"><code>primary_commodity</code></td>
 <td style="text-align: left;"><code>ForeignKey</code></td>
-<td style="text-align: left;">Price quotation unit (<code>USD_BBL</code>, <code>USC_BU</code>, <code>USD_TOZ</code>).</td>
+<td style="text-align: left;">Primary benchmark commodity anchor (optional).</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>minimum_tick_size</code></td>
-<td style="text-align: left;"><code>Decimal(12,6)</code></td>
-<td style="text-align: left;">Minimum allowable price fluctuation (e.g. <code>0.01</code>).</td>
+<td style="text-align: left;"><code>commodities</code></td>
+<td style="text-align: left;"><code>ManyToManyField</code></td>
+<td style="text-align: left;">All physical commodities covered by this dataset.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>tick_value</code></td>
-<td style="text-align: left;"><code>Decimal(12,4)</code></td>
-<td style="text-align: left;">Monetary tick value per contract (e.g. <code>$10.00</code>).</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>trading_currency</code></td>
-<td style="text-align: left;"><code>CharField(5)</code></td>
-<td style="text-align: left;">ISO currency (e.g. <code>USD</code>, <code>INR</code>, <code>EUR</code>, <code>MYR</code>).</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>settlement_method</code></td>
-<td style="text-align: left;"><code>CharField(20)</code></td>
-<td style="text-align: left;">Binary: <code>PHYSICAL</code> vs <code>CASH</code>.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>trading_months</code></td>
-<td style="text-align: left;"><code>CharField(100)</code></td>
-<td style="text-align: left;"><code>"ALL_12"</code> or comma-separated letter codes (e.g. <code>"H,K,N,U,Z"</code>).</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>expiry_rule</code></td>
-<td style="text-align: left;"><code>CharField(50)</code></td>
-<td style="text-align: left;">Rule choice from <code>ExpiryRuleType</code>.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>expiry_rule_parameter</code></td>
-<td style="text-align: left;"><code>IntegerField</code></td>
-<td style="text-align: left;">Parameter used by the calculation algorithm.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>default_roll_rule</code></td>
-<td style="text-align: left;"><code>CharField(100)</code></td>
-<td style="text-align: left;">Standard roll schedule convention.</td>
-</tr>
-</tbody>
-</table>
-<h3 id="contractexpiry-contracts_expiry"><code>ContractExpiry</code> (<code>contracts_expiry</code>)</h3>
-<table>
-<thead>
-<tr>
-<th style="text-align: left;">Field</th>
-<th style="text-align: left;">Type</th>
-<th style="text-align: left;">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;"><code>id</code></td>
-<td style="text-align: left;"><code>UUID</code></td>
-<td style="text-align: left;">Primary key.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>specification</code></td>
+<td style="text-align: left;"><code>exchange</code></td>
 <td style="text-align: left;"><code>ForeignKey</code></td>
-<td style="text-align: left;">Parent contract specification.</td>
+<td style="text-align: left;">Associated exchange venue (if venue-specific).</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>contract_symbol</code></td>
-<td style="text-align: left;"><code>CharField(30)</code></td>
-<td style="text-align: left;">Standard ticker symbol (e.g. <code>CLZ26</code>, <code>BRENTF27</code>, <code>ZCH27</code>).</td>
+<td style="text-align: left;"><code>frequency</code></td>
+<td style="text-align: left;"><code>ForeignKey</code></td>
+<td style="text-align: left;">Standard temporal frequency (<code>metadata.FrequencyMaster</code>).</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>contract_year</code></td>
-<td style="text-align: left;"><code>SmallInteger</code></td>
-<td style="text-align: left;">4-digit contract delivery year (e.g. <code>2026</code>).</td>
+<td style="text-align: left;"><code>data_category</code></td>
+<td style="text-align: left;"><code>CharField(40)</code></td>
+<td style="text-align: left;">Functional category (<code>MARKET_PRICES</code>, <code>SUPPLY_DEMAND</code>, etc.).</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>contract_month</code></td>
-<td style="text-align: left;"><code>SmallInteger</code></td>
-<td style="text-align: left;">Delivery month (1–12).</td>
+<td style="text-align: left;"><code>update_cadence</code></td>
+<td style="text-align: left;"><code>CharField(40)</code></td>
+<td style="text-align: left;">Publication frequency (<code>DAILY_EOD</code>, <code>WEEKLY_FIXED_DAY</code>, etc.).</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>contract_month_code</code></td>
-<td style="text-align: left;"><code>CharField(2)</code></td>
-<td style="text-align: left;">Letter code (<code>F</code> through <code>Z</code>).</td>
+<td style="text-align: left;"><code>ingestion_mode</code></td>
+<td style="text-align: left;"><code>CharField(40)</code></td>
+<td style="text-align: left;">Acquisition mode (<code>PULL_SCHEDULED_BATCH</code>, <code>PUSH_WEBHOOK_STREAM</code>, etc.).</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>last_trading_day</code></td>
-<td style="text-align: left;"><code>DateField</code></td>
-<td style="text-align: left;">Calculated date of trading termination.</td>
+<td style="text-align: left;"><code>release_schedule</code></td>
+<td style="text-align: left;"><code>JSONField</code></td>
+<td style="text-align: left;">Structured timing parameters (day, hour, minute, timezone).</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>first_notice_day</code></td>
-<td style="text-align: left;"><code>DateField</code></td>
-<td style="text-align: left;">First notice date for physical delivery (null for cash).</td>
+<td style="text-align: left;"><code>retention_policy</code></td>
+<td style="text-align: left;"><code>CharField(40)</code></td>
+<td style="text-align: left;">Historical retention rules (<code>INDEFINITE_POINT_IN_TIME</code>, etc.).</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>last_delivery_day</code></td>
-<td style="text-align: left;"><code>DateField</code></td>
-<td style="text-align: left;">Final delivery date for physical transfer (null for cash).</td>
+<td style="text-align: left;"><code>license_type</code></td>
+<td style="text-align: left;"><code>CharField(40)</code></td>
+<td style="text-align: left;">Usage rights (<code>PUBLIC_DOMAIN</code>, <code>PROPRIETARY_COMMERCIAL</code>, etc.).</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>final_settlement_date</code></td>
-<td style="text-align: left;"><code>DateField</code></td>
-<td style="text-align: left;">Date of final settlement invoice or cash clearing.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>is_expired</code></td>
+<td style="text-align: left;"><code>point_in_time_enabled</code></td>
 <td style="text-align: left;"><code>BooleanField</code></td>
-<td style="text-align: left;">True if contract has completed settlement.</td>
+<td style="text-align: left;">True if publication timestamps and revision tracking are enforced.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>supports_revisions</code></td>
+<td style="text-align: left;"><code>BooleanField</code></td>
+<td style="text-align: left;">True if source authority issues retroactive revisions.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>sla_max_delay_minutes</code></td>
+<td style="text-align: left;"><code>IntegerField</code></td>
+<td style="text-align: left;">Maximum tolerable pipeline delay in minutes before warning.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>source_authority</code></td>
+<td style="text-align: left;"><code>CharField(150)</code></td>
+<td style="text-align: left;">Publishing agency (e.g. <code>USDA</code>, <code>EIA</code>, <code>CFTC</code>, <code>NOAA</code>).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>documentation_url</code></td>
+<td style="text-align: left;"><code>URLField</code></td>
+<td style="text-align: left;">Official agency methodology reference URL.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>is_active</code></td>
+<td style="text-align: left;"><code>BooleanField</code></td>
+<td style="text-align: left;">True if dataset is active.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>display_order</code></td>
+<td style="text-align: left;"><code>IntegerField</code></td>
+<td style="text-align: left;">Sorting order in dashboards and tables.</td>
 </tr>
 </tbody>
 </table>
