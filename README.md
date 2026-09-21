@@ -57,6 +57,7 @@ The architecture enforces a strict mathematical pipeline where deterministic dom
 * **Physical Commodity Master**: Canonical specifications for 23 physical benchmark commodities across 7 sectors, including chemical grade standards, delivery hubs, and crop seasonality.
 * **Multi-Venue Fungibility & Liquidity Filtering**: Maps cross-exchange listings with localized lot sizes and currency quotes, tracking ADV and Open Interest to isolate active liquidity.
 * **Futures & Contract Master (Phase 5)**: Canonical derivative specifications, standard commodity month codes (F-Z), institutional expiry date calculation, and benchmark index roll schedules (GSCI, BCOM).
+* **Dataset Master & Catalog (Phase 6)**: Canonical registry of 23 benchmark datasets, multi-asset commodity linkages, update cadences, ingestion modes, and pipeline SLAs.
 * **Real-Time Intelligence Terminal**: High-density dark-theme surveillance dashboard displaying operational telemetry, database health, pipeline metrics, and system diagnostics.
 * **High-Performance REST API Suite**: Production-grade endpoints for metadata, exchanges, commodities, contract specifications, and forward delivery cycles with rich filtering.
 * **Fact-Anchored LLM Market Narratives**: Evidence-linked commentary engine anchoring generative narrative synthesis directly to quantitative features and official data releases.

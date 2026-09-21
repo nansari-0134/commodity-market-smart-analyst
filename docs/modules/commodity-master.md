@@ -2,6 +2,11 @@
 
 The `apps/commodities` module establishes the canonical catalog of global physical commodities, deliverable grade chemistry specifications, pricing hub infrastructure, crop year seasonality profiles, and multi-venue exchange listings.
 
+!!! tip "Looking for Financial Futures & Derivative Contract Specifications?"
+    This document covers the canonical **physical underlying commodity** definitions (chemical grades, physical delivery hubs, and multi-exchange listings).
+    
+    For exchange-traded derivative contract specifications (symbols, contract sizes, tick values, standard trading month codes F–Z, and algorithmic expiry date calculation rules), see the [Futures & Contract Specifications](contracts-and-derivatives.md) module.
+
 ---
 
 ## 1. Domain Concept & Architectural Role

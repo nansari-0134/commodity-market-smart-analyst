@@ -18,6 +18,8 @@ urlpatterns = [
     path("api/commodities/", include("apps.commodities.urls")),
     # Futures & Derivative Contract Master
     path("api/contracts/", include("apps.contracts.urls")),
+    # Dataset Master Catalog
+    path("api/datasets/", include("apps.datasets.urls")),
     # Main terminal / intelligence dashboard
     path("", include("apps.dashboard.urls")),
 ]

@@ -20,6 +20,7 @@ def index(request):
     from apps.exchanges.models import ExchangeMaster, ExchangeTradingSession, ExchangeHoliday
     from apps.commodities.models import CommodityMaster, CommodityExchangeListing
     from apps.contracts.models import ContractSpecification, ContractExpiry
+    from apps.datasets.models import DatasetMaster
 
     phases = [
         {"id": "Phase 1", "name": "Django + PostgreSQL Foundation", "status": "ACTIVE / VERIFIED"},
@@ -27,7 +28,7 @@ def index(request):
         {"id": "Phase 3", "name": "Exchange Master", "status": "ACTIVE / VERIFIED"},
         {"id": "Phase 4", "name": "Commodity Master", "status": "ACTIVE / VERIFIED"},
         {"id": "Phase 5", "name": "Product / Instrument / Contract Master", "status": "ACTIVE / VERIFIED"},
-        {"id": "Phase 6", "name": "Dataset Master", "status": "PENDING"},
+        {"id": "Phase 6", "name": "Dataset Master", "status": "ACTIVE / VERIFIED"},
         {"id": "Phase 7", "name": "Variable Master", "status": "PENDING"},
         {"id": "Phase 8", "name": "Source / Provider Master", "status": "PENDING"},
         {"id": "Phase 9", "name": "Endpoint & API Metadata", "status": "PENDING"},
@@ -57,6 +58,7 @@ def index(request):
     listing_count = CommodityExchangeListing.objects.filter(is_active=True).count()
     contract_spec_count = ContractSpecification.objects.filter(is_active=True).count()
     contract_expiry_count = ContractExpiry.objects.filter(is_active=True).count()
+    dataset_count = DatasetMaster.objects.filter(is_active=True).count()
 
     context = {
         "page_title": "Terminal Overview",
@@ -77,5 +79,6 @@ def index(request):
         "listing_count": listing_count,
         "contract_spec_count": contract_spec_count,
         "contract_expiry_count": contract_expiry_count,
+        "dataset_count": dataset_count,
     }
     return render(request, "dashboard/index.html", context)
