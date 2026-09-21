@@ -12,9 +12,6 @@
   <a href="https://nansari-0134.github.io/commodity-market-smart-analyst/">
     <img src="https://img.shields.io/badge/Documentation-Live%20MkDocs%20Site-2563eb?style=for-the-badge&logo=materialformkdocs&logoColor=white" alt="Live Documentation" />
   </a>
-  <img src="https://img.shields.io/badge/Tests-27%2F27%20Passing-10b981?style=for-the-badge&logo=pytest&logoColor=white" alt="Tests" />
-  <img src="https://img.shields.io/badge/Django-5.2-092e20?style=for-the-badge&logo=django&logoColor=white" alt="Django" />
-  <img src="https://img.shields.io/badge/Python-3.11-3776ab?style=for-the-badge&logo=python&logoColor=white" alt="Python" />
 </p>
 
 <p align="center">
@@ -27,117 +24,72 @@
 
 > [!WARNING]
 > **Regulatory Notice & Standard Disclaimer**:
-> This platform is strictly an analytical research, quantitative workflow, and market surveillance tool. It does **NOT** provide financial advice, investment recommendations, buy/sell signals, or "trading calls." All market models, forward curves, balance sheets, and LLM-generated narratives are for institutional informational and workflow automation purposes only.
+> This platform is strictly an analytical research, quantitative workflow, and market surveillance tool. It does **NOT** provide financial advice, investment recommendations, buy/sell signals, or "trading calls." All market models, forward curves, balance sheets, and LLM-generated narratives are for institutional informational and workflow automation purposes only. Trading physical commodities, futures, and derivatives involves substantial risk of loss.
 
 ---
 
-## System Overview
+## Features of the System
 
-This platform is an institutional-grade quantitative intelligence and narrative automation system designed for global physical commodities and financial derivatives.
+### 1. Pluggable & Source-Agnostic Provider Architecture
+* **Strategy + Factory Pattern**: Core database schemas, business logic, REST APIs, and quant models are strictly decoupled from external data vendors.
+* **Normalized Data Transfer Objects (DTOs)**: All feeds return strongly-typed dataclasses, eliminating vendor dictionary leaks across the application.
+* **Zero-Friction Provider Swapping**: Change or plug in external data providers (e.g. CME Datamine, Bloomberg, Refinitiv, Argus, Platts, ICE) by updating `.env` configuration without modifying downstream code.
+* **Deterministic Fallback Engine**: Built-in offline caches ensure zero downtime during network failures and provide 100% offline testing capabilities.
 
-```mermaid
-graph TD
-    A[External Data Providers<br/>Exchanges, Gov APIs, Weather, News] --> B[Pluggable Provider Adapters & ETL]
-    B --> C[Core Data Layer<br/>Metadata, Exchanges, Commodities, Contracts]
-    C --> D[Quantitative Analytics Engine<br/>Curves, Spreads, Seasonality, Volatility]
-    D --> E[LLM Narrative Engine<br/>Prompt Architecture, Market Commentary]
-    E --> F[Delivery & User Interface<br/>REST APIs, Intelligence Terminal Dashboard]
-```
+### 2. Point-in-Time Correctness & Anti-Lookahead Bias
+* **Availability Tracking**: Every market observation, agency report, and balance sheet tracks `as_of_date`, `published_at`, and `ingested_at` via `PointInTimeModel`.
+* **Revision History Preservation**: Preserves preliminary, revised, and superseded states for government releases (USDA WASDE, EIA Weekly Petroleum, CFTC Commitments of Traders).
+* **Backtesting Integrity**: Eliminates hindsight bias by guaranteeing quantitative models only access data that was factually available at the exact historical decision timestamp.
 
-### The 4 Core Architectural Directives
-1. **Source Independence (Pluggable Adapters)**: Business logic, database schemas, and analytics are strictly agnostic to external data vendors. All feeds connect via Strategy + Factory interfaces (`BaseProvider`).
-2. **Point-in-Time Correctness (Zero Lookahead Bias)**: Data ingestion, government balance sheets (WASDE, EIA), and revisions preserve exact observation and publication timestamps via `PointInTimeModel`.
-3. **Deterministic Mathematics Before LLM Reasoning**: Forward curves, crack/crush spreads, carrying charges, and unit conversions (`UnitMaster.convert_to()`) are computed deterministically. The LLM reasons over verified facts.
-4. **Institutional Precision**: Models ISO 10383 Market Identifier Codes (MICs), IANA timezones, exchange holiday trading vs. settlement rules, and physical deliverable chemistry standards.
+### 3. Deterministic Mathematics & Strict Unit Conversion Engine
+* **45 Canonical Units of Measure**: Comprehensive catalog covering volume (BBL, MCF, BCF, GAL), mass (MT, KG, LB, BU, CWT, TOZ, BALES), energy (MMBTU, MWH, THERM, BOE), currencies, and pricing conventions (USD/bbl, USC/bu, USC/lb, USD/t, USD/oz t).
+* **Strict Dimensional Math**: Mathematical conversion engine (`UnitMaster.convert_to()`) enforces dimensional compatibility and raises exceptions on invalid conversions (e.g. mass to energy without conversion factors).
+* **Quantitative Precedence**: Spreads, forward curves, carrying charges, and supply/demand balances are computed deterministically before any qualitative LLM reasoning occurs.
 
----
+### 4. Institutional Exchange Venues & Trading Calendars
+* **15 Global Execution Venues**: Canonical modeling across 9 jurisdictions including CME, NYMEX, COMEX, CBOT, ICE Futures U.S., ICE Futures Europe, LME, EEX, Bursa Malaysia (BMD), B3 Brasil, MCX India, SGX Singapore, SHFE, DCE, and ICE Abu Dhabi (IFAD).
+* **ISO Standards Compliance**: Fully validated ISO 10383 Market Identifier Codes (MICs), IANA standard timezones, and ISO 3166-1 country codes.
+* **Operational Sessions & Settlement Windows**: Models 18 distinct operating sessions, open outcry rings, electronic trading hours, and official daily settlement windows.
+* **Sophisticated Holiday Calendar Engine**:
+  * Distinguishes civic bank holidays from market trading operations (e.g., US futures trade normally on Columbus Day and Veterans Day).
+  * Implements astronomical algorithms (Meeus/Jones/Butcher) for Good Friday dark days.
+  * Models electronic trading without settlement (trade dates rolling into next business day), early close sessions (Black Friday, Christmas Eve), and split-session markets (MCX morning closed, evening open).
 
-## Phased Roadmap & Current Status
+### 5. Canonical Physical Commodity Master
+* **23 Benchmark Assets Across 7 Sectors**: Complete physical specifications spanning Energy, Grains & Oilseeds, Soft Commodities, Base Metals, Precious Metals, Livestock, and Environmental Carbon Allowances.
+* **Deliverable Grade Chemistry Standards**: Detailed chemical and physical quality thresholds (API gravity ranges, maximum sulfur content, grain moisture limits, minimum test weights, and precious metal purity standards).
+* **Delivery Infrastructure & Hubs**: Benchmark physical delivery points, pipeline interconnects, seaport marine terminals, and exchange-licensed vault networks (e.g., Cushing OK, Henry Hub LA, ARA Ports, New York Vaults).
+* **Crop & Production Seasonality**: Tracks crop marketing year start months, peak harvest windows, seasonal demand surges, and structural basis tendencies.
 
-| Phase | Subsystem Module | Scope & Key Capabilities | Status | Documentation |
-| :---: | :--- | :--- | :---: | :---: |
-| **01** | **Core Infrastructure** | Django 5.2, PostgreSQL, Celery/Redis, Point-in-Time Models, Health APIs | :white_check_mark: Active | [Architecture](https://nansari-0134.github.io/commodity-market-smart-analyst/modules/core-infrastructure/) |
-| **02** | **Metadata Taxonomy & Units** | 34 Data Domains, 45 Units of Measure, Deterministic Math Engine, 15 Frequencies | :white_check_mark: Active | [Taxonomy](https://nansari-0134.github.io/commodity-market-smart-analyst/modules/taxonomy-and-units/) |
-| **03** | **Exchanges & Calendars** | 15 Global Venues, 18 Sessions, Civic vs. Trading Calendars, Settlement Roll Rules | :white_check_mark: Active | [Exchange Master](https://nansari-0134.github.io/commodity-market-smart-analyst/modules/exchanges-and-calendars/) |
-| **04** | **Commodity Master** | 23 Benchmark Assets, 44 Multi-Exchange Listings, Chemistry Standards, Hubs | :white_check_mark: Active | [Commodity Master](https://nansari-0134.github.io/commodity-market-smart-analyst/modules/commodity-master/) |
-| **05** | **Futures & Derivatives** | Contract Specifications, Expiry Engine (F-Z), Active Expiries, Roll Schedules | :construction: **Current** | [Contracts](https://nansari-0134.github.io/commodity-market-smart-analyst/api/contracts/) |
-| **06** | **Dataset Master** | Dataset Catalog, Update Cadences, Data Contracts, Ingestion Schedulers | :soon: Planned | Planned |
-| **07** | **Variable Master** | Standard Variable Catalog, Transformation Rules | :soon: Planned | Planned |
-| **08** | **Provider Master** | Vendor Directory, Credential Vault, Rate Limiting, Failover Priority | :soon: Planned | Planned |
-| **09** | **Endpoint & API Metadata** | Provider Endpoint Schemas, HTTP Parameter Mappings | :soon: Planned | Planned |
-| **10** | **Data Contracts** | Schema Validation Rules, Nullability, Tolerances, Ingestion Alerts | :soon: Planned | Planned |
-| **11+**| **Quant & LLM Engines** | Forward Curves, Balance Sheets, Knowledge Graph, RAG, Market Narratives | :soon: Planned | Planned |
+### 6. Multi-Exchange Fungibility & Liquidity Surveillance
+* **Cross-Market Asset Mapping**: Tracks the same physical commodity trading across multiple global exchanges (e.g. Gold on COMEX, MCX India, and SHFE Shanghai; WTI Crude on NYMEX and MCX; Copper on LME, COMEX, SHFE, and MCX).
+* **Venue-Specific Contract Specifications**: Models localized contract lot sizes, trading currencies (USD, INR, CNY, EUR, MYR, BRL), and settlement mechanisms (Physical delivery vs. Cash index settlement).
+* **Active Liquidity Filtering**: Incorporates Average Daily Volume (ADV) and Open Interest (OI) metrics to track meaningful liquidity and filter out dormant or illiquid contracts.
 
----
+### 7. High-Performance REST API Suite
+* **Filterable Endpoints**: Fully structured endpoints for commodities, exchange listings, trading calendars, data domains, and units of measure.
+* **Multi-Dimensional Querying**: Query by sector, commodity group, exchange venue, settlement method, or free-text search.
+* **Diagnostics & Summaries**: High-level statistical summaries providing sector distributions, settlement splits, and venue contract rankings.
 
-## Interactive REST API Directory
+### 8. Real-Time Terminal Dashboard Console
+* **Institutional Aesthetics**: Dark-mode Bloomberg/Refinitiv-inspired interface optimized for high-density market surveillance.
+* **Operational Telemetry**: Live indicators for database connectivity, point-in-time integrity status, active roadmap progress, and venue/asset counters.
+* **10-Stage Quantitative Pipeline Flow**: Visual representation of the end-to-end data pipeline from raw ingestion to LLM market narrative generation.
 
-| Domain | Endpoint | Method | Key Capabilities |
-| :--- | :--- | :---: | :--- |
-| **Commodity Catalog** | `/api/commodities/` | `GET` | Paginated catalog with sector, group, settlement, and venue filters. |
-| **Commodity Profile** | `/api/commodities/{code}/` | `GET` | Full profile with deliverable chemistry, delivery hubs, and multi-venue listings. |
-| **Exchange Listings** | `/api/commodities/{code}/listings/` | `GET` | Active multi-exchange contracts with daily volume and open interest. |
-| **Commodity Summary** | `/api/commodities/summary/` | `GET` | Statistical overview by sector, physical vs. cash split, and venue rankings. |
-| **Exchange Venues** | `/api/exchanges/` | `GET` | 15 Global exchanges (CME, NYMEX, COMEX, ICE, LME, BMD, MCX, SGX, etc.). |
-| **Exchange Calendars** | `/api/exchanges/{code}/is-trading-day/` | `GET` | Real-time diagnostic evaluation of trading vs settlement status. |
-| **Data Domains** | `/api/metadata/domains/` | `GET` | 34 Canonical commodity domains with parent-child hierarchy. |
-| **Units of Measure** | `/api/metadata/units/` | `GET` | 45 Physical and financial units with mathematical conversion factors. |
-| **System Diagnostics** | `/api/health/` | `GET` | Live PostgreSQL/database connectivity and engine health probe. |
+### 9. Evidence-Linked LLM Market Narrative Engine (Architecture)
+* **Fact-Anchored Intelligence**: The LLM operates strictly on top of verified mathematical features, forward curve slopes, and point-in-time balance sheets.
+* **Audit Trail & Citation**: Every narrative claim or market commentary links directly to underlying quantitative data, normalized sources, and timestamped releases.
+* **Deterministic Guardrails**: Replaces hallucination-prone financial LLM reasoning with deterministic feature extraction and scenario modeling.
 
-*Full API documentation with interactive cURL and Python code snippets is available at the [REST API Reference](https://nansari-0134.github.io/commodity-market-smart-analyst/api/overview/).*
-
----
-
-## Local Development & Operations
-
-### 1. Prerequisites & Environment Setup
-```powershell
-# Clone the repository
-git clone https://github.com/nansari-0134/commodity-market-smart-analyst.git
-cd commodity-market-smart-analyst
-
-# Activate virtual environment
-.\.venv\Scripts\Activate.ps1
-```
-
-### 2. Database Migrations & Data Seeding
-```powershell
-# Apply database migrations
-python manage.py migrate
-
-# Seed canonical master data
-python manage.py seed_metadata      # Phase 2: 34 Domains, 45 Units, 15 Frequencies
-python manage.py seed_exchanges     # Phase 3: 15 Venues, 18 Sessions, Calendars
-python manage.py seed_commodities   # Phase 4: 23 Commodities, 44 Multi-Venue Listings
-```
-
-### 3. Run Development Servers
-```powershell
-# Start Django Terminal Dashboard (http://127.0.0.1:8000)
-python manage.py runserver 127.0.0.1:8000
-
-# Start Local MkDocs Documentation with Live Reload (http://127.0.0.1:8001)
-mkdocs serve --dev-addr 127.0.0.1:8001
-```
-
-### 4. Automated Testing
-```powershell
-# Run the complete test suite (27 passing tests)
-pytest tests/ -v
-```
+### 10. Comprehensive Documentation Suite
+* **MkDocs Material Architecture**: Production-grade documentation site deployed to GitHub Pages with clean typography and corporate branding.
+* **Interactive Code Examples**: Every REST endpoint includes interactive tabs with copyable cURL commands and Python `requests` code snippets.
+* **Developer Integration Guides**: Comprehensive tutorials explaining how to add new data providers, execute database migrations, and run automated test suites.
 
 ---
 
-## Documentation Deployment
-
-The documentation site is built with MkDocs Material and automatically deployed to GitHub Pages:
-
-```powershell
-# Verify strict documentation build (0 broken links, 0 warnings)
-mkdocs build --strict
-
-# Deploy to GitHub Pages
-mkdocs gh-deploy
-```
-
-Live documentation URL: **[https://nansari-0134.github.io/commodity-market-smart-analyst/](https://nansari-0134.github.io/commodity-market-smart-analyst/)**
+<p align="center">
+  <a href="https://nansari-0134.github.io/commodity-market-smart-analyst/">
+    <strong>Explore the Complete Architecture & Live Interactive API Documentation →</strong>
+  </a>
+</p>
