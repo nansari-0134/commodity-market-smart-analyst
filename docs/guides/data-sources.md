@@ -225,7 +225,71 @@ The database models, REST endpoints, and UI dashboard update automatically with 
 
 ---
 
-## 5. Universal Provider Registry Across All System Modules
+## 5. Case Study 3: Swapping Contract Specifications & Derivative Reference Provider (`apps/contracts`)
+
+Derivative contract specifications and delivery cycle schedules are managed via `BaseContractSpecProvider` in `apps/contracts/providers/base.py`.
+
+### Step 1: Implement `BaseContractSpecProvider`
+Create your adapter class in `apps/contracts/providers/` (e.g. `cme_datamine_contracts.py`):
+
+```python
+from decimal import Decimal
+from typing import List, Optional
+from apps.contracts.providers.base import BaseContractSpecProvider, RawContractSpec
+
+class CMEDatamineContractProvider(BaseContractSpecProvider):
+    """Fetches futures contract specifications from CME Datamine Reference API."""
+
+    def __init__(self, api_key: str = ""):
+        self.api_key = api_key
+
+    def get_specifications(self) -> List[RawContractSpec]:
+        # 1. Fetch specifications from remote endpoint
+        # 2. Normalize into strongly typed RawContractSpec DTOs
+        return [
+            RawContractSpec(
+                commodity_code="CL",
+                exchange_mic="XNYM",
+                symbol_root="CL",
+                name="Light Sweet Crude Oil (WTI) Futures",
+                contract_size=Decimal("1000.0"),
+                contract_unit_code="BBL",
+                price_quote_unit_code="USD_BBL",
+                minimum_tick_size=Decimal("0.01"),
+                tick_value=Decimal("10.00"),
+                trading_currency="USD",
+                instrument_type="FUTURES",
+                settlement_method="PHYSICAL",
+                trading_months="ALL_12",
+                expiry_rule="DAY_OF_PRIOR_MONTH_WITH_BUS_OFFSET",
+                expiry_rule_parameter=25,
+                prompt_cycles_to_seed=12,
+            ),
+        ]
+
+    def get_specification(self, symbol_root: str, exchange_mic: str) -> Optional[RawContractSpec]:
+        for s in self.get_specifications():
+            if s.symbol_root.upper() == symbol_root.upper() and s.exchange_mic.upper() == exchange_mic.upper():
+                return s
+        return None
+```
+
+### Step 2: Register in `providers/factory.py` & `.env`
+Update `apps/contracts/providers/factory.py` or specify the dotted path in `.env`:
+```bash
+CONTRACT_SPEC_PROVIDER="apps.contracts.providers.cme_datamine_contracts.CMEDatamineContractProvider"
+CME_DATAMINE_API_KEY="your-cme-api-key"
+```
+
+### Step 3: Run the Contract Seeder
+```powershell
+python manage.py seed_contracts
+```
+The command automatically instantiates the provider, normalizes contract specs, and runs the `ContractExpiryService` algorithm to calculate exact prompt delivery schedules without code modifications.
+
+---
+
+## 6. Universal Provider Registry Across All System Modules
 
 We apply this exact pluggable architecture across every data domain in the 40-phase platform:
 
@@ -233,7 +297,7 @@ We apply this exact pluggable architecture across every data domain in the 40-ph
 | :--- | :--- | :--- | :--- | :--- |
 | **Exchange Holidays** | `apps/exchanges` | Nager.Date API | `BaseHolidayProvider` | Bloomberg SIFMA, Refinitiv, CME Direct |
 | **Commodity Specifications** | `apps/commodities` | Static Reference Master | `BaseCommodityCatalogProvider` | Exchange Product Directories |
-| **Futures Reference Specs** | `apps/contracts` | Canonical Specs | `BaseContractSpecProvider` | CME Datamine, ICE Reference Data |
+| **Futures Reference Specs** | `apps/contracts` | Static Canonical Catalog | `BaseContractSpecProvider` | CME Datamine, ICE Reference Data |
 | **Market Data (OHLCV)** | `apps/market_data` | Public / Open Market Feed | `BaseMarketDataProvider` | B-PIPE, Refinitiv Real-Time, Polygon |
 | **CFTC COT Positioning** | `apps/positioning` | CFTC Socrata API | `BaseCOTProvider` | CFTC Bulk FTP, Bloomberg COT |
 | **Weather & Climate** | `apps/weather` | NOAA / Open-Meteo | `BaseWeatherProvider` | ECMWF, Copernicus, Maxar Weather |
@@ -241,13 +305,14 @@ We apply this exact pluggable architecture across every data domain in the 40-ph
 
 ---
 
-## 5. Developer Checklist for Adding Any New Data Provider
+## 7. Developer Checklist for Adding Any New Data Provider
 
 Before committing a new provider adapter to the codebase, verify:
 
 - [ ] **Contract Compliance**: Does your class inherit from the domain's `BaseProvider`?
-- [ ] **Deterministic Output**: Does it return normalized DTOs (`RawHolidayRecord`, `RawPriceBar`, etc.) rather than raw vendor JSON?
+- [ ] **Deterministic Output**: Does it return normalized DTOs (`RawHolidayRecord`, `RawContractSpec`, `RawPriceBar`, etc.) rather than raw vendor JSON?
 - [ ] **Timezone Normalization**: Are all timestamps converted to UTC before returning?
 - [ ] **Graceful Exception Handling**: Does it catch `httpx.RequestError` or timeout exceptions and avoid crashing the main thread?
 - [ ] **Config Switchable**: Can the system switch back and forth between providers by simply altering `.env`?
 - [ ] **Unit Tests**: Have you added mock tests verifying the parser against sample vendor JSON payloads?
+

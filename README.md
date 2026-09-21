@@ -28,63 +28,39 @@
 
 ---
 
+## System Description
+
+The **Commodity Market Intelligence & Quantitative Platform** is an enterprise-grade quantitative research, physical commodity surveillance, forward curve analytics, and AI-driven narrative intelligence platform. Built on strict institutional principles, the system models global physical commodities, derivative contract specifications, multi-venue exchange liquidity, and macroeconomic supply/demand fundamentals. 
+
+The architecture enforces a strict mathematical pipeline where deterministic domain logic, dimensional unit conversion, and calendar math strictly precede any qualitative AI reasoning. External data vendor independence is guaranteed through pluggable provider adapters, and point-in-time publication tracking eliminates hindsight and lookahead bias across all research and backtesting workflows.
+
+---
+
+## What It Is Capable Of
+
+* **Multi-Asset & Multi-Venue Normalization**: Harmonizing heterogeneous physical commodity specifications, delivery hubs, chemical grade thresholds, and trading units across major global exchanges (CME, NYMEX, CBOT, ICE, LME, BMD, MCX, SGX, SHFE).
+* **Deterministic Forward Curve & Term Structure Modeling**: Generating continuous forward curves, term structure spreads, calendar rolls, and seasonal basis analysis without lookahead bias.
+* **Complex Expiry & Calendar Arithmetic**: Computing exact contract last trading days, notice days, and physical/cash settlement dates based on exchange holiday rules and astro-financial dark days (e.g. Good Friday, holiday shifts).
+* **Multi-Exchange Fungibility & Arbitrage Surveillance**: Tracking cross-listed physical assets, pricing unit conversions, and monitoring liquid vs illiquid contracts using ADV (Average Daily Volume) and Open Interest (OI) metrics.
+* **Strict Dimensional Unit Conversion**: Deterministically executing mathematical transformations across mass, volume, energy, and currency dimensions before data feeds into analytics models.
+* **Evidence-Linked AI Narrative Generation**: Generating macroeconomic market summaries and executive briefings where every qualitative LLM claim is linked to verifiable quantitative metrics, historical releases, and audit trails.
+* **Vendor-Agnostic Extensibility**: Ingesting market and fundamental data from any vendor (CME Datamine, ICE, Bloomberg, Refinitiv, USDA, EIA) via swappable provider contracts without changing database schemas or analytical engines.
+
+---
+
 ## Features of the System
 
-### 1. Pluggable & Source-Agnostic Provider Architecture
-* **Strategy + Factory Pattern**: Core database schemas, business logic, REST APIs, and quant models are strictly decoupled from external data vendors.
-* **Normalized Data Transfer Objects (DTOs)**: All feeds return strongly-typed dataclasses, eliminating vendor dictionary leaks across the application.
-* **Zero-Friction Provider Swapping**: Change or plug in external data providers (e.g. CME Datamine, Bloomberg, Refinitiv, Argus, Platts, ICE) by updating `.env` configuration without modifying downstream code.
-* **Deterministic Fallback Engine**: Built-in offline caches ensure zero downtime during network failures and provide 100% offline testing capabilities.
-
-### 2. Point-in-Time Correctness & Anti-Lookahead Bias
-* **Availability Tracking**: Every market observation, agency report, and balance sheet tracks `as_of_date`, `published_at`, and `ingested_at` via `PointInTimeModel`.
-* **Revision History Preservation**: Preserves preliminary, revised, and superseded states for government releases (USDA WASDE, EIA Weekly Petroleum, CFTC Commitments of Traders).
-* **Backtesting Integrity**: Eliminates hindsight bias by guaranteeing quantitative models only access data that was factually available at the exact historical decision timestamp.
-
-### 3. Deterministic Mathematics & Strict Unit Conversion Engine
-* **45 Canonical Units of Measure**: Comprehensive catalog covering volume (BBL, MCF, BCF, GAL), mass (MT, KG, LB, BU, CWT, TOZ, BALES), energy (MMBTU, MWH, THERM, BOE), currencies, and pricing conventions (USD/bbl, USC/bu, USC/lb, USD/t, USD/oz t).
-* **Strict Dimensional Math**: Mathematical conversion engine (`UnitMaster.convert_to()`) enforces dimensional compatibility and raises exceptions on invalid conversions (e.g. mass to energy without conversion factors).
-* **Quantitative Precedence**: Spreads, forward curves, carrying charges, and supply/demand balances are computed deterministically before any qualitative LLM reasoning occurs.
-
-### 4. Institutional Exchange Venues & Trading Calendars
-* **15 Global Execution Venues**: Canonical modeling across 9 jurisdictions including CME, NYMEX, COMEX, CBOT, ICE Futures U.S., ICE Futures Europe, LME, EEX, Bursa Malaysia (BMD), B3 Brasil, MCX India, SGX Singapore, SHFE, DCE, and ICE Abu Dhabi (IFAD).
-* **ISO Standards Compliance**: Fully validated ISO 10383 Market Identifier Codes (MICs), IANA standard timezones, and ISO 3166-1 country codes.
-* **Operational Sessions & Settlement Windows**: Models 18 distinct operating sessions, open outcry rings, electronic trading hours, and official daily settlement windows.
-* **Sophisticated Holiday Calendar Engine**:
-  * Distinguishes civic bank holidays from market trading operations (e.g., US futures trade normally on Columbus Day and Veterans Day).
-  * Implements astronomical algorithms (Meeus/Jones/Butcher) for Good Friday dark days.
-  * Models electronic trading without settlement (trade dates rolling into next business day), early close sessions (Black Friday, Christmas Eve), and split-session markets (MCX morning closed, evening open).
-
-### 5. Canonical Physical Commodity Master
-* **23 Benchmark Assets Across 7 Sectors**: Complete physical specifications spanning Energy, Grains & Oilseeds, Soft Commodities, Base Metals, Precious Metals, Livestock, and Environmental Carbon Allowances.
-* **Deliverable Grade Chemistry Standards**: Detailed chemical and physical quality thresholds (API gravity ranges, maximum sulfur content, grain moisture limits, minimum test weights, and precious metal purity standards).
-* **Delivery Infrastructure & Hubs**: Benchmark physical delivery points, pipeline interconnects, seaport marine terminals, and exchange-licensed vault networks (e.g., Cushing OK, Henry Hub LA, ARA Ports, New York Vaults).
-* **Crop & Production Seasonality**: Tracks crop marketing year start months, peak harvest windows, seasonal demand surges, and structural basis tendencies.
-
-### 6. Multi-Exchange Fungibility & Liquidity Surveillance
-* **Cross-Market Asset Mapping**: Tracks the same physical commodity trading across multiple global exchanges (e.g. Gold on COMEX, MCX India, and SHFE Shanghai; WTI Crude on NYMEX and MCX; Copper on LME, COMEX, SHFE, and MCX).
-* **Venue-Specific Contract Specifications**: Models localized contract lot sizes, trading currencies (USD, INR, CNY, EUR, MYR, BRL), and settlement mechanisms (Physical delivery vs. Cash index settlement).
-* **Active Liquidity Filtering**: Incorporates Average Daily Volume (ADV) and Open Interest (OI) metrics to track meaningful liquidity and filter out dormant or illiquid contracts.
-
-### 7. High-Performance REST API Suite
-* **Filterable Endpoints**: Fully structured endpoints for commodities, exchange listings, trading calendars, data domains, and units of measure.
-* **Multi-Dimensional Querying**: Query by sector, commodity group, exchange venue, settlement method, or free-text search.
-* **Diagnostics & Summaries**: High-level statistical summaries providing sector distributions, settlement splits, and venue contract rankings.
-
-### 8. Real-Time Terminal Dashboard Console
-* **Institutional Aesthetics**: Dark-mode Bloomberg/Refinitiv-inspired interface optimized for high-density market surveillance.
-* **Operational Telemetry**: Live indicators for database connectivity, point-in-time integrity status, active roadmap progress, and venue/asset counters.
-* **10-Stage Quantitative Pipeline Flow**: Visual representation of the end-to-end data pipeline from raw ingestion to LLM market narrative generation.
-
-### 9. Evidence-Linked LLM Market Narrative Engine (Architecture)
-* **Fact-Anchored Intelligence**: The LLM operates strictly on top of verified mathematical features, forward curve slopes, and point-in-time balance sheets.
-* **Audit Trail & Citation**: Every narrative claim or market commentary links directly to underlying quantitative data, normalized sources, and timestamped releases.
-* **Deterministic Guardrails**: Replaces hallucination-prone financial LLM reasoning with deterministic feature extraction and scenario modeling.
-
-### 10. Comprehensive Documentation Suite
-* **MkDocs Material Architecture**: Production-grade documentation site deployed to GitHub Pages with clean typography and corporate branding.
-* **Interactive Code Examples**: Every REST endpoint includes interactive tabs with copyable cURL commands and Python `requests` code snippets.
-* **Developer Integration Guides**: Comprehensive tutorials explaining how to add new data providers, execute database migrations, and run automated test suites.
+* **Pluggable Provider Architecture**: Implements Strategy + Factory patterns with strongly-typed Data Transfer Objects (DTOs), enabling zero-friction data vendor swapping and offline resilience.
+* **Point-in-Time Correctness**: Tracks observation timestamps, publication dates, and ingestion audit trails via `PointInTimeModel` to guarantee zero lookahead bias in quantitative research.
+* **Deterministic Unit Conversion Engine**: Provides 45 canonical units of measure (energy, mass, volume, currency) with strict dimensional validation (`UnitMaster.convert_to()`) prior to AI reasoning.
+* **Global Exchange & Calendar Engine**: Canonical modeling for 15 global commodity exchanges, 18 operating sessions, civic vs trading holidays, and astronomical settlement date roll rules.
+* **Physical Commodity Master**: Canonical specifications for 23 physical benchmark commodities across 7 sectors, including chemical grade standards, delivery hubs, and crop seasonality.
+* **Multi-Venue Fungibility & Liquidity Filtering**: Maps cross-exchange listings with localized lot sizes and currency quotes, tracking ADV and Open Interest to isolate active liquidity.
+* **Futures & Contract Master (Phase 5)**: Canonical derivative specifications, standard commodity month codes (F-Z), institutional expiry date calculation, and benchmark index roll schedules (GSCI, BCOM).
+* **Real-Time Intelligence Terminal**: High-density dark-theme surveillance dashboard displaying operational telemetry, database health, pipeline metrics, and system diagnostics.
+* **High-Performance REST API Suite**: Production-grade endpoints for metadata, exchanges, commodities, contract specifications, and forward delivery cycles with rich filtering.
+* **Fact-Anchored LLM Market Narratives**: Evidence-linked commentary engine anchoring generative narrative synthesis directly to quantitative features and official data releases.
+* **Production MkDocs Documentation Suite**: Interactive documentation site deployed to GitHub Pages with interactive cURL/Python API consoles and provider integration guides.
 
 ---
 
