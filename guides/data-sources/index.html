@@ -13,7 +13,7 @@
       
       
       
-        <link rel="prev" href="../../api/exchanges/">
+        <link rel="prev" href="../../api/commodities/">
       
       
         <link rel="next" href="../development/">
@@ -480,6 +480,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/commodity-master/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Commodity Master & Specifications
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -612,6 +640,34 @@
     
   
     Exchanges & Calendars Endpoints
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/commodities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Commodity Catalog Endpoints
   
 
     
@@ -867,10 +923,60 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#4-universal-provider-registry-across-all-system-modules" class="md-nav__link">
+  <a href="#4-case-study-2-swapping-commodity-specifications-provider-appscommodities" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4. Universal Provider Registry Across All System Modules
+        4. Case Study 2: Swapping Commodity Specifications Provider (apps/commodities)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Case Study 2: Swapping Commodity Specifications Provider (apps/commodities)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-implement-basecommoditycatalogprovider" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Implement BaseCommodityCatalogProvider
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-register-in-providersfactorypy-env" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Register in providers/factory.py &amp; .env
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-run-the-seeder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: Run the Seeder
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-universal-provider-registry-across-all-system-modules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Universal Provider Registry Across All System Modules
       
     </span>
   </a>
@@ -1070,10 +1176,60 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#4-universal-provider-registry-across-all-system-modules" class="md-nav__link">
+  <a href="#4-case-study-2-swapping-commodity-specifications-provider-appscommodities" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4. Universal Provider Registry Across All System Modules
+        4. Case Study 2: Swapping Commodity Specifications Provider (apps/commodities)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Case Study 2: Swapping Commodity Specifications Provider (apps/commodities)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-implement-basecommoditycatalogprovider" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Implement BaseCommodityCatalogProvider
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-register-in-providersfactorypy-env" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Register in providers/factory.py &amp; .env
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-run-the-seeder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: Run the Seeder
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-universal-provider-registry-across-all-system-modules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Universal Provider Registry Across All System Modules
       
     </span>
   </a>
@@ -1215,7 +1371,90 @@
 <li><strong>Automatic Circuit Breaker</strong>: When an external provider fails, the system automatically activates the <strong>Deterministic Fallback Engine</strong> (<code>DEFAULT_CORE_HOLIDAYS</code>), ensuring zero downtime in production and 100% offline capability in testing environments.</li>
 </ol>
 <hr />
-<h2 id="4-universal-provider-registry-across-all-system-modules">4. Universal Provider Registry Across All System Modules</h2>
+<h2 id="4-case-study-2-swapping-commodity-specifications-provider-appscommodities">4. Case Study 2: Swapping Commodity Specifications Provider (<code>apps/commodities</code>)</h2>
+<p>The same pluggable provider contract governs physical commodity definitions and multi-venue exchange listings.</p>
+<h3 id="step-1-implement-basecommoditycatalogprovider">Step 1: Implement <code>BaseCommodityCatalogProvider</code></h3>
+<p>Create your adapter class inheriting from <code>BaseCommodityCatalogProvider</code> in <code>apps/commodities/providers/</code> (e.g. <code>cme_provider.py</code>):</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">decimal</span><span class="w"> </span><span class="kn">import</span> <span class="n">Decimal</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">apps.commodities.providers.base</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    <span class="n">BaseCommodityCatalogProvider</span><span class="p">,</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="n">RawCommoditySpec</span><span class="p">,</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    <span class="n">RawExchangeListingSpec</span><span class="p">,</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="p">)</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="k">class</span><span class="w"> </span><span class="nc">CMEDatamineCatalogProvider</span><span class="p">(</span><span class="n">BaseCommodityCatalogProvider</span><span class="p">):</span>
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">    </span><span class="sd">"""Fetches commodity definitions and exchange listings from CME Datamine API."""</span>
+</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>
+</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span><span class="p">):</span>
+</span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">api_key</span> <span class="o">=</span> <span class="n">api_key</span>
+</span><span id="__span-4-14"><a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>
+</span><span id="__span-4-15"><a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_commodities</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">RawCommoditySpec</span><span class="p">]:</span>
+</span><span id="__span-4-16"><a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>        <span class="c1"># 1. Fetch raw JSON payload from external API</span>
+</span><span id="__span-4-17"><a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a>        <span class="c1"># 2. Normalize into canonical RawCommoditySpec and RawExchangeListingSpec DTOs</span>
+</span><span id="__span-4-18"><a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a>        <span class="c1"># 3. Return clean list with zero vendor dictionary leakage</span>
+</span><span id="__span-4-19"><a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a>        <span class="k">return</span> <span class="p">[</span>
+</span><span id="__span-4-20"><a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a>            <span class="n">RawCommoditySpec</span><span class="p">(</span>
+</span><span id="__span-4-21"><a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a>                <span class="n">code</span><span class="o">=</span><span class="s2">"CL"</span><span class="p">,</span>
+</span><span id="__span-4-22"><a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a>                <span class="n">name</span><span class="o">=</span><span class="s2">"Light Sweet Crude Oil (WTI)"</span><span class="p">,</span>
+</span><span id="__span-4-23"><a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a>                <span class="n">sector</span><span class="o">=</span><span class="s2">"ENERGY"</span><span class="p">,</span>
+</span><span id="__span-4-24"><a id="__codelineno-4-24" name="__codelineno-4-24" href="#__codelineno-4-24"></a>                <span class="n">group</span><span class="o">=</span><span class="s2">"CRUDE_OIL"</span><span class="p">,</span>
+</span><span id="__span-4-25"><a id="__codelineno-4-25" name="__codelineno-4-25" href="#__codelineno-4-25"></a>                <span class="n">primary_exchange_code</span><span class="o">=</span><span class="s2">"NYMEX"</span><span class="p">,</span>
+</span><span id="__span-4-26"><a id="__codelineno-4-26" name="__codelineno-4-26" href="#__codelineno-4-26"></a>                <span class="n">base_unit_code</span><span class="o">=</span><span class="s2">"BBL"</span><span class="p">,</span>
+</span><span id="__span-4-27"><a id="__codelineno-4-27" name="__codelineno-4-27" href="#__codelineno-4-27"></a>                <span class="n">pricing_unit_code</span><span class="o">=</span><span class="s2">"USD_BBL"</span><span class="p">,</span>
+</span><span id="__span-4-28"><a id="__codelineno-4-28" name="__codelineno-4-28" href="#__codelineno-4-28"></a>                <span class="n">standard_lot_size</span><span class="o">=</span><span class="n">Decimal</span><span class="p">(</span><span class="s2">"1000.0"</span><span class="p">),</span>
+</span><span id="__span-4-29"><a id="__codelineno-4-29" name="__codelineno-4-29" href="#__codelineno-4-29"></a>                <span class="n">standard_lot_unit_code</span><span class="o">=</span><span class="s2">"BBL"</span><span class="p">,</span>
+</span><span id="__span-4-30"><a id="__codelineno-4-30" name="__codelineno-4-30" href="#__codelineno-4-30"></a>                <span class="n">minimum_tick_size</span><span class="o">=</span><span class="n">Decimal</span><span class="p">(</span><span class="s2">"0.01"</span><span class="p">),</span>
+</span><span id="__span-4-31"><a id="__codelineno-4-31" name="__codelineno-4-31" href="#__codelineno-4-31"></a>                <span class="n">tick_value</span><span class="o">=</span><span class="n">Decimal</span><span class="p">(</span><span class="s2">"10.00"</span><span class="p">),</span>
+</span><span id="__span-4-32"><a id="__codelineno-4-32" name="__codelineno-4-32" href="#__codelineno-4-32"></a>                <span class="n">tick_currency</span><span class="o">=</span><span class="s2">"USD"</span><span class="p">,</span>
+</span><span id="__span-4-33"><a id="__codelineno-4-33" name="__codelineno-4-33" href="#__codelineno-4-33"></a>                <span class="n">settlement_method</span><span class="o">=</span><span class="s2">"PHYSICAL"</span><span class="p">,</span>
+</span><span id="__span-4-34"><a id="__codelineno-4-34" name="__codelineno-4-34" href="#__codelineno-4-34"></a>                <span class="n">deliverable_grade_standard</span><span class="o">=</span><span class="s2">"Light Sweet Crude (API 37°-42°, Sulfur &lt;= 0.42%)"</span><span class="p">,</span>
+</span><span id="__span-4-35"><a id="__codelineno-4-35" name="__codelineno-4-35" href="#__codelineno-4-35"></a>                <span class="n">primary_delivery_hub</span><span class="o">=</span><span class="s2">"Cushing, Oklahoma"</span><span class="p">,</span>
+</span><span id="__span-4-36"><a id="__codelineno-4-36" name="__codelineno-4-36" href="#__codelineno-4-36"></a>                <span class="n">listings</span><span class="o">=</span><span class="p">[</span>
+</span><span id="__span-4-37"><a id="__codelineno-4-37" name="__codelineno-4-37" href="#__codelineno-4-37"></a>                    <span class="n">RawExchangeListingSpec</span><span class="p">(</span>
+</span><span id="__span-4-38"><a id="__codelineno-4-38" name="__codelineno-4-38" href="#__codelineno-4-38"></a>                        <span class="n">exchange_code</span><span class="o">=</span><span class="s2">"NYMEX"</span><span class="p">,</span>
+</span><span id="__span-4-39"><a id="__codelineno-4-39" name="__codelineno-4-39" href="#__codelineno-4-39"></a>                        <span class="n">ticker_symbol</span><span class="o">=</span><span class="s2">"CL"</span><span class="p">,</span>
+</span><span id="__span-4-40"><a id="__codelineno-4-40" name="__codelineno-4-40" href="#__codelineno-4-40"></a>                        <span class="n">contract_size</span><span class="o">=</span><span class="n">Decimal</span><span class="p">(</span><span class="s2">"1000.0"</span><span class="p">),</span>
+</span><span id="__span-4-41"><a id="__codelineno-4-41" name="__codelineno-4-41" href="#__codelineno-4-41"></a>                        <span class="n">contract_unit_code</span><span class="o">=</span><span class="s2">"BBL"</span><span class="p">,</span>
+</span><span id="__span-4-42"><a id="__codelineno-4-42" name="__codelineno-4-42" href="#__codelineno-4-42"></a>                        <span class="n">settlement_method</span><span class="o">=</span><span class="s2">"PHYSICAL"</span><span class="p">,</span>
+</span><span id="__span-4-43"><a id="__codelineno-4-43" name="__codelineno-4-43" href="#__codelineno-4-43"></a>                        <span class="n">is_primary_benchmark</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-4-44"><a id="__codelineno-4-44" name="__codelineno-4-44" href="#__codelineno-4-44"></a>                        <span class="n">typical_daily_volume</span><span class="o">=</span><span class="mi">950000</span><span class="p">,</span>
+</span><span id="__span-4-45"><a id="__codelineno-4-45" name="__codelineno-4-45" href="#__codelineno-4-45"></a>                    <span class="p">),</span>
+</span><span id="__span-4-46"><a id="__codelineno-4-46" name="__codelineno-4-46" href="#__codelineno-4-46"></a>                    <span class="n">RawExchangeListingSpec</span><span class="p">(</span>
+</span><span id="__span-4-47"><a id="__codelineno-4-47" name="__codelineno-4-47" href="#__codelineno-4-47"></a>                        <span class="n">exchange_code</span><span class="o">=</span><span class="s2">"MCX"</span><span class="p">,</span>
+</span><span id="__span-4-48"><a id="__codelineno-4-48" name="__codelineno-4-48" href="#__codelineno-4-48"></a>                        <span class="n">ticker_symbol</span><span class="o">=</span><span class="s2">"CRUDEOIL"</span><span class="p">,</span>
+</span><span id="__span-4-49"><a id="__codelineno-4-49" name="__codelineno-4-49" href="#__codelineno-4-49"></a>                        <span class="n">contract_size</span><span class="o">=</span><span class="n">Decimal</span><span class="p">(</span><span class="s2">"100.0"</span><span class="p">),</span>
+</span><span id="__span-4-50"><a id="__codelineno-4-50" name="__codelineno-4-50" href="#__codelineno-4-50"></a>                        <span class="n">contract_unit_code</span><span class="o">=</span><span class="s2">"BBL"</span><span class="p">,</span>
+</span><span id="__span-4-51"><a id="__codelineno-4-51" name="__codelineno-4-51" href="#__codelineno-4-51"></a>                        <span class="n">settlement_method</span><span class="o">=</span><span class="s2">"CASH"</span><span class="p">,</span>
+</span><span id="__span-4-52"><a id="__codelineno-4-52" name="__codelineno-4-52" href="#__codelineno-4-52"></a>                        <span class="n">trading_currency</span><span class="o">=</span><span class="s2">"INR"</span><span class="p">,</span>
+</span><span id="__span-4-53"><a id="__codelineno-4-53" name="__codelineno-4-53" href="#__codelineno-4-53"></a>                        <span class="n">typical_daily_volume</span><span class="o">=</span><span class="mi">85000</span><span class="p">,</span>
+</span><span id="__span-4-54"><a id="__codelineno-4-54" name="__codelineno-4-54" href="#__codelineno-4-54"></a>                    <span class="p">),</span>
+</span><span id="__span-4-55"><a id="__codelineno-4-55" name="__codelineno-4-55" href="#__codelineno-4-55"></a>                <span class="p">],</span>
+</span><span id="__span-4-56"><a id="__codelineno-4-56" name="__codelineno-4-56" href="#__codelineno-4-56"></a>            <span class="p">)</span>
+</span><span id="__span-4-57"><a id="__codelineno-4-57" name="__codelineno-4-57" href="#__codelineno-4-57"></a>        <span class="p">]</span>
+</span><span id="__span-4-58"><a id="__codelineno-4-58" name="__codelineno-4-58" href="#__codelineno-4-58"></a>
+</span><span id="__span-4-59"><a id="__codelineno-4-59" name="__codelineno-4-59" href="#__codelineno-4-59"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_commodity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">code</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">RawCommoditySpec</span><span class="p">]:</span>
+</span><span id="__span-4-60"><a id="__codelineno-4-60" name="__codelineno-4-60" href="#__codelineno-4-60"></a>        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_commodities</span><span class="p">():</span>
+</span><span id="__span-4-61"><a id="__codelineno-4-61" name="__codelineno-4-61" href="#__codelineno-4-61"></a>            <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">code</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">==</span> <span class="n">code</span><span class="o">.</span><span class="n">upper</span><span class="p">():</span>
+</span><span id="__span-4-62"><a id="__codelineno-4-62" name="__codelineno-4-62" href="#__codelineno-4-62"></a>                <span class="k">return</span> <span class="n">c</span>
+</span><span id="__span-4-63"><a id="__codelineno-4-63" name="__codelineno-4-63" href="#__codelineno-4-63"></a>        <span class="k">return</span> <span class="kc">None</span>
+</span></code></pre></div>
+<h3 id="step-2-register-in-providersfactorypy-env">Step 2: Register in <code>providers/factory.py</code> &amp; <code>.env</code></h3>
+<p>Update <code>apps/commodities/providers/factory.py</code>:
+<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">elif</span> <span class="n">provider_type</span> <span class="o">==</span> <span class="s2">"cme_datamine"</span><span class="p">:</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">.cme_provider</span><span class="w"> </span><span class="kn">import</span> <span class="n">CMEDatamineCatalogProvider</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    <span class="k">return</span> <span class="n">CMEDatamineCatalogProvider</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">CME_DATAMINE_API_KEY</span><span class="p">)</span>
+</span></code></pre></div></p>
+<p>In <code>.env</code>:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nv">COMMODITY_CATALOG_PROVIDER</span><span class="o">=</span><span class="s2">"cme_datamine"</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="nv">CME_DATAMINE_API_KEY</span><span class="o">=</span><span class="s2">"your-api-key"</span>
+</span></code></pre></div></p>
+<h3 id="step-3-run-the-seeder">Step 3: Run the Seeder</h3>
+<p><div class="language-powershell highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">python</span> <span class="n">manage</span><span class="p">.</span><span class="n">py</span> <span class="n">seed_commodities</span>
+</span></code></pre></div>
+The database models, REST endpoints, and UI dashboard update automatically with zero code changes.</p>
+<hr />
+<h2 id="5-universal-provider-registry-across-all-system-modules">5. Universal Provider Registry Across All System Modules</h2>
 <p>We apply this exact pluggable architecture across every data domain in the 40-phase platform:</p>
 <table>
 <thead>

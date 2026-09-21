@@ -13,7 +13,7 @@
       
       
       
-        <link rel="prev" href="../../modules/exchanges-and-calendars/">
+        <link rel="prev" href="../../modules/commodity-master/">
       
       
         <link rel="next" href="../metadata/">
@@ -480,6 +480,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/commodity-master/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Commodity Master & Specifications
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -723,6 +751,34 @@
     
   
     Exchanges & Calendars Endpoints
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../commodities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Commodity Catalog Endpoints
   
 
     
@@ -1118,6 +1174,36 @@
 <td style="text-align: left;"><a href="../exchanges/"><code>/api/exchanges/summary/</code></a></td>
 <td style="text-align: center;"><code>GET</code></td>
 <td style="text-align: left;">Aggregate overview of venues, operating sessions, and tracked holidays.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Commodity Catalog</strong></td>
+<td style="text-align: left;"><a href="../commodities/"><code>/api/commodities/</code></a></td>
+<td style="text-align: center;"><code>GET</code></td>
+<td style="text-align: left;">23 Benchmark commodities with sector, settlement, and exchange filtering.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Commodity Detail</strong></td>
+<td style="text-align: left;"><a href="../commodities/"><code>/api/commodities/{identifier}/</code></a></td>
+<td style="text-align: center;"><code>GET</code></td>
+<td style="text-align: left;">Complete profile with deliverable chemistry, delivery hub, and multi-venue listings.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Commodity Exchange Listings</strong></td>
+<td style="text-align: left;"><a href="../commodities/"><code>/api/commodities/{identifier}/listings/</code></a></td>
+<td style="text-align: center;"><code>GET</code></td>
+<td style="text-align: left;">Multi-exchange active contracts with volume &amp; open interest.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Commodity Summary</strong></td>
+<td style="text-align: left;"><a href="../commodities/"><code>/api/commodities/summary/</code></a></td>
+<td style="text-align: center;"><code>GET</code></td>
+<td style="text-align: left;">Statistical counts by sector, settlement type, and exchange rankings.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Commodity Sectors</strong></td>
+<td style="text-align: left;"><a href="../commodities/"><code>/api/commodities/sectors/</code></a></td>
+<td style="text-align: center;"><code>GET</code></td>
+<td style="text-align: left;">List of 7 sectors and canonical industry groups.</td>
 </tr>
 </tbody>
 </table>
