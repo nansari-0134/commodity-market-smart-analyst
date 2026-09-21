@@ -84,3 +84,8 @@ http://127.0.0.1:8000/api/
 | **Commodity Exchange Listings** | [`/api/commodities/{identifier}/listings/`](commodities.md) | `GET` | Multi-exchange active contracts with volume & open interest. |
 | **Commodity Summary** | [`/api/commodities/summary/`](commodities.md) | `GET` | Statistical counts by sector, settlement type, and exchange rankings. |
 | **Commodity Sectors** | [`/api/commodities/sectors/`](commodities.md) | `GET` | List of 7 sectors and canonical industry groups. |
+| **Contract Specifications** | [`/api/contracts/specifications/`](contracts.md) | `GET` | Derivative specifications with multipliers, tick sizes, and calendar rules. |
+| **Contract Spec Detail** | [`/api/contracts/specifications/{lookup}/`](contracts.md) | `GET` | Full specification details with nested prompt forward delivery cycles. |
+| **Contract Expiries** | [`/api/contracts/expiries/`](contracts.md) | `GET` | List tradable delivery contract months with last trading day and notice dates. |
+| **Contract Expiry Detail** | [`/api/contracts/expiries/{lookup}/`](contracts.md) | `GET` | Single delivery contract details (e.g. `CLZ26`, `ZCH27`). |
+| **Contracts Summary** | [`/api/contracts/summary/`](contracts.md) | `GET` | Aggregate counts of specifications, active forward curves, and venues. |

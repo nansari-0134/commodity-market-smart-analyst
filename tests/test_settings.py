@@ -21,6 +21,7 @@ def test_installed_apps_contain_core_modules():
     assert "apps.core.apps.CoreConfig" in settings.INSTALLED_APPS
     assert "apps.dashboard.apps.DashboardConfig" in settings.INSTALLED_APPS
     assert "apps.commodities.apps.CommoditiesConfig" in settings.INSTALLED_APPS
+    assert "apps.contracts.apps.ContractsConfig" in settings.INSTALLED_APPS
 
 
 def test_base_directory_structure():

@@ -30,11 +30,11 @@
     <div class="glass-panel metric-card">
         <div class="metric-label">Active Phase</div>
         <div class="metric-value">
-            <span style="color: var(--accent-cyan);">PHASE 04</span>
-            <span class="metric-badge">COMMODITIES</span>
+            <span style="color: var(--accent-cyan);">PHASE 05</span>
+            <span class="metric-badge">CONTRACTS</span>
         </div>
         <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.4rem; font-family: var(--font-mono);">
-            Commodity Master & Multi-Venue
+            {{ contract_spec_count }} Specs • {{ contract_expiry_count }} Expiries
         </div>
     </div>
 
@@ -61,7 +61,10 @@
                 Deterministic computation precedes qualitative interpretation. The LLM operates strictly on verified facts.
             </p>
         </div>
-        <div style="display: flex; gap: 0.5rem;">
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <a href="{% url 'contracts:summary' %}" target="_blank" class="status-pill" style="text-decoration: none;">
+                Contracts API ↗
+            </a>
             <a href="{% url 'commodities:commodity_summary' %}" target="_blank" class="status-pill" style="text-decoration: none;">
                 Commodities API ↗
             </a>
