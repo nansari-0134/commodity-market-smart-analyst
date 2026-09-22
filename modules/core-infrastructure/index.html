@@ -22,7 +22,7 @@
         
       
       
-      <link rel="icon" href="../../assets/logo.webp">
+      <link rel="icon" href="../../assets/logo.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
@@ -92,7 +92,7 @@
   <nav class="md-header__inner md-grid" aria-label="Header">
     <a href="../.." title="Commodity Market Intelligence &amp; Quant Platform" class="md-header__button md-logo" aria-label="Commodity Market Intelligence & Quant Platform" data-md-component="logo">
       
-  <img src="../../assets/logo.webp" alt="logo">
+  <img src="../../assets/logo.png" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -259,7 +259,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../guides/data-sources/" class="md-tabs__link">
+        <a href="../../guides/adding-new-commodity-and-exchange/" class="md-tabs__link">
           
   
   
@@ -295,7 +295,7 @@
   <label class="md-nav__title" for="__drawer">
     <a href="../.." title="Commodity Market Intelligence &amp; Quant Platform" class="md-nav__button md-logo" aria-label="Commodity Market Intelligence & Quant Platform" data-md-component="logo">
       
-  <img src="../../assets/logo.webp" alt="logo">
+  <img src="../../assets/logo.png" alt="logo">
 
     </a>
     Commodity Market Intelligence & Quant Platform
@@ -522,6 +522,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#abstractobservation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AbstractObservation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#dataqualitystatus" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -718,6 +729,34 @@
     
   
     Dataset Master & Catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../variable-master/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Variable Master & Metrics
   
 
     
@@ -960,6 +999,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/variables/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Variable Catalog Endpoints
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1020,6 +1087,34 @@
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/adding-new-commodity-and-exchange/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adding Commodities & Exchanges
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
             
               
                 
@@ -1167,6 +1262,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#abstractobservation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AbstractObservation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#dataqualitystatus" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1282,12 +1388,21 @@
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    <span class="n">created_at</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateTimeField</span><span class="p">(</span><span class="n">auto_now_add</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="n">updated_at</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateTimeField</span><span class="p">(</span><span class="n">auto_now</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </span></code></pre></div>
+<h3 id="abstractobservation"><code>AbstractObservation</code></h3>
+<p>Abstract base model establishing the platform's high-performance standard for time series metrics:
+* <strong>Storage Standard</strong>: Missing/unobserved numeric values are strictly stored as SQL native <code>NULL</code> (<code>null=True, blank=True</code>). This avoids 20-40% database bloat caused by redundant status strings and leverages native 1-bit null bitmaps.
+* <strong>Vectorized Math</strong>: Maps directly to IEEE 754 <code>np.nan</code> in Pandas/NumPy, enabling C-speed SIMD operations (<code>df.interpolate()</code>, <code>df.ffill()</code>, <code>df.dropna()</code>).
+* <strong>Boundary Integrity</strong>: Distinguishes between legitimate <code>0.0</code> observations (e.g., zero rainfall, zero pipeline throughput) and unobserved <code>NULL</code> points.
+* <strong>Presentation Layer</strong>: Exposes <code>is_available</code> boolean and <code>display_value</code> rendering <code>"NOT_AVAILABLE"</code> dynamically for REST APIs and LLM context prompts.</p>
 <h3 id="dataqualitystatus"><code>DataQualityStatus</code></h3>
 <p>Standardized enumeration for data curation and provenance:
-- <code>RAW</code>: Unprocessed ingest from external source.
-- <code>VALIDATED</code>: Checked against schema constraints and range bounds.
-- <code>ANOMALOUS</code>: Flagged by statistical outliers or unexpected variance.
-- <code>OVERRIDDEN</code>: Manually adjusted by research analyst with audit log.</p>
+- <code>VALID</code>: Verified observation conforming to constraints.
+- <code>WARNING</code>: Observation flagged with mild statistical outlier or boundary condition.
+- <code>INVALID</code>: Failed validation check.
+- <code>MISSING</code>: Unobserved / unavailable point-in-time slot.
+- <code>STALE</code>: Value carried forward or delayed beyond SLA.
+- <code>DUPLICATE</code>: Repeated record flagged for deduplication.
+- <code>SUSPECT</code>: Questionable variance flagged for human audit.</p>
 <hr />
 <h2 id="4-how-to-extend-change-infrastructure-components">4. How to Extend / Change Infrastructure Components</h2>
 <h3 id="adding-a-custom-health-diagnostic-probe">Adding a Custom Health Diagnostic Probe</h3>

@@ -13,7 +13,7 @@
       
       
       
-        <link rel="prev" href="../../modules/dataset-master/">
+        <link rel="prev" href="../../modules/variable-master/">
       
       
         <link rel="next" href="../metadata/">
@@ -22,7 +22,7 @@
         
       
       
-      <link rel="icon" href="../../assets/logo.webp">
+      <link rel="icon" href="../../assets/logo.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
@@ -92,7 +92,7 @@
   <nav class="md-header__inner md-grid" aria-label="Header">
     <a href="../.." title="Commodity Market Intelligence &amp; Quant Platform" class="md-header__button md-logo" aria-label="Commodity Market Intelligence & Quant Platform" data-md-component="logo">
       
-  <img src="../../assets/logo.webp" alt="logo">
+  <img src="../../assets/logo.png" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -259,7 +259,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../guides/data-sources/" class="md-tabs__link">
+        <a href="../../guides/adding-new-commodity-and-exchange/" class="md-tabs__link">
           
   
   
@@ -295,7 +295,7 @@
   <label class="md-nav__title" for="__drawer">
     <a href="../.." title="Commodity Market Intelligence &amp; Quant Platform" class="md-nav__button md-logo" aria-label="Commodity Market Intelligence & Quant Platform" data-md-component="logo">
       
-  <img src="../../assets/logo.webp" alt="logo">
+  <img src="../../assets/logo.png" alt="logo">
 
     </a>
     Commodity Market Intelligence & Quant Platform
@@ -551,6 +551,34 @@
     
   
     Dataset Master & Catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/variable-master/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Variable Master & Metrics
   
 
     
@@ -904,6 +932,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../variables/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Variable Catalog Endpoints
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -964,6 +1020,34 @@
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/adding-new-commodity-and-exchange/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adding Commodities & Exchanges
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
             
               
                 
@@ -1364,6 +1448,24 @@
 <td style="text-align: left;"><a href="../datasets/"><code>/api/datasets/summary/</code></a></td>
 <td style="text-align: center;"><code>GET</code></td>
 <td style="text-align: left;">Aggregate counts by data category, update cadence, and acquisition modes.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Variable Catalog</strong></td>
+<td style="text-align: left;"><a href="../variables/"><code>/api/variables/</code></a></td>
+<td style="text-align: center;"><code>GET</code></td>
+<td style="text-align: left;">Canonical variables dictionary with commodity, unit, and aggregation filtering.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Variable Detail</strong></td>
+<td style="text-align: left;"><a href="../variables/"><code>/api/variables/{code_or_uuid}/</code></a></td>
+<td style="text-align: center;"><code>GET</code></td>
+<td style="text-align: left;">Full variable specification, data type, and transformation hints.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Variable Summary</strong></td>
+<td style="text-align: left;"><a href="../variables/"><code>/api/variables/summary/</code></a></td>
+<td style="text-align: center;"><code>GET</code></td>
+<td style="text-align: left;">Aggregate counts by data type, aggregation method, and domain.</td>
 </tr>
 </tbody>
 </table>
