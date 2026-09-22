@@ -8,8 +8,8 @@ repo_url: https://github.com/nansari-0134/commodity-market-smart-analyst
 
 theme:
   name: material
-  logo: assets/logo.webp
-  favicon: assets/logo.webp
+  logo: assets/logo.png
+  favicon: assets/logo.png
   language: en
   palette:
     scheme: default
@@ -62,6 +62,7 @@ nav:
       - Physical Commodities & Deliverables: modules/commodity-master.md
       - Futures & Contract Specifications: modules/contracts-and-derivatives.md
       - Dataset Master & Catalog: modules/dataset-master.md
+      - Variable Master & Metrics: modules/variable-master.md
   - REST API Reference:
       - API Overview & Quickstart: api/overview.md
       - Metadata & Taxonomy Endpoints: api/metadata.md
@@ -69,6 +70,8 @@ nav:
       - Commodity Catalog Endpoints: api/commodities.md
       - Contracts & Derivatives Endpoints: api/contracts.md
       - Dataset Catalog Endpoints: api/datasets.md
+      - Variable Catalog Endpoints: api/variables.md
   - Developer Guides:
+      - Adding Commodities & Exchanges: guides/adding-new-commodity-and-exchange.md
       - Data Provider Integration: guides/data-sources.md
       - Development & Operations: guides/development.md

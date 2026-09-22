@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="logo.webp" alt="Commodity Market Intelligence System" width="130" />
+  <img src="logo.png" alt="Commodity Market Intelligence System" width="130" />
 </p>
 
 <h1 align="center">Commodity Market Intelligence & Quantitative Platform</h1>

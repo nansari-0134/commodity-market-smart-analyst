@@ -346,7 +346,63 @@ The seeder resolves domain taxonomy foreign keys, links multiple commodities via
 
 ---
 
-## 7. Universal Provider Registry Across All System Modules
+## 7. Case Study 5: Swapping the Variable Master Catalog Provider
+
+In **Phase 7: Variable Master**, the dictionary of canonical time-series variables and metric definitions is governed by `BaseVariableCatalogProvider`.
+
+Suppose an institutional quantitative research team stores their quantitative feature definitions in an enterprise **Feature Store** (e.g., **Feast**, **Databricks Feature Store**, or internal PostgreSQL database).
+
+### Step 1: Implement `BaseVariableCatalogProvider`
+Create `apps/variables/providers/enterprise_feature_store.py`:
+
+```python
+from typing import List, Optional
+from apps.variables.providers.base import BaseVariableCatalogProvider, RawVariableSpec
+
+class EnterpriseFeatureStoreVariableProvider(BaseVariableCatalogProvider):
+    """Synchronizes standardized metrics from an internal quantitative feature store."""
+
+    def get_variables(self) -> List[RawVariableSpec]:
+        # Connect to internal feature store or database
+        return [
+            RawVariableSpec(
+                code="CRUDE_CUSHING_STOCKS",
+                name="Cushing Oklahoma Ending Crude Oil Stocks",
+                description="Weekly ending stocks of crude oil at Cushing, Oklahoma.",
+                dataset_code="EIA_WPSR_PETROLEUM_STOCKS",
+                domain_code="INVENTORIES",
+                unit_code="MBBL",
+                commodity_code="CL",
+                data_type="DECIMAL",
+                aggregation_method="LAST",
+                default_transformation="DIFF_1W",
+                is_benchmark=True,
+                display_order=10,
+            ),
+        ]
+
+    def get_variable(self, code: str) -> Optional[RawVariableSpec]:
+        for spec in self.get_variables():
+            if spec.code.upper() == code.upper():
+                return spec
+        return None
+```
+
+### Step 2: Configure Environment Variable
+In `.env` or Django settings:
+```bash
+VARIABLE_CATALOG_PROVIDER="apps.variables.providers.enterprise_feature_store.EnterpriseFeatureStoreVariableProvider"
+```
+
+### Step 3: Run the Variable Seeder
+```powershell
+python manage.py seed_variables
+```
+The seeder resolves foreign keys to `DatasetMaster`, `DataDomainMaster`, `UnitMaster`, and `CommodityMaster`, ensuring deterministic stock vs. flow aggregation rules without modifying application code.
+
+---
+
+## 8. Universal Provider Registry Across All System Modules
 
 We apply this exact pluggable architecture across every data domain in the 40-phase platform:
 
@@ -356,6 +412,7 @@ We apply this exact pluggable architecture across every data domain in the 40-ph
 | **Commodity Specifications** | `apps/commodities` | Static Reference Master | `BaseCommodityCatalogProvider` | Exchange Product Directories |
 | **Futures Reference Specs** | `apps/contracts` | Static Canonical Catalog | `BaseContractSpecProvider` | CME Datamine, ICE Reference Data |
 | **Dataset Master Catalog** | `apps/datasets` | Static Benchmark Catalog | `BaseDatasetCatalogProvider` | AWS Glue, Snowflake Marketplace, Collibra |
+| **Variable Master Catalog** | `apps/variables` | Static Benchmark Catalog | `BaseVariableCatalogProvider` | Feast, Databricks Feature Store, Hopsworks |
 | **Market Data (OHLCV)** | `apps/market_data` | Public / Open Market Feed | `BaseMarketDataProvider` | B-PIPE, Refinitiv Real-Time, Polygon |
 | **CFTC COT Positioning** | `apps/positioning` | CFTC Socrata API | `BaseCOTProvider` | CFTC Bulk FTP, Bloomberg COT |
 | **Weather & Climate** | `apps/weather` | NOAA / Open-Meteo | `BaseWeatherProvider` | ECMWF, Copernicus, Maxar Weather |
@@ -363,7 +420,7 @@ We apply this exact pluggable architecture across every data domain in the 40-ph
 
 ---
 
-## 8. Developer Checklist for Adding Any New Data Provider
+## 9. Developer Checklist for Adding Any New Data Provider
 
 Before committing a new provider adapter to the codebase, verify:
 

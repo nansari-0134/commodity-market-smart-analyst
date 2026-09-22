@@ -50,12 +50,22 @@ class TimeStampedModel(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 ```
 
+### `AbstractObservation`
+Abstract base model establishing the platform's high-performance standard for time series metrics:
+* **Storage Standard**: Missing/unobserved numeric values are strictly stored as SQL native `NULL` (`null=True, blank=True`). This avoids 20-40% database bloat caused by redundant status strings and leverages native 1-bit null bitmaps.
+* **Vectorized Math**: Maps directly to IEEE 754 `np.nan` in Pandas/NumPy, enabling C-speed SIMD operations (`df.interpolate()`, `df.ffill()`, `df.dropna()`).
+* **Boundary Integrity**: Distinguishes between legitimate `0.0` observations (e.g., zero rainfall, zero pipeline throughput) and unobserved `NULL` points.
+* **Presentation Layer**: Exposes `is_available` boolean and `display_value` rendering `"NOT_AVAILABLE"` dynamically for REST APIs and LLM context prompts.
+
 ### `DataQualityStatus`
 Standardized enumeration for data curation and provenance:
-- `RAW`: Unprocessed ingest from external source.
-- `VALIDATED`: Checked against schema constraints and range bounds.
-- `ANOMALOUS`: Flagged by statistical outliers or unexpected variance.
-- `OVERRIDDEN`: Manually adjusted by research analyst with audit log.
+- `VALID`: Verified observation conforming to constraints.
+- `WARNING`: Observation flagged with mild statistical outlier or boundary condition.
+- `INVALID`: Failed validation check.
+- `MISSING`: Unobserved / unavailable point-in-time slot.
+- `STALE`: Value carried forward or delayed beyond SLA.
+- `DUPLICATE`: Repeated record flagged for deduplication.
+- `SUSPECT`: Questionable variance flagged for human audit.
 
 ---
 

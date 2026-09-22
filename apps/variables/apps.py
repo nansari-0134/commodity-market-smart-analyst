@@ -1,0 +1,7 @@
+from django.apps import AppConfig
+
+
+class VariablesConfig(AppConfig):
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "apps.variables"
+    verbose_name = "Variable Master & Metrics"
