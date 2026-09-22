@@ -92,3 +92,6 @@ http://127.0.0.1:8000/api/
 | **Dataset Catalog** | [`/api/datasets/`](datasets.md) | `GET` | Canonical dataset catalog with category, cadence, and commodity filtering. |
 | **Dataset Detail** | [`/api/datasets/{code_or_uuid}/`](datasets.md) | `GET` | Full dataset metadata, release schedules, SLAs, and multi-asset links. |
 | **Dataset Summary** | [`/api/datasets/summary/`](datasets.md) | `GET` | Aggregate counts by data category, update cadence, and acquisition modes. |
+| **Variable Catalog** | [`/api/variables/`](variables.md) | `GET` | Canonical variables dictionary with commodity, unit, and aggregation filtering. |
+| **Variable Detail** | [`/api/variables/{code_or_uuid}/`](variables.md) | `GET` | Full variable specification, data type, and transformation hints. |
+| **Variable Summary** | [`/api/variables/summary/`](variables.md) | `GET` | Aggregate counts by data type, aggregation method, and domain. |

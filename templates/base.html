@@ -12,7 +12,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <link rel="icon" type="image/webp" href="{% static 'images/logo.webp' %}">
+    <link rel="icon" type="image/png" href="{% static 'images/logo.png' %}">
     <link rel="stylesheet" href="{% static 'css/terminal.css' %}">
     {% block extra_head %}{% endblock %}
 </head>
@@ -20,7 +20,7 @@
     <!-- Main Top Navigation -->
     <header class="navbar">
         <div class="brand-container">
-            <img src="{% static 'images/logo.webp' %}" alt="Logo" class="brand-logo" style="object-fit: contain; background: transparent; box-shadow: none; padding: 2px;">
+            <img src="{% static 'images/logo.png' %}" alt="Logo" class="brand-logo" style="object-fit: contain; background: transparent; box-shadow: none; padding: 2px;">
             <div>
                 <h1 class="brand-title" style="font-size: 1.15rem; margin: 0;">{{ APP_NAME }}</h1>
                 <div class="brand-subtitle">Quant & Market Intelligence Terminal • {{ CURRENT_PHASE }}</div>

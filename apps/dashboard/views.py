@@ -21,6 +21,7 @@ def index(request):
     from apps.commodities.models import CommodityMaster, CommodityExchangeListing
     from apps.contracts.models import ContractSpecification, ContractExpiry
     from apps.datasets.models import DatasetMaster
+    from apps.variables.models import VariableMaster
 
     phases = [
         {"id": "Phase 1", "name": "Django + PostgreSQL Foundation", "status": "ACTIVE / VERIFIED"},
@@ -29,7 +30,7 @@ def index(request):
         {"id": "Phase 4", "name": "Commodity Master", "status": "ACTIVE / VERIFIED"},
         {"id": "Phase 5", "name": "Product / Instrument / Contract Master", "status": "ACTIVE / VERIFIED"},
         {"id": "Phase 6", "name": "Dataset Master", "status": "ACTIVE / VERIFIED"},
-        {"id": "Phase 7", "name": "Variable Master", "status": "PENDING"},
+        {"id": "Phase 7", "name": "Variable Master", "status": "ACTIVE / VERIFIED"},
         {"id": "Phase 8", "name": "Source / Provider Master", "status": "PENDING"},
         {"id": "Phase 9", "name": "Endpoint & API Metadata", "status": "PENDING"},
         {"id": "Phase 10", "name": "Data Contract", "status": "PENDING"},
@@ -59,6 +60,8 @@ def index(request):
     contract_spec_count = ContractSpecification.objects.filter(is_active=True).count()
     contract_expiry_count = ContractExpiry.objects.filter(is_active=True).count()
     dataset_count = DatasetMaster.objects.filter(is_active=True).count()
+    variable_count = VariableMaster.objects.filter(is_active=True).count()
+    benchmark_variable_count = VariableMaster.objects.filter(is_active=True, is_benchmark=True).count()
 
     context = {
         "page_title": "Terminal Overview",
@@ -80,5 +83,7 @@ def index(request):
         "contract_spec_count": contract_spec_count,
         "contract_expiry_count": contract_expiry_count,
         "dataset_count": dataset_count,
+        "variable_count": variable_count,
+        "benchmark_variable_count": benchmark_variable_count,
     }
     return render(request, "dashboard/index.html", context)

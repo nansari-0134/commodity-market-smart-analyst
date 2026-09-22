@@ -23,6 +23,7 @@ def test_installed_apps_contain_core_modules():
     assert "apps.commodities.apps.CommoditiesConfig" in settings.INSTALLED_APPS
     assert "apps.contracts.apps.ContractsConfig" in settings.INSTALLED_APPS
     assert "apps.datasets.apps.DatasetsConfig" in settings.INSTALLED_APPS
+    assert "apps.variables.apps.VariablesConfig" in settings.INSTALLED_APPS
 
 
 def test_base_directory_structure():

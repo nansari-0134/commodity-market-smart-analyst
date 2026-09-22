@@ -118,3 +118,42 @@ class AuditModel(TimeStampedModel):
 
     class Meta:
         abstract = True
+
+
+class AbstractObservation(UUIDModel, PointInTimeModel, TimeStampedModel):
+    """
+    Abstract base model for all quantitative commodity observations and time series.
+
+    Architectural Standard (Missing Data & High Performance):
+    - Missing, unobserved, or unlicensed metric values are strictly stored as NULL (null=True, blank=True).
+      This avoids database storage bloat (native 1-bit null bitmap vs 32-byte status strings) and
+      enables native C-speed SIMD vectorization in Pandas (np.nan) and NumPy.
+    - Preserves strict mathematical distinction between 0.0 (valid zero value) and NULL (unobserved/not available).
+    - The presentation, REST API, and LLM layer interprets NULL semantically as "NOT_AVAILABLE".
+    """
+    value = models.FloatField(
+        null=True,
+        blank=True,
+        help_text="Observed numerical value. Null represents NOT_AVAILABLE / unobserved data point.",
+    )
+    quality_status = models.CharField(
+        max_length=16,
+        choices=DataQualityStatus.choices,
+        default=DataQualityStatus.VALID,
+        db_index=True,
+        help_text="Data quality flag (VALID, MISSING, STALE, SUSPECT, etc.)",
+    )
+
+    class Meta:
+        abstract = True
+
+    @property
+    def is_available(self) -> bool:
+        """Return True if an observed numerical value exists and is not null."""
+        return self.value is not None
+
+    @property
+    def display_value(self) -> str:
+        """Return formatted string or NOT_AVAILABLE representation for APIs and LLMs."""
+        return f"{self.value:g}" if self.value is not None else "NOT_AVAILABLE"
+

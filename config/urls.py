@@ -20,6 +20,8 @@ urlpatterns = [
     path("api/contracts/", include("apps.contracts.urls")),
     # Dataset Master Catalog
     path("api/datasets/", include("apps.datasets.urls")),
+    # Variable Master Catalog & Standardized Metrics
+    path("api/variables/", include("apps.variables.urls")),
     # Main terminal / intelligence dashboard
     path("", include("apps.dashboard.urls")),
 ]

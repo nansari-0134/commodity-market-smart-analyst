@@ -59,6 +59,7 @@ LOCAL_APPS = [
     "apps.commodities.apps.CommoditiesConfig",
     "apps.contracts.apps.ContractsConfig",
     "apps.datasets.apps.DatasetsConfig",
+    "apps.variables.apps.VariablesConfig",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -194,3 +195,9 @@ LOGGING = {
         },
     },
 }
+
+# Pluggable Provider Settings
+COMMODITY_CATALOG_PROVIDER = env("COMMODITY_CATALOG_PROVIDER", default="static")
+CONTRACT_SPEC_PROVIDER = env("CONTRACT_SPEC_PROVIDER", default="static")
+DATASET_CATALOG_PROVIDER = env("DATASET_CATALOG_PROVIDER", default="static")
+VARIABLE_CATALOG_PROVIDER = env("VARIABLE_CATALOG_PROVIDER", default="static")

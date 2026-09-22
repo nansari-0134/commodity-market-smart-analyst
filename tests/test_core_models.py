@@ -49,3 +49,36 @@ def test_abstract_models_field_definitions():
     # AuditModel fields
     audit_fields = {f.name for f in AuditModel._meta.fields}
     assert {"is_active", "notes", "created_at", "updated_at"}.issubset(audit_fields)
+
+
+def test_abstract_observation_null_handling():
+    """Verify AbstractObservation adheres to the null-as-NOT_AVAILABLE high-performance standard."""
+    from apps.core.models import AbstractObservation
+
+    obs_fields = {f.name for f in AbstractObservation._meta.fields}
+    assert {"id", "value", "quality_status", "event_time", "observation_time", "availability_time"}.issubset(obs_fields)
+
+    value_field = AbstractObservation._meta.get_field("value")
+    assert value_field.null is True
+    assert value_field.blank is True
+
+    # Test dynamic property behaviors on an uncommitted dummy instance
+    class ConcreteObservation(AbstractObservation):
+        class Meta:
+            app_label = "core"
+
+    # 1. Null / missing value
+    null_obs = ConcreteObservation(value=None)
+    assert null_obs.is_available is False
+    assert null_obs.display_value == "NOT_AVAILABLE"
+
+    # 2. Legitimate zero value
+    zero_obs = ConcreteObservation(value=0.0)
+    assert zero_obs.is_available is True
+    assert zero_obs.display_value == "0"
+
+    # 3. Positive numeric value
+    pos_obs = ConcreteObservation(value=78.50)
+    assert pos_obs.is_available is True
+    assert pos_obs.display_value == "78.5"
+

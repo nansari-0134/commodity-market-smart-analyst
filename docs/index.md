@@ -48,6 +48,7 @@ graph TD
 * **Multi-Venue Fungibility & Liquidity Filtering**: Maps cross-exchange listings with localized lot sizes and currency quotes, tracking ADV and Open Interest to isolate active liquidity.
 * **Futures & Contract Master (Phase 5)**: Canonical derivative specifications, standard commodity month codes (F-Z), institutional expiry date calculation, and benchmark index roll schedules (GSCI, BCOM).
 * **Dataset Master & Catalog (Phase 6)**: Canonical registry of 23 benchmark datasets, multi-asset commodity linkages, update cadences, ingestion modes, and pipeline SLAs.
+* **Variable Master & Metrics Catalog (Phase 7)**: Standardized dictionary of 40 canonical commodity variables, stock vs. flow aggregation behaviors, and display transformation hints.
 * **Real-Time Intelligence Terminal**: High-density dark-theme surveillance dashboard displaying operational telemetry, database health, pipeline metrics, and system diagnostics.
 * **High-Performance REST API Suite**: Production-grade endpoints for metadata, exchanges, commodities, contract specifications, and forward delivery cycles with rich filtering.
 * **Fact-Anchored LLM Market Narratives**: Evidence-linked commentary engine anchoring generative narrative synthesis directly to quantitative features and official data releases.
@@ -81,6 +82,7 @@ graph TD
 | **Commodity Master** | [Physical Commodities](modules/commodity-master.md) | 23 Commodities, Grade Chemistry, Multi-Exchange Listings | :white_check_mark: Active |
 | **Futures & Derivatives** | [Futures & Contract Specifications](modules/contracts-and-derivatives.md) | 25 Benchmark Specs, 200+ Prompt Expiries, Algorithmic Rules, Roll Schedules | :white_check_mark: Active |
 | **Dataset Master & Catalog** | [Dataset Master](modules/dataset-master.md) | 23 Benchmark Datasets, Multi-Asset Linkages, Release Schedules, SLAs | :white_check_mark: Active |
+| **Variable Master & Metrics** | [Variable Master](modules/variable-master.md) | 40 Benchmark Variables, Stock vs Flow Resampling, Unit Enforcement, REST APIs | :white_check_mark: Active |
 | **Market Data & Curves** | Quant Analytics | High-frequency OHLCV, Forward Curves, Intraday Volatility Surfaces | :soon: Planned |
 | **Supply & Demand** | Balance Sheets | USDA, EIA, IEA, Production/Consumption Fundamentals | :soon: Planned |
 | **LLM Market Narratives** | AI Intelligence | Point-in-time Market Commentary, RAG Retrieval, Risk Summaries | :soon: Planned |
