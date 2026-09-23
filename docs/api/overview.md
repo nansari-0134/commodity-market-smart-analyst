@@ -95,3 +95,7 @@ http://127.0.0.1:8000/api/
 | **Variable Catalog** | [`/api/variables/`](variables.md) | `GET` | Canonical variables dictionary with commodity, unit, and aggregation filtering. |
 | **Variable Detail** | [`/api/variables/{code_or_uuid}/`](variables.md) | `GET` | Full variable specification, data type, and transformation hints. |
 | **Variable Summary** | [`/api/variables/summary/`](variables.md) | `GET` | Aggregate counts by data type, aggregation method, and domain. |
+| **Provider Catalog** | [`/api/providers/`](providers.md) | `GET` | External data vendors and exchange feeds with auth protocol and rate limit filtering. |
+| **Provider Detail** | [`/api/providers/{code_or_uuid}/`](providers.md) | `GET` | Full vendor specification, 12-factor env var keys, rate budgets, and failover targets. |
+| **Provider Summary** | [`/api/providers/summary/`](providers.md) | `GET` | Telemetry breakdown by provider type, authentication strategy, and rate limits. |
+

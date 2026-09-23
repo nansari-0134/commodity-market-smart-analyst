@@ -40,4 +40,24 @@ def test_dashboard_index_view(client):
     response = client.get(url)
     assert response.status_code == 200
     assert b"Commodity Market Intelligence" in response.content
-    assert b"Phase 1 - Django &amp; Database Foundation" in response.content or b"Phase 1 - Django & Database Foundation" in response.content
+    assert b"Phase Roadmap" in response.content
+    assert b"Quantitative Pipeline" in response.content
+
+
+@pytest.mark.django_db
+def test_dashboard_explorer_view(client):
+    """Verify the visual Data Explorer view renders with HTTP 200 and passes catalog metrics."""
+    url = reverse("dashboard:explorer")
+    response = client.get(url)
+    assert response.status_code == 200
+    assert b"Institutional Data Explorer" in response.content
+    assert "provider_count" in response.context
+    assert "variable_count" in response.context
+    assert "dataset_count" in response.context
+    assert "contract_count" in response.context
+
+    # Verify tab deep-linking parameter
+    tab_response = client.get(f"{url}?tab=variables")
+    assert tab_response.status_code == 200
+    assert tab_response.context["active_tab"] == "variables"
+

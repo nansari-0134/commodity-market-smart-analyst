@@ -22,6 +22,8 @@ urlpatterns = [
     path("api/datasets/", include("apps.datasets.urls")),
     # Variable Master Catalog & Standardized Metrics
     path("api/variables/", include("apps.variables.urls")),
+    # Provider Master & Source Catalog
+    path("api/providers/", include("apps.providers.urls")),
     # Main terminal / intelligence dashboard
     path("", include("apps.dashboard.urls")),
 ]

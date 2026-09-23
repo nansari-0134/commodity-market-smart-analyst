@@ -1,0 +1,520 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Data Explorer • {{ APP_NAME }}{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 2rem;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
+                <span class="status-pill" style="padding: 0.2rem 0.6rem; font-size: 0.7rem; background: rgba(6, 182, 212, 0.15); color: var(--accent-cyan); border-color: rgba(6, 182, 212, 0.3);">
+                    CATALOG BROWSER
+                </span>
+                <span style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted);">
+                    Unified Reference Architecture
+                </span>
+            </div>
+            <h1 style="font-size: 1.6rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.02em;">
+                Institutional Data Explorer & Visual Master
+            </h1>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); max-width: 800px; margin-top: 0.25rem;">
+                Interactive visual console inspecting registered External Providers, Canonical Variables, Datasets, Derivative Contracts, and Physical Commodity Specifications.
+            </p>
+        </div>
+
+        <div style="display: flex; gap: 0.6rem; align-items: center;">
+            <a href="{% url 'dashboard:index' %}" class="status-pill" style="text-decoration: none; background: rgba(255,255,255,0.05); color: var(--text-secondary); border-color: var(--border-subtle);">
+                ← Back to Terminal
+            </a>
+            <a href="/admin/" class="status-pill" style="text-decoration: none; background: rgba(6, 182, 212, 0.12); color: var(--accent-cyan); border-color: rgba(6, 182, 212, 0.35);">
+                Edit in Admin ↗
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Explorer Tabs Navigation -->
+<div class="explorer-tabs" id="explorer-tabs-bar">
+    <button class="tab-btn {% if active_tab == 'providers' %}active{% endif %}" data-tab="providers" onclick="switchTab('providers', this)">
+        <span>🌐 Data Providers & Sources</span>
+        <span class="tab-count">{{ provider_count }}</span>
+    </button>
+    <button class="tab-btn {% if active_tab == 'variables' %}active{% endif %}" data-tab="variables" onclick="switchTab('variables', this)">
+        <span>📐 Canonical Variables & Metrics</span>
+        <span class="tab-count">{{ variable_count }}</span>
+    </button>
+    <button class="tab-btn {% if active_tab == 'datasets' %}active{% endif %}" data-tab="datasets" onclick="switchTab('datasets', this)">
+        <span>📦 Benchmark Datasets</span>
+        <span class="tab-count">{{ dataset_count }}</span>
+    </button>
+    <button class="tab-btn {% if active_tab == 'contracts' %}active{% endif %}" data-tab="contracts" onclick="switchTab('contracts', this)">
+        <span>📜 Futures & Contract Specs</span>
+        <span class="tab-count">{{ contract_count }}</span>
+    </button>
+    <button class="tab-btn {% if active_tab == 'commodities' %}active{% endif %}" data-tab="commodities" onclick="switchTab('commodities', this)">
+        <span>⚡ Physical Commodities</span>
+        <span class="tab-count">{{ commodity_count }}</span>
+    </button>
+    <button class="tab-btn {% if active_tab == 'exchanges' %}active{% endif %}" data-tab="exchanges" onclick="switchTab('exchanges', this)">
+        <span>🏛️ Exchange Venues</span>
+        <span class="tab-count">{{ exchange_count }}</span>
+    </button>
+</div>
+
+<!-- Search and Filter Toolbar -->
+<div class="search-bar-container">
+    <div class="search-input-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="catalog-search-input" class="search-input" placeholder="Search by code, title, category, or keyword..." onkeyup="filterCatalog()">
+    </div>
+    <div style="display: flex; gap: 0.75rem; align-items: center;">
+        <span id="results-counter" style="font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-muted);">
+            Showing all items
+        </span>
+        <button onclick="clearSearch()" style="background: transparent; border: 1px solid var(--border-subtle); color: var(--text-secondary); border-radius: 6px; padding: 0.4rem 0.75rem; font-size: 0.75rem; cursor: pointer;">
+            Clear Search
+        </button>
+    </div>
+</div>
+
+<!-- ========================================================================= -->
+<!-- TAB 1: PROVIDERS & SOURCES                                                -->
+<!-- ========================================================================= -->
+<div id="tab-pane-providers" class="tab-pane" style="display: {% if active_tab == 'providers' %}block{% else %}none{% endif %};">
+    <div class="catalog-cards-grid">
+        {% for p in providers %}
+        <div class="catalog-card filter-item" data-search="{{ p.code }} {{ p.name }} {{ p.provider_type }} {{ p.auth_type }} {{ p.description }}">
+            <div>
+                <div class="card-header">
+                    <span class="card-code">{{ p.code }}</span>
+                    {% if p.provider_type == "GOVERNMENT_PUBLIC" %}
+                        <span class="badge-tag tag-govt">GOVERNMENT</span>
+                    {% elif p.provider_type == "EXCHANGE_DIRECT" %}
+                        <span class="badge-tag tag-exchange">EXCHANGE</span>
+                    {% elif p.provider_type == "PRICE_REPORTING_AGENCY" %}
+                        <span class="badge-tag tag-pra">PRA ASSESSMENT</span>
+                    {% elif p.provider_type == "COMMERCIAL_AGGREGATOR" %}
+                        <span class="badge-tag tag-comm">AGGREGATOR</span>
+                    {% elif p.provider_type == "ALTERNATIVE_DATA" %}
+                        <span class="badge-tag tag-alt">ALTERNATIVE</span>
+                    {% else %}
+                        <span class="badge-tag tag-internal">INTERNAL QUANT</span>
+                    {% endif %}
+                </div>
+                <div class="card-title">{{ p.name }}</div>
+                <div class="card-desc">{{ p.description|default:"Institutional commodity market data provider." }}</div>
+            </div>
+
+            <div class="card-meta-list">
+                <div class="card-meta-row">
+                    <span class="meta-label">Auth Protocol:</span>
+                    <span class="meta-val" style="color: {% if p.auth_type == 'NONE_PUBLIC' %}var(--accent-emerald){% else %}var(--accent-cyan){% endif %};">
+                        {{ p.get_auth_type_display }}
+                    </span>
+                </div>
+                {% if p.env_var_name %}
+                <div class="card-meta-row">
+                    <span class="meta-label">Env Variable:</span>
+                    <span class="meta-val" style="background: rgba(0,0,0,0.3); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--border-subtle);">
+                        ${{ p.env_var_name }}
+                    </span>
+                </div>
+                {% endif %}
+                <div class="card-meta-row">
+                    <span class="meta-label">Rate Budget:</span>
+                    <span class="meta-val">
+                        {% if p.rate_limit_requests %}
+                            {{ p.rate_limit_requests }} req / {{ p.rate_limit_window_seconds }}s
+                        {% else %}
+                            <span style="color: var(--text-muted);">Unmetered</span>
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="card-meta-row">
+                    <span class="meta-label">SLA Target:</span>
+                    <span class="meta-val" style="color: var(--accent-emerald);">{{ p.target_sla_pct }}%</span>
+                </div>
+                {% if p.fallback_provider %}
+                <div class="card-meta-row">
+                    <span class="meta-label">Failover Secondary:</span>
+                    <span class="meta-val" style="color: var(--accent-amber);">➔ {{ p.fallback_provider.code }}</span>
+                </div>
+                {% endif %}
+                {% if p.base_url %}
+                <div class="card-meta-row" style="margin-top: 0.35rem; padding-top: 0.35rem; border-top: 1px dashed rgba(255,255,255,0.05);">
+                    <span class="meta-label">Endpoint:</span>
+                    <a href="{{ p.base_url }}" target="_blank" style="color: var(--accent-cyan); text-decoration: none; font-size: 0.72rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 200px;">
+                        {{ p.base_url }} ↗
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- ========================================================================= -->
+<!-- TAB 2: VARIABLES & CANONICAL METRICS                                      -->
+<!-- ========================================================================= -->
+<div id="tab-pane-variables" class="tab-pane" style="display: {% if active_tab == 'variables' %}block{% else %}none{% endif %};">
+    <div class="explorer-table-wrap">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Metric Code</th>
+                    <th>Institutional Title</th>
+                    <th>Parent Dataset</th>
+                    <th>Commodity</th>
+                    <th>Unit</th>
+                    <th>Stock / Flow Aggregation</th>
+                    <th>Default Transformation</th>
+                    <th>Benchmark</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for v in variables %}
+                <tr class="filter-item" data-search="{{ v.code }} {{ v.name }} {{ v.dataset.code }} {{ v.commodity.code|default:'' }} {{ v.unit.code }} {{ v.aggregation_method }} {{ v.default_transformation }}">
+                    <td style="font-family: var(--font-mono); font-weight: 700; color: var(--accent-cyan);">
+                        {{ v.code }}
+                    </td>
+                    <td style="font-weight: 500; color: var(--text-primary);">
+                        {{ v.name }}
+                    </td>
+                    <td>
+                        <span style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-secondary);">
+                            {{ v.dataset.code }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if v.commodity %}
+                            <span class="badge-tag tag-pra">{{ v.commodity.code }}</span>
+                        {% else %}
+                            <span style="color: var(--text-muted); font-size: 0.75rem;">Cross-Asset</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span style="font-family: var(--font-mono); font-weight: 600; color: var(--accent-amber);">
+                            {{ v.unit.code }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if v.aggregation_method == "LAST" %}
+                            <span class="badge-tag tag-govt" title="Stock Snapshot (Point-in-time state)">LAST (STOCK)</span>
+                        {% elif v.aggregation_method == "SUM" %}
+                            <span class="badge-tag tag-exchange" title="Flow Accumulation (Sum over window)">SUM (FLOW)</span>
+                        {% elif v.aggregation_method == "AVG" %}
+                            <span class="badge-tag tag-comm" title="Average rate/index over window">AVG (RATE)</span>
+                        {% else %}
+                            <span class="badge-tag tag-internal">{{ v.aggregation_method }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-secondary);">
+                            {{ v.default_transformation }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if v.is_benchmark %}
+                            <span class="badge-active" style="padding: 0.1rem 0.4rem; font-size: 0.68rem;">★ BENCHMARK</span>
+                        {% else %}
+                            <span style="color: var(--text-muted); font-size: 0.75rem;">Standard</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ========================================================================= -->
+<!-- TAB 3: DATASETS CATALOG                                                   -->
+<!-- ========================================================================= -->
+<div id="tab-pane-datasets" class="tab-pane" style="display: {% if active_tab == 'datasets' %}block{% else %}none{% endif %};">
+    <div class="catalog-cards-grid">
+        {% for d in datasets %}
+        <div class="catalog-card filter-item" data-search="{{ d.code }} {{ d.name }} {{ d.data_category }} {{ d.update_cadence }} {{ d.ingestion_mode }} {{ d.description }}">
+            <div>
+                <div class="card-header">
+                    <span class="card-code">{{ d.code }}</span>
+                    <span class="badge-tag tag-govt">{{ d.get_data_category_display }}</span>
+                </div>
+                <div class="card-title">{{ d.name }}</div>
+                <div class="card-desc">{{ d.description|default:"Canonical observable dataset collection." }}</div>
+            </div>
+
+            <div class="card-meta-list">
+                <div class="card-meta-row">
+                    <span class="meta-label">Cadence:</span>
+                    <span class="meta-val" style="color: var(--accent-cyan);">{{ d.get_update_cadence_display }}</span>
+                </div>
+                <div class="card-meta-row">
+                    <span class="meta-label">Ingestion Mode:</span>
+                    <span class="meta-val">{{ d.get_ingestion_mode_display }}</span>
+                </div>
+                <div class="card-meta-row">
+                    <span class="meta-label">SLA Max Latency:</span>
+                    <span class="meta-val">{{ d.sla_max_delay_minutes }} min</span>
+                </div>
+                <div class="card-meta-row">
+                    <span class="meta-label">License Type:</span>
+                    <span class="meta-val" style="color: var(--accent-amber);">{{ d.get_license_type_display }}</span>
+                </div>
+                <div style="margin-top: 0.5rem; display: flex; flex-wrap: wrap; gap: 0.35rem;">
+                    {% if d.primary_commodity %}
+                        <span class="badge-tag tag-pra">Primary: {{ d.primary_commodity.code }}</span>
+                    {% endif %}
+                    {% for c in d.commodities.all %}
+                        {% if c != d.primary_commodity %}
+                            <span class="badge-tag tag-comm">{{ c.code }}</span>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- ========================================================================= -->
+<!-- TAB 4: FUTURES & CONTRACT SPECS                                           -->
+<!-- ========================================================================= -->
+<div id="tab-pane-contracts" class="tab-pane" style="display: {% if active_tab == 'contracts' %}block{% else %}none{% endif %};">
+    <div class="explorer-table-wrap">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Symbol Root</th>
+                    <th>Contract Name</th>
+                    <th>Underlying Commodity</th>
+                    <th>Exchange</th>
+                    <th>Contract Size</th>
+                    <th>Quotation Unit</th>
+                    <th>Trading Months</th>
+                    <th>Settlement</th>
+                    <th>Expiry Rule</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in contracts %}
+                <tr class="filter-item" data-search="{{ c.symbol_root }} {{ c.name }} {{ c.commodity.name }} {{ c.commodity.code }} {{ c.exchange.code }} {{ c.trading_months }} {{ c.get_settlement_method_display }}">
+                    <td style="font-family: var(--font-mono); font-weight: 700; color: var(--accent-cyan);">
+                        {{ c.symbol_root }}
+                    </td>
+                    <td style="font-weight: 600; color: var(--text-primary);">
+                        {{ c.name }}
+                    </td>
+                    <td>
+                        <span style="font-weight: 500; color: var(--text-primary);">{{ c.commodity.name }}</span>
+                        <span style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-muted); margin-left: 0.35rem;">({{ c.commodity.code }})</span>
+                    </td>
+                    <td>
+                        <span class="badge-tag tag-exchange">{{ c.exchange.code }}</span>
+                    </td>
+                    <td style="font-family: var(--font-mono); font-weight: 500;">
+                        {{ c.contract_size|floatformat:0 }} {{ c.contract_unit.code }}
+                    </td>
+                    <td style="font-family: var(--font-mono); color: var(--accent-amber);">
+                        {{ c.price_quote_unit.code }}
+                    </td>
+                    <td style="font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.08em; color: var(--accent-emerald);">
+                        {{ c.trading_months }}
+                    </td>
+                    <td>
+                        {% if c.settlement_method == "PHYSICAL" %}
+                            <span class="badge-tag tag-pra">PHYSICAL</span>
+                        {% else %}
+                            <span class="badge-tag tag-comm">CASH</span>
+                        {% endif %}
+                    </td>
+                    <td style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-secondary);">
+                        {{ c.get_expiry_rule_display }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ========================================================================= -->
+<!-- TAB 5: PHYSICAL COMMODITIES                                               -->
+<!-- ========================================================================= -->
+<div id="tab-pane-commodities" class="tab-pane" style="display: {% if active_tab == 'commodities' %}block{% else %}none{% endif %};">
+    <div class="catalog-cards-grid">
+        {% for comm in commodities %}
+        <div class="catalog-card filter-item" data-search="{{ comm.code }} {{ comm.name }} {{ comm.sector }} {{ comm.group }} {{ comm.primary_exchange.code }} {{ comm.hs_code }}">
+            <div>
+                <div class="card-header">
+                    <span class="card-code">{{ comm.code }}</span>
+                    <span class="badge-tag tag-pra">{{ comm.get_sector_display }}</span>
+                </div>
+                <div class="card-title">{{ comm.name }}</div>
+                <div class="card-desc">{{ comm.deliverable_grade_standard|default:comm.group|default:"Canonical physical deliverable commodity asset." }}</div>
+            </div>
+
+            <div class="card-meta-list">
+                <div class="card-meta-row">
+                    <span class="meta-label">Primary Exchange:</span>
+                    <span class="meta-val" style="color: var(--accent-cyan);">{{ comm.primary_exchange.name }} ({{ comm.primary_exchange.code }})</span>
+                </div>
+                <div class="card-meta-row">
+                    <span class="meta-label">Base Quantity Unit:</span>
+                    <span class="meta-val" style="color: var(--accent-emerald);">{{ comm.base_unit.code }}</span>
+                </div>
+                <div class="card-meta-row">
+                    <span class="meta-label">Pricing Quotation:</span>
+                    <span class="meta-val" style="color: var(--accent-amber);">{{ comm.pricing_unit.code }}</span>
+                </div>
+                <div class="card-meta-row">
+                    <span class="meta-label">Standard Lot Multiplier:</span>
+                    <span class="meta-val">{{ comm.standard_lot_size|floatformat:0 }} {{ comm.standard_lot_unit.code }}</span>
+                </div>
+                <div class="card-meta-row">
+                    <span class="meta-label">Settlement Mode:</span>
+                    <span class="meta-val" style="color: {% if comm.settlement_method == 'PHYSICAL' %}var(--accent-emerald){% else %}var(--accent-blue){% endif %};">
+                        {{ comm.get_settlement_method_display }}
+                    </span>
+                </div>
+                <div class="card-meta-row">
+                    <span class="meta-label">Tariff HS Code:</span>
+                    <span class="meta-val" style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-secondary);">
+                        {{ comm.hs_code|default:"Benchmark Par" }}
+                    </span>
+                </div>
+                <div style="margin-top: 0.5rem; display: flex; flex-wrap: wrap; gap: 0.35rem;">
+                    <span class="meta-label" style="align-self: center; margin-right: 0.25rem;">Venues:</span>
+                    {% for l in comm.exchange_listings.all %}
+                        <span class="badge-tag tag-exchange" title="{{ l.exchange.name }} (Ticker: {{ l.ticker_symbol }})">
+                            {{ l.exchange.code }}: {{ l.ticker_symbol }}
+                        </span>
+                    {% empty %}
+                        <span class="badge-tag tag-internal">{{ comm.primary_exchange.code }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- ========================================================================= -->
+<!-- TAB 6: EXCHANGE VENUES                                                    -->
+<!-- ========================================================================= -->
+<div id="tab-pane-exchanges" class="tab-pane" style="display: {% if active_tab == 'exchanges' %}block{% else %}none{% endif %};">
+    <div class="catalog-cards-grid">
+        {% for e in exchanges %}
+        <div class="catalog-card filter-item" data-search="{{ e.code }} {{ e.mic }} {{ e.name }} {{ e.country }} {{ e.city }} {{ e.timezone }} {{ e.tier }}">
+            <div>
+                <div class="card-header">
+                    <span class="card-code">{{ e.code }}</span>
+                    <span class="badge-tag tag-exchange">MIC: {{ e.mic }}</span>
+                </div>
+                <div class="card-title">{{ e.name }}</div>
+                <div class="card-desc">Tier: {{ e.get_tier_display }}</div>
+            </div>
+
+            <div class="card-meta-list">
+                <div class="card-meta-row">
+                    <span class="meta-label">Location:</span>
+                    <span class="meta-val">{{ e.city }}, {{ e.country }}</span>
+                </div>
+                <div class="card-meta-row">
+                    <span class="meta-label">IANA Timezone:</span>
+                    <span class="meta-val" style="color: var(--accent-cyan);">{{ e.timezone }}</span>
+                </div>
+                <div class="card-meta-row">
+                    <span class="meta-label">Settlement Currency:</span>
+                    <span class="meta-val" style="color: var(--accent-amber); font-family: var(--font-mono);">
+                        {{ e.currency }}
+                    </span>
+                </div>
+                <div class="card-meta-row">
+                    <span class="meta-label">Trading Sessions:</span>
+                    <span class="meta-val">{{ e.sessions.count }} defined</span>
+                </div>
+                {% if e.website_url %}
+                <div class="card-meta-row">
+                    <span class="meta-label">Portal:</span>
+                    <span class="meta-val">
+                        <a href="{{ e.website_url }}" target="_blank" style="color: var(--accent-blue); text-decoration: none;">Link ↗</a>
+                    </span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    let currentTab = "{{ active_tab }}";
+
+    function switchTab(tabName, btnElement) {
+        currentTab = tabName;
+        
+        // Hide all tab panes
+        document.querySelectorAll('.tab-pane').forEach(el => el.style.display = 'none');
+        
+        // Show target pane
+        const targetPane = document.getElementById('tab-pane-' + tabName);
+        if (targetPane) targetPane.style.display = 'block';
+
+        // Update button active state
+        document.querySelectorAll('#explorer-tabs-bar .tab-btn').forEach(btn => btn.classList.remove('active'));
+        if (btnElement) btnElement.classList.add('active');
+
+        // Update browser URL query param without reload
+        const url = new URL(window.location);
+        url.searchParams.set('tab', tabName);
+        window.history.pushState({}, '', url);
+
+        // Re-run filter on the new tab
+        filterCatalog();
+    }
+
+    function filterCatalog() {
+        const query = document.getElementById('catalog-search-input').value.toLowerCase().trim();
+        const activePane = document.getElementById('tab-pane-' + currentTab);
+        if (!activePane) return;
+
+        const items = activePane.querySelectorAll('.filter-item');
+        let visibleCount = 0;
+
+        items.forEach(item => {
+            const searchData = (item.getAttribute('data-search') || '').toLowerCase();
+            const textContent = item.textContent.toLowerCase();
+            
+            if (query === '' || searchData.includes(query) || textContent.includes(query)) {
+                if (item.tagName.toLowerCase() === 'tr') {
+                    item.style.display = '';
+                } else {
+                    item.style.display = 'flex';
+                }
+                visibleCount++;
+            } else {
+                item.style.display = 'none';
+            }
+        });
+
+        const counter = document.getElementById('results-counter');
+        if (query === '') {
+            counter.textContent = `Showing all ${items.length} items`;
+        } else {
+            counter.textContent = `Found ${visibleCount} of ${items.length} items`;
+        }
+    }
+
+    function clearSearch() {
+        document.getElementById('catalog-search-input').value = '';
+        filterCatalog();
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', () => {
+        filterCatalog();
+    });
+</script>
+{% endblock %}

@@ -22,6 +22,7 @@ def index(request):
     from apps.contracts.models import ContractSpecification, ContractExpiry
     from apps.datasets.models import DatasetMaster
     from apps.variables.models import VariableMaster
+    from apps.providers.models import ProviderMaster
 
     phases = [
         {"id": "Phase 1", "name": "Django + PostgreSQL Foundation", "status": "ACTIVE / VERIFIED"},
@@ -31,7 +32,7 @@ def index(request):
         {"id": "Phase 5", "name": "Product / Instrument / Contract Master", "status": "ACTIVE / VERIFIED"},
         {"id": "Phase 6", "name": "Dataset Master", "status": "ACTIVE / VERIFIED"},
         {"id": "Phase 7", "name": "Variable Master", "status": "ACTIVE / VERIFIED"},
-        {"id": "Phase 8", "name": "Source / Provider Master", "status": "PENDING"},
+        {"id": "Phase 8", "name": "Source / Provider Master", "status": "ACTIVE / VERIFIED"},
         {"id": "Phase 9", "name": "Endpoint & API Metadata", "status": "PENDING"},
         {"id": "Phase 10", "name": "Data Contract", "status": "PENDING"},
     ]
@@ -62,6 +63,8 @@ def index(request):
     dataset_count = DatasetMaster.objects.filter(is_active=True).count()
     variable_count = VariableMaster.objects.filter(is_active=True).count()
     benchmark_variable_count = VariableMaster.objects.filter(is_active=True, is_benchmark=True).count()
+    provider_count = ProviderMaster.objects.filter(is_active=True).count()
+    provider_with_limits_count = ProviderMaster.objects.filter(is_active=True, rate_limit_requests__isnull=False).count()
 
     context = {
         "page_title": "Terminal Overview",
@@ -85,5 +88,57 @@ def index(request):
         "dataset_count": dataset_count,
         "variable_count": variable_count,
         "benchmark_variable_count": benchmark_variable_count,
+        "provider_count": provider_count,
+        "provider_with_limits_count": provider_with_limits_count,
     }
     return render(request, "dashboard/index.html", context)
+
+
+def explorer(request):
+    """
+    Renders the interactive Visual Data Explorer for all master catalogs:
+    Providers, Variables, Datasets, Contracts, Commodities, and Exchanges.
+    """
+    from apps.exchanges.models import ExchangeMaster
+    from apps.commodities.models import CommodityMaster
+    from apps.contracts.models import ContractSpecification
+    from apps.datasets.models import DatasetMaster
+    from apps.variables.models import VariableMaster
+    from apps.providers.models import ProviderMaster
+
+    providers = ProviderMaster.objects.select_related("fallback_provider").all()
+    variables = VariableMaster.objects.select_related("dataset", "domain", "commodity", "unit").all()
+    datasets = DatasetMaster.objects.select_related(
+        "domain", "primary_commodity", "frequency", "exchange"
+    ).prefetch_related("commodities").all()
+    contracts = ContractSpecification.objects.select_related(
+        "commodity", "exchange", "contract_unit", "price_quote_unit"
+    ).all()
+    commodities = CommodityMaster.objects.select_related(
+        "primary_exchange", "base_unit", "pricing_unit", "standard_lot_unit"
+    ).prefetch_related("exchange_listings__exchange").all()
+    exchanges = ExchangeMaster.objects.prefetch_related("sessions").all()
+
+    initial_tab = request.GET.get("tab", "providers").lower()
+    valid_tabs = {"providers", "variables", "datasets", "contracts", "commodities", "exchanges"}
+    if initial_tab not in valid_tabs:
+        initial_tab = "providers"
+
+    context = {
+        "page_title": "Visual Data Explorer",
+        "active_tab": initial_tab,
+        "providers": providers,
+        "variables": variables,
+        "datasets": datasets,
+        "contracts": contracts,
+        "commodities": commodities,
+        "exchanges": exchanges,
+        "provider_count": providers.count(),
+        "variable_count": variables.count(),
+        "dataset_count": datasets.count(),
+        "contract_count": contracts.count(),
+        "commodity_count": commodities.count(),
+        "exchange_count": exchanges.count(),
+    }
+    return render(request, "dashboard/explorer.html", context)
+

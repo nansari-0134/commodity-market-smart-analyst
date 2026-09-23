@@ -402,9 +402,65 @@ The seeder resolves foreign keys to `DatasetMaster`, `DataDomainMaster`, `UnitMa
 
 ---
 
-## 8. Universal Provider Registry Across All System Modules
+## 8. Case Study 6: Swapping the Provider Master Catalog Provider
 
-We apply this exact pluggable architecture across every data domain in the 40-phase platform:
+In **Phase 8: Provider Master**, external vendors, government statistical agencies, exchange feeds, and rate limit policies are governed by `BaseProviderCatalogProvider`.
+
+Suppose an enterprise organization manages their vendor directories and API access credentials in an enterprise **Configuration Management Database (CMDB)** or **Internal API Gateway Registry** (e.g. Kong, Apigee, AWS Systems Manager Parameter Store).
+
+### Step 1: Implement `BaseProviderCatalogProvider`
+Create `apps/providers/providers/enterprise_cmdb.py`:
+
+```python
+from typing import List, Optional
+from apps.providers.providers.base import BaseProviderCatalogProvider, RawProviderSpec
+
+class EnterpriseCMDBProviderCatalog(BaseProviderCatalogProvider):
+    """Synchronizes external vendor metadata from an internal enterprise CMDB service."""
+
+    def get_providers(self) -> List[RawProviderSpec]:
+        # Connect to internal API gateway or CMDB
+        return [
+            RawProviderSpec(
+                code="EIA_GOV",
+                name="U.S. Energy Information Administration",
+                description="Official energy statistics.",
+                provider_type="GOVERNMENT_PUBLIC",
+                base_url="https://api.eia.gov/v2/",
+                auth_type="API_KEY_QUERY_PARAM",
+                env_var_name="EIA_API_KEY",
+                auth_param_name="api_key",
+                rate_limit_requests=5000,
+                rate_limit_window_seconds=3600,
+                target_sla_pct=99.80,
+                display_order=10,
+            ),
+        ]
+
+    def get_provider(self, code: str) -> Optional[RawProviderSpec]:
+        for spec in self.get_providers():
+            if spec.code.upper() == code.upper():
+                return spec
+        return None
+```
+
+### Step 2: Configure Environment Variable
+In `.env` or Django settings:
+```bash
+PROVIDER_CATALOG_PROVIDER="apps.providers.providers.enterprise_cmdb.EnterpriseCMDBProviderCatalog"
+```
+
+### Step 3: Run the Provider Seeder
+```powershell
+python manage.py seed_providers
+```
+The seeder loads all vendor definitions, maps environment variable keys, sets rate budgets, and establishes fallback chains idempotently.
+
+---
+
+## 9. Universal Provider Registry Across All System Modules
+
+We apply this exact pluggable architecture across every data domain in the platform:
 
 | Data Domain | Module | Active Default Provider | Target Interface Contract | Future Institutional Providers |
 | :--- | :--- | :--- | :--- | :--- |
@@ -413,6 +469,7 @@ We apply this exact pluggable architecture across every data domain in the 40-ph
 | **Futures Reference Specs** | `apps/contracts` | Static Canonical Catalog | `BaseContractSpecProvider` | CME Datamine, ICE Reference Data |
 | **Dataset Master Catalog** | `apps/datasets` | Static Benchmark Catalog | `BaseDatasetCatalogProvider` | AWS Glue, Snowflake Marketplace, Collibra |
 | **Variable Master Catalog** | `apps/variables` | Static Benchmark Catalog | `BaseVariableCatalogProvider` | Feast, Databricks Feature Store, Hopsworks |
+| **Provider Master Catalog** | `apps/providers` | Static Benchmark Catalog | `BaseProviderCatalogProvider` | HashiCorp Vault, AWS SSM, Kong Gateway |
 | **Market Data (OHLCV)** | `apps/market_data` | Public / Open Market Feed | `BaseMarketDataProvider` | B-PIPE, Refinitiv Real-Time, Polygon |
 | **CFTC COT Positioning** | `apps/positioning` | CFTC Socrata API | `BaseCOTProvider` | CFTC Bulk FTP, Bloomberg COT |
 | **Weather & Climate** | `apps/weather` | NOAA / Open-Meteo | `BaseWeatherProvider` | ECMWF, Copernicus, Maxar Weather |
