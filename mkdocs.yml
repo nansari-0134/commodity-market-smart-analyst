@@ -63,6 +63,7 @@ nav:
       - Futures & Contract Specifications: modules/contracts-and-derivatives.md
       - Dataset Master & Catalog: modules/dataset-master.md
       - Variable Master & Metrics: modules/variable-master.md
+      - Provider & Source Master: modules/provider-master.md
   - REST API Reference:
       - API Overview & Quickstart: api/overview.md
       - Metadata & Taxonomy Endpoints: api/metadata.md
@@ -71,6 +72,7 @@ nav:
       - Contracts & Derivatives Endpoints: api/contracts.md
       - Dataset Catalog Endpoints: api/datasets.md
       - Variable Catalog Endpoints: api/variables.md
+      - Provider Catalog Endpoints: api/providers.md
   - Developer Guides:
       - Adding Commodities & Exchanges: guides/adding-new-commodity-and-exchange.md
       - Data Provider Integration: guides/data-sources.md

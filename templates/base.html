@@ -17,14 +17,199 @@
     {% block extra_head %}{% endblock %}
 </head>
 <body>
+    <!-- Ambient Graphical Market Backdrop (Aurora, Financial Candlestick Charts, Volatility Waves & Constellations) -->
+    <div class="market-bg-backdrop" aria-hidden="true">
+        <!-- Floating Aurora Mesh Gradient Glow Orbs -->
+        <div class="aurora-orb orb-cyan"></div>
+        <div class="aurora-orb orb-purple"></div>
+        <div class="aurora-orb orb-emerald"></div>
+        <div class="aurora-orb orb-rose"></div>
+        <div class="aurora-orb orb-amber"></div>
+
+        <!-- SVG Financial Feature Graphics Layer -->
+        <svg class="market-graphic-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
+            <defs>
+                <linearGradient id="grad-cyan-blue" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#00f2fe" stop-opacity="0.4"/>
+                    <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.1"/>
+                </linearGradient>
+                <linearGradient id="grad-purple-pink" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#a855f7" stop-opacity="0.35"/>
+                    <stop offset="100%" stop-color="#ec4899" stop-opacity="0.1"/>
+                </linearGradient>
+                <linearGradient id="grad-emerald-cyan" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#10b981" stop-opacity="0.35"/>
+                    <stop offset="100%" stop-color="#00f2fe" stop-opacity="0.1"/>
+                </linearGradient>
+                <linearGradient id="grad-amber-rose" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.3"/>
+                    <stop offset="100%" stop-color="#f43f5e" stop-opacity="0.1"/>
+                </linearGradient>
+                <linearGradient id="candle-green" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#10b981" stop-opacity="0.75"/>
+                    <stop offset="100%" stop-color="#059669" stop-opacity="0.45"/>
+                </linearGradient>
+                <linearGradient id="candle-red" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#f43f5e" stop-opacity="0.75"/>
+                    <stop offset="100%" stop-color="#be123c" stop-opacity="0.45"/>
+                </linearGradient>
+
+                <!-- High-Tech Quantitative Coordinates Grid Pattern -->
+                <pattern id="market-grid-pattern" width="80" height="80" patternUnits="userSpaceOnUse">
+                    <path d="M 80 0 L 0 0 0 80" fill="none" stroke="rgba(255, 255, 255, 0.035)" stroke-width="1"/>
+                    <path d="M 40 38 L 40 42 M 38 40 L 42 40" stroke="rgba(6, 182, 212, 0.2)" stroke-width="1"/>
+                    <circle cx="80" cy="0" r="1.5" fill="rgba(0, 242, 254, 0.3)"/>
+                    <circle cx="0" cy="80" r="1.5" fill="rgba(168, 85, 247, 0.3)"/>
+                </pattern>
+            </defs>
+
+            <!-- Coordinate Grid -->
+            <rect width="100%" height="100%" fill="url(#market-grid-pattern)"/>
+
+            <!-- Commodity Market Trend Moving Average Splines (Cyan & Purple ribbons) -->
+            <path d="M -50 320 C 250 280, 450 480, 750 390 C 1050 300, 1300 520, 1600 410 C 1800 340, 1950 460, 2050 420"
+                  fill="none" stroke="url(#grad-cyan-blue)" stroke-width="2.5" opacity="0.6"/>
+            <path d="M -50 340 C 250 310, 480 520, 780 430 C 1080 340, 1320 560, 1620 450 C 1820 370, 1950 500, 2050 460"
+                  fill="none" stroke="url(#grad-purple-pink)" stroke-width="2" opacity="0.45" stroke-dasharray="8 4"/>
+            <path d="M -50 680 C 300 750, 600 590, 950 670 C 1300 750, 1550 580, 1850 640 C 1950 660, 2000 650, 2050 660"
+                  fill="none" stroke="url(#grad-emerald-cyan)" stroke-width="2" opacity="0.5"/>
+
+            <!-- Financial Candlestick Formations (Top Right Market Feature Representation) -->
+            <g opacity="0.45" transform="translate(1180, 80)">
+                <!-- Candle 1: Bullish -->
+                <line x1="20" y1="40" x2="20" y2="120" stroke="#10b981" stroke-width="1.5"/>
+                <rect x="14" y="55" width="12" height="45" fill="url(#candle-green)" rx="1"/>
+
+                <!-- Candle 2: Bullish -->
+                <line x1="45" y1="30" x2="45" y2="110" stroke="#10b981" stroke-width="1.5"/>
+                <rect x="39" y="42" width="12" height="40" fill="url(#candle-green)" rx="1"/>
+
+                <!-- Candle 3: Bearish Pullback -->
+                <line x1="70" y1="45" x2="70" y2="135" stroke="#f43f5e" stroke-width="1.5"/>
+                <rect x="64" y="60" width="12" height="50" fill="url(#candle-red)" rx="1"/>
+
+                <!-- Candle 4: Hammer Pin Bar -->
+                <line x1="95" y1="65" x2="95" y2="160" stroke="#10b981" stroke-width="1.5"/>
+                <rect x="89" y="70" width="12" height="22" fill="url(#candle-green)" rx="1"/>
+
+                <!-- Candle 5: Bullish Breakout -->
+                <line x1="120" y1="20" x2="120" y2="105" stroke="#10b981" stroke-width="1.5"/>
+                <rect x="114" y="32" width="12" height="58" fill="url(#candle-green)" rx="1"/>
+
+                <!-- Candle 6: Bullish Extension -->
+                <line x1="145" y1="10" x2="145" y2="90" stroke="#10b981" stroke-width="1.5"/>
+                <rect x="139" y="18" width="12" height="50" fill="url(#candle-green)" rx="1"/>
+
+                <!-- Candle 7: Doji -->
+                <line x1="170" y1="15" x2="170" y2="75" stroke="#f59e0b" stroke-width="1.5"/>
+                <rect x="164" y="38" width="12" height="6" fill="#f59e0b" rx="1"/>
+
+                <!-- Candle 8: Consolidation -->
+                <line x1="195" y1="25" x2="195" y2="95" stroke="#10b981" stroke-width="1.5"/>
+                <rect x="189" y="35" width="12" height="35" fill="url(#candle-green)" rx="1"/>
+
+                <!-- Horizontal Price Level Line -->
+                <line x1="0" y1="35" x2="260" y2="35" stroke="rgba(0, 242, 254, 0.4)" stroke-dasharray="4 4" stroke-width="1"/>
+                <text x="268" y="38" fill="rgba(0, 242, 254, 0.7)" font-family="monospace" font-size="9">RESISTANCE 84.50</text>
+            </g>
+
+            <!-- Bottom Left Market Candlestick Cluster -->
+            <g opacity="0.38" transform="translate(60, 680)">
+                <line x1="20" y1="60" x2="20" y2="140" stroke="#f43f5e" stroke-width="1.5"/>
+                <rect x="14" y="75" width="12" height="42" fill="url(#candle-red)" rx="1"/>
+
+                <line x1="45" y1="80" x2="45" y2="165" stroke="#f43f5e" stroke-width="1.5"/>
+                <rect x="39" y="95" width="12" height="50" fill="url(#candle-red)" rx="1"/>
+
+                <line x1="70" y1="90" x2="70" y2="175" stroke="#10b981" stroke-width="1.5"/>
+                <rect x="64" y="105" width="12" height="35" fill="url(#candle-green)" rx="1"/>
+
+                <line x1="95" y1="50" x2="95" y2="140" stroke="#10b981" stroke-width="1.5"/>
+                <rect x="89" y="65" width="12" height="55" fill="url(#candle-green)" rx="1"/>
+
+                <line x1="120" y1="35" x2="120" y2="120" stroke="#10b981" stroke-width="1.5"/>
+                <rect x="114" y="48" width="12" height="52" fill="url(#candle-green)" rx="1"/>
+
+                <!-- Volume Histogram Bars below candles -->
+                <rect x="14" y="195" width="12" height="28" fill="rgba(244, 63, 94, 0.45)" rx="1"/>
+                <rect x="39" y="185" width="12" height="38" fill="rgba(244, 63, 94, 0.55)" rx="1"/>
+                <rect x="64" y="200" width="12" height="23" fill="rgba(16, 185, 129, 0.45)" rx="1"/>
+                <rect x="89" y="170" width="12" height="53" fill="rgba(16, 185, 129, 0.75)" rx="1"/>
+                <rect x="114" y="178" width="12" height="45" fill="rgba(16, 185, 129, 0.65)" rx="1"/>
+                <text x="14" y="238" fill="rgba(148, 163, 184, 0.6)" font-family="monospace" font-size="9">VOL PROFILE: HIGH ACCUMULATION</text>
+            </g>
+
+            <!-- Global Commodity Exchange Constellation Network Hubs -->
+            <g opacity="0.45">
+                <!-- Links between Hubs -->
+                <line x1="420" y1="210" x2="780" y2="190" stroke="rgba(139, 92, 246, 0.4)" stroke-dasharray="5 5" stroke-width="1.2"/>
+                <line x1="780" y1="190" x2="1240" y2="240" stroke="rgba(6, 182, 212, 0.4)" stroke-dasharray="5 5" stroke-width="1.2"/>
+                <line x1="1240" y1="240" x2="1520" y2="350" stroke="rgba(16, 185, 129, 0.4)" stroke-dasharray="5 5" stroke-width="1.2"/>
+                <line x1="780" y1="190" x2="980" y2="420" stroke="rgba(245, 158, 11, 0.35)" stroke-dasharray="5 5" stroke-width="1.2"/>
+                <line x1="420" y1="210" x2="520" y2="520" stroke="rgba(236, 72, 153, 0.35)" stroke-dasharray="5 5" stroke-width="1.2"/>
+
+                <!-- Hub 1: Chicago (CME) -->
+                <circle cx="420" cy="210" r="16" fill="rgba(0, 242, 254, 0.08)" stroke="rgba(0, 242, 254, 0.6)" stroke-width="1.5"/>
+                <circle cx="420" cy="210" r="5" fill="#00f2fe"/>
+                <text x="442" y="214" fill="#00f2fe" font-family="monospace" font-weight="700" font-size="11">CME [XNYM/XCME]</text>
+
+                <!-- Hub 2: London (ICE/LME) -->
+                <circle cx="780" cy="190" r="16" fill="rgba(139, 92, 246, 0.08)" stroke="rgba(139, 92, 246, 0.6)" stroke-width="1.5"/>
+                <circle cx="780" cy="190" r="5" fill="#a855f7"/>
+                <text x="802" y="194" fill="#c084fc" font-family="monospace" font-weight="700" font-size="11">ICE / LME [IFEU]</text>
+
+                <!-- Hub 3: Dubai / Middle East (IFAD) -->
+                <circle cx="980" cy="420" r="14" fill="rgba(245, 158, 11, 0.08)" stroke="rgba(245, 158, 11, 0.6)" stroke-width="1.5"/>
+                <circle cx="980" cy="420" r="4" fill="#f59e0b"/>
+                <text x="1002" y="424" fill="#fbbf24" font-family="monospace" font-size="10">IFAD [MURBAN]</text>
+
+                <!-- Hub 4: Shanghai / Singapore (INE/SGX) -->
+                <circle cx="1240" cy="240" r="16" fill="rgba(16, 185, 129, 0.08)" stroke="rgba(16, 185, 129, 0.6)" stroke-width="1.5"/>
+                <circle cx="1240" cy="240" r="5" fill="#10b981"/>
+                <text x="1262" y="244" fill="#34d399" font-family="monospace" font-weight="700" font-size="11">INE / SGX [ASIA]</text>
+
+                <!-- Hub 5: Mumbai (MCX) -->
+                <circle cx="1520" cy="350" r="14" fill="rgba(236, 72, 153, 0.08)" stroke="rgba(236, 72, 153, 0.6)" stroke-width="1.5"/>
+                <circle cx="1520" cy="350" r="4" fill="#ec4899"/>
+                <text x="1542" y="354" fill="#f472b6" font-family="monospace" font-size="10">MCX [INDIA]</text>
+
+                <!-- Hub 6: São Paulo (B3) -->
+                <circle cx="520" cy="520" r="14" fill="rgba(59, 130, 246, 0.08)" stroke="rgba(59, 130, 246, 0.6)" stroke-width="1.5"/>
+                <circle cx="520" cy="520" r="4" fill="#3b82f6"/>
+                <text x="542" y="524" fill="#60a5fa" font-family="monospace" font-size="10">B3 [AGRI/BRAZIL]</text>
+            </g>
+
+            <!-- Stylized Commodity Ticker Watermarks in Background -->
+            <g font-family="monospace" font-weight="800" fill="none" opacity="0.08">
+                <text x="140" y="280" font-size="64" stroke="#00f2fe" stroke-width="1">CL • CRUDE OIL</text>
+                <text x="1380" y="650" font-size="64" stroke="#f59e0b" stroke-width="1">GC • GOLD 100oz</text>
+                <text x="680" y="880" font-size="56" stroke="#10b981" stroke-width="1">ZC • CORN 5000bu</text>
+                <text x="1100" y="980" font-size="52" stroke="#a855f7" stroke-width="1">NG • NATURAL GAS</text>
+            </g>
+        </svg>
+
+        <!-- Interactive Constellation Particles Layer -->
+        <canvas id="marketCanvas" class="market-canvas"></canvas>
+    </div>
+
     <!-- Main Top Navigation -->
     <header class="navbar">
         <div class="brand-container">
-            <img src="{% static 'images/logo.png' %}" alt="Logo" class="brand-logo" style="object-fit: contain; background: transparent; box-shadow: none; padding: 2px;">
-            <div>
-                <h1 class="brand-title" style="font-size: 1.15rem; margin: 0;">{{ APP_NAME }}</h1>
-                <div class="brand-subtitle">Quant & Market Intelligence Terminal • {{ CURRENT_PHASE }}</div>
-            </div>
+            <a href="{% url 'dashboard:index' %}" style="display: flex; align-items: center; gap: 0.85rem; text-decoration: none;">
+                <img src="{% static 'images/logo.png' %}" alt="Logo" class="brand-logo" style="object-fit: contain; background: transparent; box-shadow: none; padding: 2px;">
+                <div>
+                    <h1 class="brand-title" style="font-size: 1.15rem; margin: 0;">{{ APP_NAME }}</h1>
+                    <div class="brand-subtitle">Quant & Market Intelligence Terminal </div>
+                </div>
+            </a>
+            <nav style="display: flex; gap: 0.5rem; align-items: center; margin-left: 1.5rem;">
+                <a href="{% url 'dashboard:index' %}" class="nav-link {% if request.resolver_match.url_name == 'index' %}active{% endif %}">
+                    Terminal
+                </a>
+                <a href="{% url 'dashboard:explorer' %}" class="nav-link {% if request.resolver_match.url_name == 'explorer' %}active{% endif %}">
+                    Data Explorer
+                </a>
+            </nav>
         </div>
         <div class="nav-status-group">
             <a href="{% url 'core:health_check' %}" style="text-decoration: none;" target="_blank">
@@ -56,6 +241,8 @@
         </div>
     </footer>
 
+    <!-- Interactive Canvas & Clock Scripts -->
+    <script src="{% static 'js/market-background.js' %}"></script>
     <script>
         // Live UTC Clock updater
         function updateClock() {

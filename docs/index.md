@@ -49,8 +49,9 @@ graph TD
 * **Futures & Contract Master (Phase 5)**: Canonical derivative specifications, standard commodity month codes (F-Z), institutional expiry date calculation, and benchmark index roll schedules (GSCI, BCOM).
 * **Dataset Master & Catalog (Phase 6)**: Canonical registry of 23 benchmark datasets, multi-asset commodity linkages, update cadences, ingestion modes, and pipeline SLAs.
 * **Variable Master & Metrics Catalog (Phase 7)**: Standardized dictionary of 40 canonical commodity variables, stock vs. flow aggregation behaviors, and display transformation hints.
+* **Provider Master & Source Catalog (Phase 8)**: Canonical directory of 20 institutional data vendors and agencies, 12-factor credential environment mapping, proactive rate limit budgets, and fallback failover chaining.
 * **Real-Time Intelligence Terminal**: High-density dark-theme surveillance dashboard displaying operational telemetry, database health, pipeline metrics, and system diagnostics.
-* **High-Performance REST API Suite**: Production-grade endpoints for metadata, exchanges, commodities, contract specifications, and forward delivery cycles with rich filtering.
+* **High-Performance REST API Suite**: Production-grade endpoints for metadata, exchanges, commodities, contract specifications, datasets, variables, and data providers with rich filtering.
 * **Fact-Anchored LLM Market Narratives**: Evidence-linked commentary engine anchoring generative narrative synthesis directly to quantitative features and official data releases.
 * **Production MkDocs Documentation Suite**: Interactive documentation site deployed to GitHub Pages with interactive cURL/Python API consoles and provider integration guides.
 
@@ -83,6 +84,7 @@ graph TD
 | **Futures & Derivatives** | [Futures & Contract Specifications](modules/contracts-and-derivatives.md) | 25 Benchmark Specs, 200+ Prompt Expiries, Algorithmic Rules, Roll Schedules | :white_check_mark: Active |
 | **Dataset Master & Catalog** | [Dataset Master](modules/dataset-master.md) | 23 Benchmark Datasets, Multi-Asset Linkages, Release Schedules, SLAs | :white_check_mark: Active |
 | **Variable Master & Metrics** | [Variable Master](modules/variable-master.md) | 40 Benchmark Variables, Stock vs Flow Resampling, Unit Enforcement, REST APIs | :white_check_mark: Active |
+| **Provider / Source Master** | [Provider Master](modules/provider-master.md) | 20 Benchmark Data Vendors, 12-Factor Auth References, Rate Limits, Failover Chaining | :white_check_mark: Active |
 | **Market Data & Curves** | Quant Analytics | High-frequency OHLCV, Forward Curves, Intraday Volatility Surfaces | :soon: Planned |
 | **Supply & Demand** | Balance Sheets | USDA, EIA, IEA, Production/Consumption Fundamentals | :soon: Planned |
 | **LLM Market Narratives** | AI Intelligence | Point-in-time Market Commentary, RAG Retrieval, Risk Summaries | :soon: Planned |
