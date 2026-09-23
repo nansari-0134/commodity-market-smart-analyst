@@ -13,7 +13,7 @@
       
       
       
-        <link rel="prev" href="../../modules/variable-master/">
+        <link rel="prev" href="../../modules/provider-master/">
       
       
         <link rel="next" href="../metadata/">
@@ -592,6 +592,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/provider-master/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Provider & Source Master
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -947,6 +975,34 @@
     
   
     Variable Catalog Endpoints
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../providers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Provider Catalog Endpoints
   
 
     
@@ -1466,6 +1522,24 @@
 <td style="text-align: left;"><a href="../variables/"><code>/api/variables/summary/</code></a></td>
 <td style="text-align: center;"><code>GET</code></td>
 <td style="text-align: left;">Aggregate counts by data type, aggregation method, and domain.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Provider Catalog</strong></td>
+<td style="text-align: left;"><a href="../providers/"><code>/api/providers/</code></a></td>
+<td style="text-align: center;"><code>GET</code></td>
+<td style="text-align: left;">External data vendors and exchange feeds with auth protocol and rate limit filtering.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Provider Detail</strong></td>
+<td style="text-align: left;"><a href="../providers/"><code>/api/providers/{code_or_uuid}/</code></a></td>
+<td style="text-align: center;"><code>GET</code></td>
+<td style="text-align: left;">Full vendor specification, 12-factor env var keys, rate budgets, and failover targets.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Provider Summary</strong></td>
+<td style="text-align: left;"><a href="../providers/"><code>/api/providers/summary/</code></a></td>
+<td style="text-align: center;"><code>GET</code></td>
+<td style="text-align: left;">Telemetry breakdown by provider type, authentication strategy, and rate limits.</td>
 </tr>
 </tbody>
 </table>

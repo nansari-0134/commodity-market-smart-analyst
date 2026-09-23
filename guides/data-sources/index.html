@@ -592,6 +592,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/provider-master/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Provider & Source Master
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -836,6 +864,34 @@
     
   
     Variable Catalog Endpoints
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/providers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Provider Catalog Endpoints
   
 
     
@@ -1319,10 +1375,60 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#8-universal-provider-registry-across-all-system-modules" class="md-nav__link">
+  <a href="#8-case-study-6-swapping-the-provider-master-catalog-provider" class="md-nav__link">
     <span class="md-ellipsis">
       
-        8. Universal Provider Registry Across All System Modules
+        8. Case Study 6: Swapping the Provider Master Catalog Provider
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. Case Study 6: Swapping the Provider Master Catalog Provider">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-implement-baseprovidercatalogprovider" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Implement BaseProviderCatalogProvider
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-configure-environment-variable_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Configure Environment Variable
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-run-the-provider-seeder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: Run the Provider Seeder
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-universal-provider-registry-across-all-system-modules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Universal Provider Registry Across All System Modules
       
     </span>
   </a>
@@ -1722,10 +1828,60 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#8-universal-provider-registry-across-all-system-modules" class="md-nav__link">
+  <a href="#8-case-study-6-swapping-the-provider-master-catalog-provider" class="md-nav__link">
     <span class="md-ellipsis">
       
-        8. Universal Provider Registry Across All System Modules
+        8. Case Study 6: Swapping the Provider Master Catalog Provider
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. Case Study 6: Swapping the Provider Master Catalog Provider">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-implement-baseprovidercatalogprovider" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Implement BaseProviderCatalogProvider
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-configure-environment-variable_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Configure Environment Variable
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-run-the-provider-seeder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: Run the Provider Seeder
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-universal-provider-registry-across-all-system-modules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Universal Provider Registry Across All System Modules
       
     </span>
   </a>
@@ -2095,8 +2251,53 @@ The seeder resolves domain taxonomy foreign keys, links multiple commodities via
 </span></code></pre></div>
 The seeder resolves foreign keys to <code>DatasetMaster</code>, <code>DataDomainMaster</code>, <code>UnitMaster</code>, and <code>CommodityMaster</code>, ensuring deterministic stock vs. flow aggregation rules without modifying application code.</p>
 <hr />
-<h2 id="8-universal-provider-registry-across-all-system-modules">8. Universal Provider Registry Across All System Modules</h2>
-<p>We apply this exact pluggable architecture across every data domain in the 40-phase platform:</p>
+<h2 id="8-case-study-6-swapping-the-provider-master-catalog-provider">8. Case Study 6: Swapping the Provider Master Catalog Provider</h2>
+<p>In <strong>Phase 8: Provider Master</strong>, external vendors, government statistical agencies, exchange feeds, and rate limit policies are governed by <code>BaseProviderCatalogProvider</code>.</p>
+<p>Suppose an enterprise organization manages their vendor directories and API access credentials in an enterprise <strong>Configuration Management Database (CMDB)</strong> or <strong>Internal API Gateway Registry</strong> (e.g. Kong, Apigee, AWS Systems Manager Parameter Store).</p>
+<h3 id="step-1-implement-baseprovidercatalogprovider">Step 1: Implement <code>BaseProviderCatalogProvider</code></h3>
+<p>Create <code>apps/providers/providers/enterprise_cmdb.py</code>:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">apps.providers.providers.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseProviderCatalogProvider</span><span class="p">,</span> <span class="n">RawProviderSpec</span>
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>
+</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="k">class</span><span class="w"> </span><span class="nc">EnterpriseCMDBProviderCatalog</span><span class="p">(</span><span class="n">BaseProviderCatalogProvider</span><span class="p">):</span>
+</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="w">    </span><span class="sd">"""Synchronizes external vendor metadata from an internal enterprise CMDB service."""</span>
+</span><span id="__span-17-6"><a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>
+</span><span id="__span-17-7"><a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_providers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">RawProviderSpec</span><span class="p">]:</span>
+</span><span id="__span-17-8"><a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a>        <span class="c1"># Connect to internal API gateway or CMDB</span>
+</span><span id="__span-17-9"><a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a>        <span class="k">return</span> <span class="p">[</span>
+</span><span id="__span-17-10"><a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a>            <span class="n">RawProviderSpec</span><span class="p">(</span>
+</span><span id="__span-17-11"><a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a>                <span class="n">code</span><span class="o">=</span><span class="s2">"EIA_GOV"</span><span class="p">,</span>
+</span><span id="__span-17-12"><a id="__codelineno-17-12" name="__codelineno-17-12" href="#__codelineno-17-12"></a>                <span class="n">name</span><span class="o">=</span><span class="s2">"U.S. Energy Information Administration"</span><span class="p">,</span>
+</span><span id="__span-17-13"><a id="__codelineno-17-13" name="__codelineno-17-13" href="#__codelineno-17-13"></a>                <span class="n">description</span><span class="o">=</span><span class="s2">"Official energy statistics."</span><span class="p">,</span>
+</span><span id="__span-17-14"><a id="__codelineno-17-14" name="__codelineno-17-14" href="#__codelineno-17-14"></a>                <span class="n">provider_type</span><span class="o">=</span><span class="s2">"GOVERNMENT_PUBLIC"</span><span class="p">,</span>
+</span><span id="__span-17-15"><a id="__codelineno-17-15" name="__codelineno-17-15" href="#__codelineno-17-15"></a>                <span class="n">base_url</span><span class="o">=</span><span class="s2">"https://api.eia.gov/v2/"</span><span class="p">,</span>
+</span><span id="__span-17-16"><a id="__codelineno-17-16" name="__codelineno-17-16" href="#__codelineno-17-16"></a>                <span class="n">auth_type</span><span class="o">=</span><span class="s2">"API_KEY_QUERY_PARAM"</span><span class="p">,</span>
+</span><span id="__span-17-17"><a id="__codelineno-17-17" name="__codelineno-17-17" href="#__codelineno-17-17"></a>                <span class="n">env_var_name</span><span class="o">=</span><span class="s2">"EIA_API_KEY"</span><span class="p">,</span>
+</span><span id="__span-17-18"><a id="__codelineno-17-18" name="__codelineno-17-18" href="#__codelineno-17-18"></a>                <span class="n">auth_param_name</span><span class="o">=</span><span class="s2">"api_key"</span><span class="p">,</span>
+</span><span id="__span-17-19"><a id="__codelineno-17-19" name="__codelineno-17-19" href="#__codelineno-17-19"></a>                <span class="n">rate_limit_requests</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span>
+</span><span id="__span-17-20"><a id="__codelineno-17-20" name="__codelineno-17-20" href="#__codelineno-17-20"></a>                <span class="n">rate_limit_window_seconds</span><span class="o">=</span><span class="mi">3600</span><span class="p">,</span>
+</span><span id="__span-17-21"><a id="__codelineno-17-21" name="__codelineno-17-21" href="#__codelineno-17-21"></a>                <span class="n">target_sla_pct</span><span class="o">=</span><span class="mf">99.80</span><span class="p">,</span>
+</span><span id="__span-17-22"><a id="__codelineno-17-22" name="__codelineno-17-22" href="#__codelineno-17-22"></a>                <span class="n">display_order</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+</span><span id="__span-17-23"><a id="__codelineno-17-23" name="__codelineno-17-23" href="#__codelineno-17-23"></a>            <span class="p">),</span>
+</span><span id="__span-17-24"><a id="__codelineno-17-24" name="__codelineno-17-24" href="#__codelineno-17-24"></a>        <span class="p">]</span>
+</span><span id="__span-17-25"><a id="__codelineno-17-25" name="__codelineno-17-25" href="#__codelineno-17-25"></a>
+</span><span id="__span-17-26"><a id="__codelineno-17-26" name="__codelineno-17-26" href="#__codelineno-17-26"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_provider</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">code</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">RawProviderSpec</span><span class="p">]:</span>
+</span><span id="__span-17-27"><a id="__codelineno-17-27" name="__codelineno-17-27" href="#__codelineno-17-27"></a>        <span class="k">for</span> <span class="n">spec</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_providers</span><span class="p">():</span>
+</span><span id="__span-17-28"><a id="__codelineno-17-28" name="__codelineno-17-28" href="#__codelineno-17-28"></a>            <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">code</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">==</span> <span class="n">code</span><span class="o">.</span><span class="n">upper</span><span class="p">():</span>
+</span><span id="__span-17-29"><a id="__codelineno-17-29" name="__codelineno-17-29" href="#__codelineno-17-29"></a>                <span class="k">return</span> <span class="n">spec</span>
+</span><span id="__span-17-30"><a id="__codelineno-17-30" name="__codelineno-17-30" href="#__codelineno-17-30"></a>        <span class="k">return</span> <span class="kc">None</span>
+</span></code></pre></div>
+<h3 id="step-2-configure-environment-variable_2">Step 2: Configure Environment Variable</h3>
+<p>In <code>.env</code> or Django settings:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="nv">PROVIDER_CATALOG_PROVIDER</span><span class="o">=</span><span class="s2">"apps.providers.providers.enterprise_cmdb.EnterpriseCMDBProviderCatalog"</span>
+</span></code></pre></div></p>
+<h3 id="step-3-run-the-provider-seeder">Step 3: Run the Provider Seeder</h3>
+<p><div class="language-powershell highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="n">python</span> <span class="n">manage</span><span class="p">.</span><span class="n">py</span> <span class="n">seed_providers</span>
+</span></code></pre></div>
+The seeder loads all vendor definitions, maps environment variable keys, sets rate budgets, and establishes fallback chains idempotently.</p>
+<hr />
+<h2 id="9-universal-provider-registry-across-all-system-modules">9. Universal Provider Registry Across All System Modules</h2>
+<p>We apply this exact pluggable architecture across every data domain in the platform:</p>
 <table>
 <thead>
 <tr>
@@ -2142,6 +2343,13 @@ The seeder resolves foreign keys to <code>DatasetMaster</code>, <code>DataDomain
 <td style="text-align: left;">Static Benchmark Catalog</td>
 <td style="text-align: left;"><code>BaseVariableCatalogProvider</code></td>
 <td style="text-align: left;">Feast, Databricks Feature Store, Hopsworks</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Provider Master Catalog</strong></td>
+<td style="text-align: left;"><code>apps/providers</code></td>
+<td style="text-align: left;">Static Benchmark Catalog</td>
+<td style="text-align: left;"><code>BaseProviderCatalogProvider</code></td>
+<td style="text-align: left;">HashiCorp Vault, AWS SSM, Kong Gateway</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Market Data (OHLCV)</strong></td>
