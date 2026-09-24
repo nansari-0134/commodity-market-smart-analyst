@@ -60,6 +60,10 @@
         <span>🏛️ Exchange Venues</span>
         <span class="tab-count">{{ exchange_count }}</span>
     </button>
+    <button class="tab-btn {% if active_tab == 'endpoints' %}active{% endif %}" data-tab="endpoints" onclick="switchTab('endpoints', this)">
+        <span>📡 API Endpoints & Routes</span>
+        <span class="tab-count">{{ endpoint_count }}</span>
+    </button>
 </div>
 
 <!-- Search and Filter Toolbar -->
@@ -443,6 +447,86 @@
                     </span>
                 </div>
                 {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- ========================================================================= -->
+<!-- TAB 7: API ENDPOINTS & ROUTE TEMPLATES                                    -->
+<!-- ========================================================================= -->
+<div id="tab-pane-endpoints" class="tab-pane" style="display: {% if active_tab == 'endpoints' %}block{% else %}none{% endif %};">
+    <div class="catalog-cards-grid">
+        {% for ep in endpoints %}
+        <div class="catalog-card filter-item" data-search="{{ ep.code }} {{ ep.name }} {{ ep.provider.code }} {{ ep.provider.name }} {{ ep.protocol }} {{ ep.http_method }} {{ ep.response_format }} {{ ep.path_template }} {% if ep.dataset %}{{ ep.dataset.code }}{% endif %}">
+            <div>
+                <div class="card-header">
+                    <span class="card-code">{{ ep.code }}</span>
+                    <div style="display: flex; gap: 0.35rem; align-items: center;">
+                        <span style="font-family: var(--font-mono); font-size: 0.7rem; font-weight: 700; padding: 2px 6px; border-radius: 4px; background: {% if ep.http_method == 'GET' %}rgba(6, 182, 212, 0.2){% else %}rgba(245, 158, 11, 0.2){% endif %}; color: {% if ep.http_method == 'GET' %}var(--accent-cyan){% else %}var(--accent-amber){% endif %}; border: 1px solid {% if ep.http_method == 'GET' %}rgba(6, 182, 212, 0.4){% else %}rgba(245, 158, 11, 0.4){% endif %};">
+                            {{ ep.http_method }}
+                        </span>
+                        <span style="font-family: var(--font-mono); font-size: 0.68rem; font-weight: 600; padding: 2px 5px; border-radius: 4px; background: rgba(139, 92, 246, 0.15); color: #c084fc; border: 1px solid rgba(139, 92, 246, 0.3);">
+                            {{ ep.response_format }}
+                        </span>
+                    </div>
+                </div>
+                <div class="card-title">{{ ep.name }}</div>
+                <div class="card-desc">{{ ep.description|default:"Institutional vendor API endpoint route template." }}</div>
+            </div>
+
+            <div class="card-meta-list">
+                <div class="card-meta-row">
+                    <span class="meta-label">Provider:</span>
+                    <a href="?tab=providers" class="meta-val" style="color: var(--accent-cyan); text-decoration: none; font-weight: 600;">
+                        {{ ep.provider.code }}
+                    </a>
+                </div>
+                <div class="card-meta-row">
+                    <span class="meta-label">Protocol:</span>
+                    <span class="meta-val" style="color: var(--text-secondary);">
+                        {{ ep.get_protocol_display }}
+                    </span>
+                </div>
+                <div class="card-meta-row">
+                    <span class="meta-label">Target Dataset:</span>
+                    <span class="meta-val">
+                        {% if ep.dataset %}
+                            <a href="?tab=datasets" style="color: var(--accent-emerald); font-family: var(--font-mono); font-size: 0.72rem; text-decoration: none;">
+                                📦 {{ ep.dataset.code }}
+                            </a>
+                        {% else %}
+                            <span style="color: var(--text-muted); font-size: 0.72rem; font-style: italic;">Reference / Discovery</span>
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="card-meta-row" style="flex-direction: column; align-items: flex-start; gap: 0.25rem;">
+                    <span class="meta-label">Route Template:</span>
+                    <code style="font-size: 0.72rem; background: rgba(0,0,0,0.35); padding: 3px 6px; border-radius: 4px; border: 1px solid var(--border-subtle); color: #f472b6; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                        {{ ep.path_template }}
+                    </code>
+                </div>
+                {% if ep.data_envelope_path %}
+                <div class="card-meta-row">
+                    <span class="meta-label">Data Envelope:</span>
+                    <span class="meta-val" style="font-family: var(--font-mono); font-size: 0.7rem; color: #fbbf24;">
+                        {{ ep.data_envelope_path }}
+                    </span>
+                </div>
+                {% endif %}
+                <div class="card-meta-row">
+                    <span class="meta-label">Cache TTL:</span>
+                    <span class="meta-val" style="color: var(--text-muted); font-size: 0.72rem;">
+                        {{ ep.cache_ttl_seconds }}s
+                    </span>
+                </div>
+                <div class="card-meta-row" style="margin-top: 0.35rem; padding-top: 0.35rem; border-top: 1px dashed rgba(255,255,255,0.05);">
+                    <span class="meta-label">Full URL:</span>
+                    <span style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent-cyan); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 210px;" title="{{ ep.get_full_url }}">
+                        {{ ep.get_full_url }}
+                    </span>
+                </div>
             </div>
         </div>
         {% endfor %}

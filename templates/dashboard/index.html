@@ -30,11 +30,11 @@
     <div class="glass-panel metric-card">
         <div class="metric-label">Active Phase</div>
         <div class="metric-value">
-            <span style="color: var(--accent-cyan);">PHASE 08</span>
-            <span class="metric-badge">PROVIDERS</span>
+            <span style="color: var(--accent-cyan);">PHASE 09</span>
+            <span class="metric-badge">ENDPOINTS</span>
         </div>
         <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.4rem; font-family: var(--font-mono);">
-            {{ provider_count }} Sources • {{ variable_count }} Variables
+            {{ endpoint_count }} Routes • {{ provider_count }} Providers
         </div>
     </div>
 
@@ -64,6 +64,9 @@
         <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
             <a href="{% url 'dashboard:explorer' %}" class="status-pill status-active" style="text-decoration: none; font-weight: 700; background: linear-gradient(135deg, rgba(0, 242, 254, 0.25) 0%, rgba(139, 92, 246, 0.3) 100%); border: 1px solid rgba(0, 242, 254, 0.6); color: #ffffff; padding: 0.4rem 1rem; box-shadow: 0 0 16px rgba(0, 242, 254, 0.25);">
                 📊 Visual Data Explorer ➔
+            </a>
+            <a href="{% url 'dashboard:explorer' %}?tab=endpoints" class="status-pill" style="text-decoration: none; color: #a78bfa; border-color: rgba(167, 139, 250, 0.35); background: rgba(167, 139, 250, 0.08);">
+                Endpoints
             </a>
             <a href="{% url 'dashboard:explorer' %}?tab=providers" class="status-pill" style="text-decoration: none; color: #38bdf8; border-color: rgba(56, 189, 248, 0.35); background: rgba(56, 189, 248, 0.08);">
                 Providers

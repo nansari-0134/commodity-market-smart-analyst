@@ -458,7 +458,61 @@ The seeder loads all vendor definitions, maps environment variable keys, sets ra
 
 ---
 
-## 9. Universal Provider Registry Across All System Modules
+## 9. Case Study 7: Registering Custom API Endpoints & Route Templates (`apps/endpoints`)
+
+Vendor API routes and payload extraction rules are managed via `BaseEndpointCatalogProvider` in `apps/endpoints/providers/base.py`.
+
+### Step 1: Implement `BaseEndpointCatalogProvider`
+Create a custom catalog provider adapter (e.g. `apps/endpoints/providers/enterprise_routes.py`):
+
+```python
+from typing import List, Optional
+from apps.endpoints.providers.base import BaseEndpointCatalogProvider, RawEndpointSpec
+
+class EnterpriseRouteCatalogProvider(BaseEndpointCatalogProvider):
+    """Fetches API routes and schemas from an enterprise API gateway or Swagger/OpenAPI spec."""
+
+    def get_endpoints(self) -> List[RawEndpointSpec]:
+        return [
+            RawEndpointSpec(
+                code="CUSTOM_EIA_ELECTRICITY_SALES",
+                name="EIA Electricity Retail Sales API",
+                description="Monthly US retail sales of electricity by customer class.",
+                provider_code="EIA_GOV",
+                dataset_code=None,
+                protocol="REST_HTTP",
+                http_method="GET",
+                path_template="electricity/retail-sales/data/",
+                response_format="JSON",
+                data_envelope_path="response.data",
+                default_params={"frequency": "monthly"},
+                custom_headers={"Accept": "application/json"},
+                cache_ttl_seconds=86400,
+            ),
+        ]
+
+    def get_endpoint(self, code: str) -> Optional[RawEndpointSpec]:
+        for spec in self.get_endpoints():
+            if spec.code.upper() == code.upper():
+                return spec
+        return None
+```
+
+### Step 2: Configure Environment Variable
+In `.env` or Django settings:
+```bash
+ENDPOINT_CATALOG_PROVIDER="apps.endpoints.providers.enterprise_routes.EnterpriseRouteCatalogProvider"
+```
+
+### Step 3: Run the Endpoint Seeder
+```powershell
+python manage.py seed_endpoints
+```
+The seeder loads all endpoint route templates, validates parent `ProviderMaster` references and target `DatasetMaster` linkages, and updates the database idempotently.
+
+---
+
+## 10. Universal Provider Registry Across All System Modules
 
 We apply this exact pluggable architecture across every data domain in the platform:
 
@@ -470,6 +524,7 @@ We apply this exact pluggable architecture across every data domain in the platf
 | **Dataset Master Catalog** | `apps/datasets` | Static Benchmark Catalog | `BaseDatasetCatalogProvider` | AWS Glue, Snowflake Marketplace, Collibra |
 | **Variable Master Catalog** | `apps/variables` | Static Benchmark Catalog | `BaseVariableCatalogProvider` | Feast, Databricks Feature Store, Hopsworks |
 | **Provider Master Catalog** | `apps/providers` | Static Benchmark Catalog | `BaseProviderCatalogProvider` | HashiCorp Vault, AWS SSM, Kong Gateway |
+| **Endpoint Master Catalog** | `apps/endpoints` | Static Benchmark Catalog | `BaseEndpointCatalogProvider` | OpenAPI / Swagger 3.0, Kong Gateway |
 | **Market Data (OHLCV)** | `apps/market_data` | Public / Open Market Feed | `BaseMarketDataProvider` | B-PIPE, Refinitiv Real-Time, Polygon |
 | **CFTC COT Positioning** | `apps/positioning` | CFTC Socrata API | `BaseCOTProvider` | CFTC Bulk FTP, Bloomberg COT |
 | **Weather & Climate** | `apps/weather` | NOAA / Open-Meteo | `BaseWeatherProvider` | ECMWF, Copernicus, Maxar Weather |
@@ -477,7 +532,7 @@ We apply this exact pluggable architecture across every data domain in the platf
 
 ---
 
-## 9. Developer Checklist for Adding Any New Data Provider
+## 11. Developer Checklist for Adding Any New Data Provider
 
 Before committing a new provider adapter to the codebase, verify:
 

@@ -23,6 +23,7 @@ def index(request):
     from apps.datasets.models import DatasetMaster
     from apps.variables.models import VariableMaster
     from apps.providers.models import ProviderMaster
+    from apps.endpoints.models import EndpointMaster
 
     phases = [
         {"id": "Phase 1", "name": "Django + PostgreSQL Foundation", "status": "ACTIVE / VERIFIED"},
@@ -33,7 +34,7 @@ def index(request):
         {"id": "Phase 6", "name": "Dataset Master", "status": "ACTIVE / VERIFIED"},
         {"id": "Phase 7", "name": "Variable Master", "status": "ACTIVE / VERIFIED"},
         {"id": "Phase 8", "name": "Source / Provider Master", "status": "ACTIVE / VERIFIED"},
-        {"id": "Phase 9", "name": "Endpoint & API Metadata", "status": "PENDING"},
+        {"id": "Phase 9", "name": "Endpoint & API Metadata", "status": "ACTIVE / VERIFIED"},
         {"id": "Phase 10", "name": "Data Contract", "status": "PENDING"},
     ]
 
@@ -65,6 +66,7 @@ def index(request):
     benchmark_variable_count = VariableMaster.objects.filter(is_active=True, is_benchmark=True).count()
     provider_count = ProviderMaster.objects.filter(is_active=True).count()
     provider_with_limits_count = ProviderMaster.objects.filter(is_active=True, rate_limit_requests__isnull=False).count()
+    endpoint_count = EndpointMaster.objects.filter(is_active=True).count()
 
     context = {
         "page_title": "Terminal Overview",
@@ -90,6 +92,7 @@ def index(request):
         "benchmark_variable_count": benchmark_variable_count,
         "provider_count": provider_count,
         "provider_with_limits_count": provider_with_limits_count,
+        "endpoint_count": endpoint_count,
     }
     return render(request, "dashboard/index.html", context)
 
@@ -97,7 +100,7 @@ def index(request):
 def explorer(request):
     """
     Renders the interactive Visual Data Explorer for all master catalogs:
-    Providers, Variables, Datasets, Contracts, Commodities, and Exchanges.
+    Endpoints, Providers, Variables, Datasets, Contracts, Commodities, and Exchanges.
     """
     from apps.exchanges.models import ExchangeMaster
     from apps.commodities.models import CommodityMaster
@@ -105,7 +108,9 @@ def explorer(request):
     from apps.datasets.models import DatasetMaster
     from apps.variables.models import VariableMaster
     from apps.providers.models import ProviderMaster
+    from apps.endpoints.models import EndpointMaster
 
+    endpoints = EndpointMaster.objects.select_related("provider", "dataset").all()
     providers = ProviderMaster.objects.select_related("fallback_provider").all()
     variables = VariableMaster.objects.select_related("dataset", "domain", "commodity", "unit").all()
     datasets = DatasetMaster.objects.select_related(
@@ -119,20 +124,22 @@ def explorer(request):
     ).prefetch_related("exchange_listings__exchange").all()
     exchanges = ExchangeMaster.objects.prefetch_related("sessions").all()
 
-    initial_tab = request.GET.get("tab", "providers").lower()
-    valid_tabs = {"providers", "variables", "datasets", "contracts", "commodities", "exchanges"}
+    initial_tab = request.GET.get("tab", "endpoints").lower()
+    valid_tabs = {"endpoints", "providers", "variables", "datasets", "contracts", "commodities", "exchanges"}
     if initial_tab not in valid_tabs:
-        initial_tab = "providers"
+        initial_tab = "endpoints"
 
     context = {
         "page_title": "Visual Data Explorer",
         "active_tab": initial_tab,
+        "endpoints": endpoints,
         "providers": providers,
         "variables": variables,
         "datasets": datasets,
         "contracts": contracts,
         "commodities": commodities,
         "exchanges": exchanges,
+        "endpoint_count": endpoints.count(),
         "provider_count": providers.count(),
         "variable_count": variables.count(),
         "dataset_count": datasets.count(),

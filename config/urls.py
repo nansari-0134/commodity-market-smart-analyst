@@ -24,6 +24,8 @@ urlpatterns = [
     path("api/variables/", include("apps.variables.urls")),
     # Provider Master & Source Catalog
     path("api/providers/", include("apps.providers.urls")),
+    # Endpoint Master & API Metadata
+    path("api/endpoints/", include("apps.endpoints.urls")),
     # Main terminal / intelligence dashboard
     path("", include("apps.dashboard.urls")),
 ]
