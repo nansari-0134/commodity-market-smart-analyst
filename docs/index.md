@@ -87,6 +87,7 @@ graph TD
 | **Variable Master & Metrics** | [Variable Master](modules/variable-master.md) | 40 Benchmark Variables, Stock vs Flow Resampling, Unit Enforcement, REST APIs | :white_check_mark: Active |
 | **Provider / Source Master** | [Provider Master](modules/provider-master.md) | 20 Benchmark Data Vendors, 12-Factor Auth References, Rate Limits, Failover Chaining | :white_check_mark: Active |
 | **Endpoint & API Metadata** | [Endpoint Master](modules/endpoint-master.md) | 26 Benchmark Route Templates, Parameter Schemas, Payload Envelope Extraction | :white_check_mark: Active |
-| **Market Data & Curves** | Quant Analytics | High-frequency OHLCV, Forward Curves, Intraday Volatility Surfaces | :soon: Planned |
-| **Supply & Demand** | Balance Sheets | USDA, EIA, IEA, Production/Consumption Fundamentals | :soon: Planned |
-| **LLM Market Narratives** | AI Intelligence | Point-in-time Market Commentary, RAG Retrieval, Risk Summaries | :soon: Planned |
+| **Market Data & Observations** | [Market Data Store](modules/market-data.md) | Point-in-Time Price Bars, EIA Fundamentals, CFTC COT Positioning, REST APIs | :white_check_mark: Active |
+| **Quant Engine & Curves** | Quant Analytics | Forward Curves, Term Structure Splines, Crack Spreads, Seasonality | :soon: Phase 11 |
+| **News & Market Intelligence** | NLP / Events | Market Events, News Feeds, Entity Linking, Macro Catalysts | :soon: Phase 12 |
+| **LLM Market Narratives** | AI Intelligence | Point-in-time Market Commentary, RAG Retrieval, Risk Summaries | :soon: Phase 13 |

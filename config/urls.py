@@ -26,6 +26,8 @@ urlpatterns = [
     path("api/providers/", include("apps.providers.urls")),
     # Endpoint Master & API Metadata
     path("api/endpoints/", include("apps.endpoints.urls")),
+    # Market Data & Time-Series Observations
+    path("api/market-data/", include("apps.market_data.urls")),
     # Main terminal / intelligence dashboard
     path("", include("apps.dashboard.urls")),
 ]

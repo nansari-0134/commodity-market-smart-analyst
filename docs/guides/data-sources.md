@@ -42,7 +42,21 @@ graph TD
 
 ---
 
-## 2. The 3 Steps to Swap Any Data Provider
+## 2. Quick Reference: What to Change & Where to Change
+
+If you or another developer pick up this platform and need to swap a data source, news provider, fundamental feed, or LLM, use this quick reference table:
+
+| What You Want to Change | How to Do It in This Architecture | Files Touched |
+| :--- | :--- | :--- |
+| **Change Market Data Source**<br>*(e.g., switch from Yahoo/EOD to CME Datamine, ICE, or Bloomberg)* | Implement `BaseMarketDataProvider` in `apps/market_data/providers/` and set `MARKET_DATA_PROVIDER=cme_datamine` in `.env`. | **1 adapter file**; zero database or quant logic changes. |
+| **Change Fundamental Source**<br>*(e.g., switch from EIA API to Kpler, Vortexa, or USDA)* | Implement `BaseFundamentalProvider` in `apps/market_data/providers/` and set `FUNDAMENTAL_DATA_PROVIDER=kpler` in `.env`. | **1 adapter file**; observations map automatically to canonical variables. |
+| **Change News / Sentiment Provider**<br>*(e.g., switch from RSS to Bloomberg News, Reuters, or AlphaVantage)* | Implement `BaseNewsProvider` in `apps/news_intel/providers/` and set `NEWS_PROVIDER=bloomberg` in `.env`. | **1 adapter file**; news articles auto-tag to commodities. |
+| **Change LLM Provider**<br>*(e.g., switch from Google Gemini to Claude, OpenAI, or local Ollama)* | Implement `BaseLLMProvider` in `apps/narratives/providers/` and set `LLM_PROVIDER=claude` in `.env`. | **1 adapter file**; prompt templates and context builders remain unchanged. |
+| **Add a Brand-New Feature for LLM**<br>*(e.g., Baltic Dry Index, Vessel Waiting Times, European Gas Storage)* | 1. Add variable to `VariableMaster`.<br>2. Ingest observations.<br>The Quant Engine and LLM context builder pick it up automatically! | **Zero code refactoring**. Fully extensible. |
+
+---
+
+## 3. The 3 Steps to Swap Any Data Provider
 
 When someone wants to replace a default data source with a new provider (e.g. Bloomberg, Refinitiv, CME Datamine, or internal proprietary feeds), they only need to perform **3 simple steps**:
 

@@ -61,6 +61,7 @@ The architecture enforces a strict mathematical pipeline where deterministic dom
 * **Variable Master & Metrics Catalog (Phase 7)**: Standardized dictionary of 40 canonical commodity variables, stock vs. flow aggregation behaviors, and display transformation hints.
 * **Provider Master & Source Catalog (Phase 8)**: Canonical directory of 20 institutional data vendors and agencies, 12-factor credential environment mapping, proactive rate limit budgets, and fallback failover chaining.
 * **Endpoint & API Metadata (Phase 9)**: Canonical registry of 26 institutional benchmark API route templates, consolidated request schemas, payload envelope selectors, and dynamic URL builders.
+* **Market Data & Time-Series Store (Phase 10)**: Point-in-time exchange price bars (OHLCV, settlements, OI), official weekly government balances (EIA stocks, Cushing, natgas storage), and CFTC Commitment of Traders (COT) trader positioning with native SQL NULL handling (Rule 5).
 * **Real-Time Intelligence Terminal**: High-density dark-theme surveillance dashboard displaying operational telemetry, database health, pipeline metrics, and system diagnostics.
 * **High-Performance REST API Suite**: Production-grade endpoints for metadata, exchanges, commodities, contracts, datasets, variables, providers, and endpoints with rich filtering.
 * **Fact-Anchored LLM Market Narratives**: Evidence-linked commentary engine anchoring generative narrative synthesis directly to quantitative features and official data releases.

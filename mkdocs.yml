@@ -65,6 +65,7 @@ nav:
       - Variable Master & Metrics: modules/variable-master.md
       - Provider & Source Master: modules/provider-master.md
       - Endpoint & API Metadata: modules/endpoint-master.md
+      - Market Data & Observations: modules/market-data.md
   - REST API Reference:
       - API Overview & Quickstart: api/overview.md
       - Metadata & Taxonomy Endpoints: api/metadata.md
@@ -75,6 +76,7 @@ nav:
       - Variable Catalog Endpoints: api/variables.md
       - Provider Catalog Endpoints: api/providers.md
       - Endpoint Catalog Endpoints: api/endpoints.md
+      - Market Data Endpoints: api/market-data.md
   - Developer Guides:
       - Adding Commodities & Exchanges: guides/adding-new-commodity-and-exchange.md
       - Data Provider Integration: guides/data-sources.md
