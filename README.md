@@ -58,8 +58,11 @@ The architecture enforces a strict mathematical pipeline where deterministic dom
 * **Multi-Venue Fungibility & Liquidity Filtering**: Maps cross-exchange listings with localized lot sizes and currency quotes, tracking ADV and Open Interest to isolate active liquidity.
 * **Futures & Contract Master (Phase 5)**: Canonical derivative specifications, standard commodity month codes (F-Z), institutional expiry date calculation, and benchmark index roll schedules (GSCI, BCOM).
 * **Dataset Master & Catalog (Phase 6)**: Canonical registry of 23 benchmark datasets, multi-asset commodity linkages, update cadences, ingestion modes, and pipeline SLAs.
+* **Variable Master & Metrics Catalog (Phase 7)**: Standardized dictionary of 40 canonical commodity variables, stock vs. flow aggregation behaviors, and display transformation hints.
+* **Provider Master & Source Catalog (Phase 8)**: Canonical directory of 20 institutional data vendors and agencies, 12-factor credential environment mapping, proactive rate limit budgets, and fallback failover chaining.
+* **Endpoint & API Metadata (Phase 9)**: Canonical registry of 26 institutional benchmark API route templates, consolidated request schemas, payload envelope selectors, and dynamic URL builders.
 * **Real-Time Intelligence Terminal**: High-density dark-theme surveillance dashboard displaying operational telemetry, database health, pipeline metrics, and system diagnostics.
-* **High-Performance REST API Suite**: Production-grade endpoints for metadata, exchanges, commodities, contract specifications, and forward delivery cycles with rich filtering.
+* **High-Performance REST API Suite**: Production-grade endpoints for metadata, exchanges, commodities, contracts, datasets, variables, providers, and endpoints with rich filtering.
 * **Fact-Anchored LLM Market Narratives**: Evidence-linked commentary engine anchoring generative narrative synthesis directly to quantitative features and official data releases.
 * **Production MkDocs Documentation Suite**: Interactive documentation site deployed to GitHub Pages with interactive cURL/Python API consoles and provider integration guides.
 
