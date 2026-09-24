@@ -103,8 +103,19 @@ Activate the environment based on your operating system:
   ```
 
 ### 3. Install Dependencies
+The platform uses a modular 3-tier requirements structure (`requirements/`):
+* `requirements/base.txt`: Core application runtime (Django, DRF, Pydantic, Celery, Redis).
+* `requirements/local.txt`: Development & testing harness (`pytest`, `ruff`, `mkdocs-material`).
+* `requirements/production.txt`: Production WSGI/ASGI servers (`gunicorn`, `uvicorn`).
+* `requirements.txt`: Root convenience proxy pointing to `requirements/local.txt`.
+
+Install all development dependencies using either command:
 ```bash
+# Standard single-command installation (uses root proxy)
 pip install -r requirements.txt
+
+# Or install local requirements explicitly
+pip install -r requirements/local.txt
 ```
 
 ### 4. Configure Environment Variables

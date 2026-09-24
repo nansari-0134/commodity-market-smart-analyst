@@ -1,6 +1,6 @@
 # Development & Operations Guide
 
-Complete guide for local environment setup, virtual environment creation, database migrations, master data seeding, automated testing, and documentation operations.
+Complete guide for local environment setup, virtual environment creation, modular dependency architecture, database migrations, master data seeding, automated testing, and documentation operations.
 
 ---
 
@@ -28,7 +28,7 @@ python -m venv .venv
     ```powershell
     .\.venv\Scripts\Activate.ps1
     ```
-    *(If execution of scripts is disabled, run: `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser`)*
+    *(If script execution is disabled: `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser`)*
 
 === "Windows (Command Prompt)"
     ```cmd
@@ -40,13 +40,20 @@ python -m venv .venv
     source .venv/bin/activate
     ```
 
-Once activated, your terminal prompt will display `(.venv)` and the standard tools (`python`, `pip`, `pytest`, `mkdocs`) will resolve directly to your isolated environment without needing absolute directory paths.
+Once activated, your terminal prompt will display `(.venv)` and standard CLI binaries (`python`, `pip`, `pytest`, `mkdocs`) resolve directly into your isolated environment without needing absolute paths.
 
 ### Step 4: Install Dependencies
+The platform uses a 3-tier modular requirements architecture inside the `requirements/` directory. For local development and testing, install using either command:
+
 ```bash
+# Option A: Standard single-command installation (proxies to requirements/local.txt)
 pip install -r requirements.txt
+
+# Option B: Explicit local development installation
+pip install -r requirements/local.txt
 ```
-*(Or for explicit local development dependencies: `pip install -r requirements/local.txt`)*
+
+*(See [Section 2: Dependency Architecture & Requirements Hierarchy](#dependency-architecture) for details on why this structure is used).*
 
 ### Step 5: Configure Environment Variables
 ```bash
@@ -88,7 +95,51 @@ python manage.py ingest_market_data
 
 ---
 
-## 2. Local Web Server & Terminal Dashboard
+## 2. Dependency Architecture & Requirements Hierarchy {: #dependency-architecture }
+
+Instead of maintaining a single monolithic `requirements.txt` that bloats production Docker containers with testing tools and documentation generators, the platform adopts an institutional **3-tier modular dependency architecture** inside the `requirements/` directory:
+
+```
+commodity-market-smart-analyst/
+├── requirements.txt            # Root convenience proxy (points to requirements/local.txt)
+└── requirements/
+    ├── base.txt                # Core runtime dependencies (Django, DRF, Pydantic, Celery, Redis)
+    ├── local.txt               # Development & testing tools (-r base.txt + pytest, ruff, mkdocs)
+    └── production.txt          # Production server dependencies (-r base.txt + gunicorn, uvicorn)
+```
+
+### The 3 Tier Breakdown
+
+| File | Target Environment | Included Packages | Purpose |
+| :--- | :--- | :--- | :--- |
+| **`requirements/base.txt`** | All environments | `Django`, `psycopg[binary]`, `djangorestframework`, `pydantic`, `httpx`, `celery`, `redis`, `python-dateutil`, `pytz`, `django-environ` | Core application runtime, relational database drivers, data validation schemas, and async task queuing. |
+| **`requirements/local.txt`** | Local dev & CI test runners | `-r base.txt`<br/>`pytest`, `pytest-django`, `ruff`, `ipython`, `mkdocs-material` | Unit testing, linting, interactive debugging, and local documentation live-reload server. |
+| **`requirements/production.txt`** | Production containers & K8s | `-r base.txt`<br/>`gunicorn`, `uvicorn[standard]` | High-concurrency WSGI and ASGI application server workers. Excludes test and doc libraries to minimize image attack surface and build size. |
+| **`requirements.txt` (Root)** | New developers cloning repo | `-r requirements/local.txt` | Standard GitHub entry point so running `pip install -r requirements.txt` immediately installs the complete local development environment. |
+
+### Environment Decision Guide
+
+* **When onboarding locally or contributing code**:
+  ```bash
+  pip install -r requirements.txt
+  ```
+* **When running headless CI/CD test pipelines (GitHub Actions)**:
+  ```bash
+  pip install -r requirements/local.txt
+  ```
+* **When building production Docker images**:
+  ```dockerfile
+  RUN pip install --no-cache-dir -r requirements/production.txt
+  ```
+
+### Rules for Adding New Dependencies
+1. **Core Runtime Libraries**: If a package is imported inside `apps/` or `config/` (e.g. `numpy`, `scipy` for quant models), add it to `requirements/base.txt`.
+2. **Developer & Testing Tools**: If a package is only used for debugging, mocking, profiling, or documentation (e.g. `pytest-mock`, `factory-boy`), add it to `requirements/local.txt`.
+3. **Deployment Tools**: If a package is only used for serving or process management in production, add it to `requirements/production.txt`.
+
+---
+
+## 3. Local Web Server & Terminal Dashboard
 
 Start the Django development server:
 
@@ -104,7 +155,7 @@ python manage.py runserver 127.0.0.1:8000
 
 ---
 
-## 3. Automated Testing
+## 4. Automated Testing
 
 Run the full automated test suite using `pytest`:
 
@@ -123,7 +174,7 @@ pytest tests/test_commodities.py -v
 
 ---
 
-## 4. Documentation Operations
+## 5. Documentation Operations
 
 The documentation is powered by **Material for MkDocs**.
 
@@ -153,7 +204,7 @@ mkdocs gh-deploy
 
 ---
 
-## 5. Management & Ingestion CLI Commands
+## 6. Management & Ingestion CLI Commands
 
 | Command | Description |
 | :--- | :--- |
