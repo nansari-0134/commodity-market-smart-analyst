@@ -620,6 +620,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/endpoint-master/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Endpoint & API Metadata
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -892,6 +920,34 @@
     
   
     Provider Catalog Endpoints
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/endpoints/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Endpoint Catalog Endpoints
   
 
     
@@ -1425,10 +1481,60 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#9-universal-provider-registry-across-all-system-modules" class="md-nav__link">
+  <a href="#9-case-study-7-registering-custom-api-endpoints-route-templates-appsendpoints" class="md-nav__link">
     <span class="md-ellipsis">
       
-        9. Universal Provider Registry Across All System Modules
+        9. Case Study 7: Registering Custom API Endpoints &amp; Route Templates (apps/endpoints)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. Case Study 7: Registering Custom API Endpoints &amp; Route Templates (apps/endpoints)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-implement-baseendpointcatalogprovider" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Implement BaseEndpointCatalogProvider
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-configure-environment-variable_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Configure Environment Variable
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-run-the-endpoint-seeder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: Run the Endpoint Seeder
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-universal-provider-registry-across-all-system-modules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Universal Provider Registry Across All System Modules
       
     </span>
   </a>
@@ -1436,10 +1542,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#9-developer-checklist-for-adding-any-new-data-provider" class="md-nav__link">
+  <a href="#11-developer-checklist-for-adding-any-new-data-provider" class="md-nav__link">
     <span class="md-ellipsis">
       
-        9. Developer Checklist for Adding Any New Data Provider
+        11. Developer Checklist for Adding Any New Data Provider
       
     </span>
   </a>
@@ -1878,10 +1984,60 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#9-universal-provider-registry-across-all-system-modules" class="md-nav__link">
+  <a href="#9-case-study-7-registering-custom-api-endpoints-route-templates-appsendpoints" class="md-nav__link">
     <span class="md-ellipsis">
       
-        9. Universal Provider Registry Across All System Modules
+        9. Case Study 7: Registering Custom API Endpoints &amp; Route Templates (apps/endpoints)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. Case Study 7: Registering Custom API Endpoints &amp; Route Templates (apps/endpoints)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-implement-baseendpointcatalogprovider" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Implement BaseEndpointCatalogProvider
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-configure-environment-variable_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Configure Environment Variable
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-run-the-endpoint-seeder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: Run the Endpoint Seeder
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-universal-provider-registry-across-all-system-modules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Universal Provider Registry Across All System Modules
       
     </span>
   </a>
@@ -1889,10 +2045,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#9-developer-checklist-for-adding-any-new-data-provider" class="md-nav__link">
+  <a href="#11-developer-checklist-for-adding-any-new-data-provider" class="md-nav__link">
     <span class="md-ellipsis">
       
-        9. Developer Checklist for Adding Any New Data Provider
+        11. Developer Checklist for Adding Any New Data Provider
       
     </span>
   </a>
@@ -2296,7 +2452,51 @@ The seeder resolves foreign keys to <code>DatasetMaster</code>, <code>DataDomain
 </span></code></pre></div>
 The seeder loads all vendor definitions, maps environment variable keys, sets rate budgets, and establishes fallback chains idempotently.</p>
 <hr />
-<h2 id="9-universal-provider-registry-across-all-system-modules">9. Universal Provider Registry Across All System Modules</h2>
+<h2 id="9-case-study-7-registering-custom-api-endpoints-route-templates-appsendpoints">9. Case Study 7: Registering Custom API Endpoints &amp; Route Templates (<code>apps/endpoints</code>)</h2>
+<p>Vendor API routes and payload extraction rules are managed via <code>BaseEndpointCatalogProvider</code> in <code>apps/endpoints/providers/base.py</code>.</p>
+<h3 id="step-1-implement-baseendpointcatalogprovider">Step 1: Implement <code>BaseEndpointCatalogProvider</code></h3>
+<p>Create a custom catalog provider adapter (e.g. <code>apps/endpoints/providers/enterprise_routes.py</code>):</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">apps.endpoints.providers.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseEndpointCatalogProvider</span><span class="p">,</span> <span class="n">RawEndpointSpec</span>
+</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>
+</span><span id="__span-20-4"><a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="k">class</span><span class="w"> </span><span class="nc">EnterpriseRouteCatalogProvider</span><span class="p">(</span><span class="n">BaseEndpointCatalogProvider</span><span class="p">):</span>
+</span><span id="__span-20-5"><a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a><span class="w">    </span><span class="sd">"""Fetches API routes and schemas from an enterprise API gateway or Swagger/OpenAPI spec."""</span>
+</span><span id="__span-20-6"><a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a>
+</span><span id="__span-20-7"><a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_endpoints</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">RawEndpointSpec</span><span class="p">]:</span>
+</span><span id="__span-20-8"><a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a>        <span class="k">return</span> <span class="p">[</span>
+</span><span id="__span-20-9"><a id="__codelineno-20-9" name="__codelineno-20-9" href="#__codelineno-20-9"></a>            <span class="n">RawEndpointSpec</span><span class="p">(</span>
+</span><span id="__span-20-10"><a id="__codelineno-20-10" name="__codelineno-20-10" href="#__codelineno-20-10"></a>                <span class="n">code</span><span class="o">=</span><span class="s2">"CUSTOM_EIA_ELECTRICITY_SALES"</span><span class="p">,</span>
+</span><span id="__span-20-11"><a id="__codelineno-20-11" name="__codelineno-20-11" href="#__codelineno-20-11"></a>                <span class="n">name</span><span class="o">=</span><span class="s2">"EIA Electricity Retail Sales API"</span><span class="p">,</span>
+</span><span id="__span-20-12"><a id="__codelineno-20-12" name="__codelineno-20-12" href="#__codelineno-20-12"></a>                <span class="n">description</span><span class="o">=</span><span class="s2">"Monthly US retail sales of electricity by customer class."</span><span class="p">,</span>
+</span><span id="__span-20-13"><a id="__codelineno-20-13" name="__codelineno-20-13" href="#__codelineno-20-13"></a>                <span class="n">provider_code</span><span class="o">=</span><span class="s2">"EIA_GOV"</span><span class="p">,</span>
+</span><span id="__span-20-14"><a id="__codelineno-20-14" name="__codelineno-20-14" href="#__codelineno-20-14"></a>                <span class="n">dataset_code</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-20-15"><a id="__codelineno-20-15" name="__codelineno-20-15" href="#__codelineno-20-15"></a>                <span class="n">protocol</span><span class="o">=</span><span class="s2">"REST_HTTP"</span><span class="p">,</span>
+</span><span id="__span-20-16"><a id="__codelineno-20-16" name="__codelineno-20-16" href="#__codelineno-20-16"></a>                <span class="n">http_method</span><span class="o">=</span><span class="s2">"GET"</span><span class="p">,</span>
+</span><span id="__span-20-17"><a id="__codelineno-20-17" name="__codelineno-20-17" href="#__codelineno-20-17"></a>                <span class="n">path_template</span><span class="o">=</span><span class="s2">"electricity/retail-sales/data/"</span><span class="p">,</span>
+</span><span id="__span-20-18"><a id="__codelineno-20-18" name="__codelineno-20-18" href="#__codelineno-20-18"></a>                <span class="n">response_format</span><span class="o">=</span><span class="s2">"JSON"</span><span class="p">,</span>
+</span><span id="__span-20-19"><a id="__codelineno-20-19" name="__codelineno-20-19" href="#__codelineno-20-19"></a>                <span class="n">data_envelope_path</span><span class="o">=</span><span class="s2">"response.data"</span><span class="p">,</span>
+</span><span id="__span-20-20"><a id="__codelineno-20-20" name="__codelineno-20-20" href="#__codelineno-20-20"></a>                <span class="n">default_params</span><span class="o">=</span><span class="p">{</span><span class="s2">"frequency"</span><span class="p">:</span> <span class="s2">"monthly"</span><span class="p">},</span>
+</span><span id="__span-20-21"><a id="__codelineno-20-21" name="__codelineno-20-21" href="#__codelineno-20-21"></a>                <span class="n">custom_headers</span><span class="o">=</span><span class="p">{</span><span class="s2">"Accept"</span><span class="p">:</span> <span class="s2">"application/json"</span><span class="p">},</span>
+</span><span id="__span-20-22"><a id="__codelineno-20-22" name="__codelineno-20-22" href="#__codelineno-20-22"></a>                <span class="n">cache_ttl_seconds</span><span class="o">=</span><span class="mi">86400</span><span class="p">,</span>
+</span><span id="__span-20-23"><a id="__codelineno-20-23" name="__codelineno-20-23" href="#__codelineno-20-23"></a>            <span class="p">),</span>
+</span><span id="__span-20-24"><a id="__codelineno-20-24" name="__codelineno-20-24" href="#__codelineno-20-24"></a>        <span class="p">]</span>
+</span><span id="__span-20-25"><a id="__codelineno-20-25" name="__codelineno-20-25" href="#__codelineno-20-25"></a>
+</span><span id="__span-20-26"><a id="__codelineno-20-26" name="__codelineno-20-26" href="#__codelineno-20-26"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_endpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">code</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">RawEndpointSpec</span><span class="p">]:</span>
+</span><span id="__span-20-27"><a id="__codelineno-20-27" name="__codelineno-20-27" href="#__codelineno-20-27"></a>        <span class="k">for</span> <span class="n">spec</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_endpoints</span><span class="p">():</span>
+</span><span id="__span-20-28"><a id="__codelineno-20-28" name="__codelineno-20-28" href="#__codelineno-20-28"></a>            <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">code</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">==</span> <span class="n">code</span><span class="o">.</span><span class="n">upper</span><span class="p">():</span>
+</span><span id="__span-20-29"><a id="__codelineno-20-29" name="__codelineno-20-29" href="#__codelineno-20-29"></a>                <span class="k">return</span> <span class="n">spec</span>
+</span><span id="__span-20-30"><a id="__codelineno-20-30" name="__codelineno-20-30" href="#__codelineno-20-30"></a>        <span class="k">return</span> <span class="kc">None</span>
+</span></code></pre></div>
+<h3 id="step-2-configure-environment-variable_3">Step 2: Configure Environment Variable</h3>
+<p>In <code>.env</code> or Django settings:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="nv">ENDPOINT_CATALOG_PROVIDER</span><span class="o">=</span><span class="s2">"apps.endpoints.providers.enterprise_routes.EnterpriseRouteCatalogProvider"</span>
+</span></code></pre></div></p>
+<h3 id="step-3-run-the-endpoint-seeder">Step 3: Run the Endpoint Seeder</h3>
+<p><div class="language-powershell highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="n">python</span> <span class="n">manage</span><span class="p">.</span><span class="n">py</span> <span class="n">seed_endpoints</span>
+</span></code></pre></div>
+The seeder loads all endpoint route templates, validates parent <code>ProviderMaster</code> references and target <code>DatasetMaster</code> linkages, and updates the database idempotently.</p>
+<hr />
+<h2 id="10-universal-provider-registry-across-all-system-modules">10. Universal Provider Registry Across All System Modules</h2>
 <p>We apply this exact pluggable architecture across every data domain in the platform:</p>
 <table>
 <thead>
@@ -2352,6 +2552,13 @@ The seeder loads all vendor definitions, maps environment variable keys, sets ra
 <td style="text-align: left;">HashiCorp Vault, AWS SSM, Kong Gateway</td>
 </tr>
 <tr>
+<td style="text-align: left;"><strong>Endpoint Master Catalog</strong></td>
+<td style="text-align: left;"><code>apps/endpoints</code></td>
+<td style="text-align: left;">Static Benchmark Catalog</td>
+<td style="text-align: left;"><code>BaseEndpointCatalogProvider</code></td>
+<td style="text-align: left;">OpenAPI / Swagger 3.0, Kong Gateway</td>
+</tr>
+<tr>
 <td style="text-align: left;"><strong>Market Data (OHLCV)</strong></td>
 <td style="text-align: left;"><code>apps/market_data</code></td>
 <td style="text-align: left;">Public / Open Market Feed</td>
@@ -2382,7 +2589,7 @@ The seeder loads all vendor definitions, maps environment variable keys, sets ra
 </tbody>
 </table>
 <hr />
-<h2 id="9-developer-checklist-for-adding-any-new-data-provider">9. Developer Checklist for Adding Any New Data Provider</h2>
+<h2 id="11-developer-checklist-for-adding-any-new-data-provider">11. Developer Checklist for Adding Any New Data Provider</h2>
 <p>Before committing a new provider adapter to the codebase, verify:</p>
 <ul class="task-list">
 <li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <strong>Contract Compliance</strong>: Does your class inherit from the domain's <code>BaseProvider</code>?</li>
