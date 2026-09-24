@@ -1,0 +1,3 @@
+# Commodity Market Intelligence Platform
+# Root requirements proxy pointing to local development and testing environment
+-r requirements/local.txt

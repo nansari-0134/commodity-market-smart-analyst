@@ -1,92 +1,211 @@
-# Commodity Market Intelligence & Quant System
+# Commodity Market Intelligence Platform
 
-Welcome to the technical architecture and module documentation for the **Commodity Market Intelligence, Quantitative Research & LLM Market Narrative System**.
+Welcome to the technical architecture and institutional documentation for the **Commodity Market Intelligence, Quantitative Research & LLM Narrative System**.
 
-!!! warning "Standard Disclaimer & Regulatory Notice"
-    **This platform is strictly an analytical research, workflow automation, and quantitative intelligence tool.**
-    
-    It is built to make commodity market data processing, curve analysis, and research workflows easier and more efficient. **It does NOT provide financial advice, investment recommendations, buy/sell signals, or "trading calls."** All market data, forward curves, balance sheets, and LLM-generated narratives are for institutional informational and workflow purposes only. Trading physical commodities, futures, and financial derivatives involves substantial risk of loss.
+!!! warning "Regulatory Notice & Standard Compliance"
+    **This platform is strictly an analytical research, workflow automation, and quantitative surveillance tool.**
+    It does **NOT** provide financial advice, trading recommendations, buy/sell signals, or "trading calls." All quantitative forward curves, balance sheets, and generative AI summaries are for institutional informational and workflow automation purposes only. Trading physical commodities, futures, and derivatives involves substantial risk of loss.
 
 ---
 
-## System Description
+## 1. System Vision & Architecture
 
-The **Commodity Market Intelligence & Quantitative Platform** is an enterprise-grade quantitative research, physical commodity surveillance, forward curve analytics, and AI-driven narrative intelligence platform. Built on strict institutional principles, the system models global physical commodities, derivative contract specifications, multi-venue exchange liquidity, and macroeconomic supply/demand fundamentals. 
+The **Commodity Market Intelligence Platform** models global physical commodities, derivative contract specifications, multi-venue exchange liquidity, and macroeconomic supply/demand fundamentals. 
 
-The architecture enforces a strict mathematical pipeline where deterministic domain logic, dimensional unit conversion, and calendar math strictly precede any qualitative AI reasoning. External data vendor independence is guaranteed through pluggable provider adapters, and point-in-time publication tracking eliminates hindsight and lookahead bias across all research and backtesting workflows.
+The architecture enforces a strict mathematical pipeline where **deterministic domain logic, dimensional unit conversion, and calendar math strictly precede any qualitative AI reasoning**. External data vendor independence is guaranteed through pluggable provider adapters, and point-in-time publication tracking eliminates lookahead bias across all research and backtesting workflows.
+
+### High-Level System Architecture
 
 ```mermaid
 graph TD
-    A[External Data Providers<br/>Exchanges, Gov APIs, Weather, News] --> B[Data Source Adapters & ETL]
-    B --> C[Core Data Layer<br/>Metadata, Exchanges, Commodities, Contracts]
-    C --> D[Quantitative Analytics Engine<br/>Curves, Spreads, Seasonality, Volatility]
-    D --> E[LLM Narrative Engine<br/>Prompt Architecture, Market Commentary]
-    E --> F[Delivery & User Interface<br/>REST APIs, Real-time Dashboard, Webhook Alerts]
+    subgraph Vendors ["1. External Data Vendors & Open APIs"]
+        V1["Exchanges<br/>(CME, ICE, LME, SHFE)"]
+        V2["Agencies<br/>(EIA, USDA, CFTC, NOAA)"]
+        V3["News Feeds<br/>(RSS, Reuters, Bloomberg)"]
+        V4["LLM Vendors<br/>(Gemini, Claude, GPT, Ollama)"]
+    end
+
+    subgraph Adapters ["2. Pluggable Ingestion Boundary (Strategy Pattern)"]
+        A1["Market Data Adapter<br/>BaseMarketDataProvider"]
+        A2["Fundamental Adapter<br/>BaseFundamentalProvider"]
+        A3["COT Positioning Adapter<br/>BaseCOTProvider"]
+        A4["News Intel Adapter<br/>BaseNewsProvider"]
+        A5["LLM Inference Adapter<br/>BaseLLMProvider"]
+    end
+
+    subgraph Registry ["3. Foundational Masters & Metadata Catalog"]
+        M1["Commodity & Contract Master<br/>23 Assets, Grades, Expiry Math"]
+        M2["Exchange Calendars & Sessions<br/>15 Venues, Trading vs Settle"]
+        M3["Metadata Catalog<br/>Provider \u2192 Dataset \u2192 Endpoint \u2192 Variable"]
+    end
+
+    subgraph Store ["4. High-Performance Observation Store (apps/market_data)"]
+        S1["MarketPriceObservation<br/>OHLCV, Settlements, Volume, OI"]
+        S2["FundamentalObservation<br/>Stocks, Cushing, Storage, Balances"]
+        S3["CommitmentOfTradersObservation<br/>Managed Money, Commercial Net, % OI"]
+    end
+
+    subgraph Quant ["5. Deterministic Quant Engine (apps/quant_engine)"]
+        Q1["Forward Curve Splines & Slopes<br/>Backwardation vs Contango"]
+        Q2["Crack & Processing Spreads<br/>3:2:1 Refinery Margin, Crush"]
+        Q3["Seasonality Bands & Z-Scores<br/>5-Year & 10-Year Envelopes"]
+    end
+
+    subgraph AI ["6. Evidence-Linked AI Narratives (apps/narratives)"]
+        N1["Fact Extraction & Context Builder<br/>Anti-Hallucination Grounding"]
+        N2["LLM Narrative Synthesis<br/>Executive Briefs & Risk Alerts"]
+    end
+
+    subgraph UI ["7. Intelligence Terminal (apps/dashboard)"]
+        U1["Real-Time Dashboard & Visual Explorer"]
+        U2["Production REST APIs"]
+    end
+
+    V1 --> A1
+    V2 --> A2
+    V2 --> A3
+    V3 --> A4
+    V4 --> A5
+
+    A1 --> S1
+    A2 --> S2
+    A3 --> S3
+
+    M1 -. Anchors .-> S1
+    M2 -. Calendar Rules .-> S1
+    M3 -. Schema & Rules .-> S2
+
+    S1 --> Q1
+    S1 --> Q2
+    S1 --> Q3
+    S2 --> Q2
+
+    Q1 --> N1
+    Q2 --> N1
+    Q3 --> N1
+    A4 --> N1
+    N1 --> A5 --> N2
+
+    S1 --> U1
+    Q1 --> U1
+    N2 --> U1
+    S1 --> U2
+    Q1 --> U2
+    N2 --> U2
 ```
 
 ---
 
-## What It Is Capable Of
+## 2. End-to-End System Execution Flow
 
-* **Multi-Asset & Multi-Venue Normalization**: Harmonizing heterogeneous physical commodity specifications, delivery hubs, chemical grade thresholds, and trading units across major global exchanges (CME, NYMEX, CBOT, ICE, LME, BMD, MCX, SGX, SHFE).
-* **Deterministic Forward Curve & Term Structure Modeling**: Generating continuous forward curves, term structure spreads, calendar rolls, and seasonal basis analysis without lookahead bias.
-* **Complex Expiry & Calendar Arithmetic**: Computing exact contract last trading days, notice days, and physical/cash settlement dates based on exchange holiday rules and astro-financial dark days (e.g. Good Friday, holiday shifts).
-* **Multi-Exchange Fungibility & Arbitrage Surveillance**: Tracking cross-listed physical assets, pricing unit conversions, and monitoring liquid vs illiquid contracts using ADV (Average Daily Volume) and Open Interest (OI) metrics.
-* **Strict Dimensional Unit Conversion**: Deterministically executing mathematical transformations across mass, volume, energy, and currency dimensions before data feeds into analytics models.
-* **Evidence-Linked AI Narrative Generation**: Generating macroeconomic market summaries and executive briefings where every qualitative LLM claim is linked to verifiable quantitative metrics, historical releases, and audit trails.
-* **Vendor-Agnostic Extensibility**: Ingesting market and fundamental data from any vendor (CME Datamine, ICE, Bloomberg, Refinitiv, USDA, EIA) via swappable provider contracts without changing database schemas or analytical engines.
+The platform executes across **7 coordinated lifecycle phases**. Below is the exact operational responsibility of each module, its inputs and outputs, and direct links to swap underlying data sources:
+
+```
+[Phase A: Foundations]       Taxonomy, Units & Exchange Calendars
+        \u2502
+[Phase B: Physical & Derivs]   Asset Master & Contract Specifications
+        \u2502
+[Phase C: Metadata Registry]   Data Map: Provider \u2192 Dataset \u2192 Endpoint \u2192 Variable
+        \u2502
+[Phase D: Ingestion Store]     Point-in-Time Observations (Prices, Fundamentals, COT)
+        \u2502
+[Phase E: Quant Analytics]     Forward Curves, Term Structure & Seasonality
+        \u2502
+[Phase F: News & Catalysts]    Event Calendar & Entity Tagging
+        \u2502
+[Phase G: AI Intelligence]     Fact-Anchored LLM Narratives & Executive Briefs
+```
+
+### Phase A: Foundational Taxonomy & Operating Calendars
+* **Taxonomy & Units (`apps/metadata`)**: Provides standard Units of Measure (UOM), observation frequencies, and dimensional mathematical conversion. Deterministic math **must** precede all analysis. Converting 1 Barrel of Crude Oil to Metric Tons or Gallons is strictly calculated using `UnitMaster.convert_to()` before any quantitative model or LLM touches the number.
+* **Exchanges & Calendars (`apps/exchanges`)**: Models 15 global commodity exchanges (CME, ICE, LME, SHFE, SGX, etc.), 18 operating trading sessions, and institutional holiday calendars. Resolves active trading days vs. cash settlement days.
+  > **Need to change an Exchange Calendar Source?**  
+  > See: [How to Swap Exchange Calendar Providers](guides/data-sources.md#7-how-to-swap-exchange-calendar-providers-step-by-step).
+
+### Phase B: Physical Commodities & Derivative Contracts
+* **Commodity Master (`apps/commodities`)**: Standardizes physical specifications (API gravity, sulfur content, delivery hubs, crop planting calendars) across 23 physical benchmark commodities.
+* **Contracts & Derivatives (`apps/contracts`)**: Models derivative contract specifications, F-Z standardized month codes, algorithmic expiry date calculations, and benchmark index roll schedules (S&P GSCI, Bloomberg BCOM).
+
+### Phase C: Metadata Catalog & Feature Registry
+* **Catalog Registry (`apps/providers`, `apps/datasets`, `apps/endpoints`, `apps/variables`)**: Tracks complete data provenance:
+  ```
+  ProviderMaster (WHO: The Vendor, e.g. EIA, CME, USDA)
+     \u2193
+  DatasetMaster (WHAT: The Report/Table, e.g. Weekly Petroleum Status Report)
+     \u2193
+  EndpointMaster (WHERE: The URL & Protocol, e.g. /v2/petroleum/pri/spt/data)
+     \u2193
+  VariableMaster (WHICH: The Observable Metric, e.g. CRUDE_CUSHING_STOCKS)
+  ```
+  > **Need to add a brand-new feature or metric to the platform?**  
+  > See: [How to Add New Features, Datasets & Variables](guides/adding-new-feature.md).
+
+### Phase D: Ingestion & Time-Series Observation Store
+* **Observation Store (`apps/market_data`)**: The quantitative storage layer ingesting and indexing point-in-time time-series:
+  - `MarketPriceObservation`: Daily/intraday OHLCV, settlement prices, open interest, and volume.
+  - `FundamentalObservation`: Government storage balances, weekly inventory changes, refinery runs.
+  - `CommitmentOfTradersObservation`: CFTC institutional trader positioning (Managed Money Net, Commercial Net, % of Open Interest).
+* **Point-in-Time & Missing Data Guarantees**:
+  - **Rule 2 (Anti-Lookahead)**: Every observation tracks `observation_date` (market trade date) and `publication_time` (official UTC release timestamp).
+  - **Rule 5 (Native SQL NULL)**: Preserves exact zero (`0.0`) vs unobserved (`NULL`), accelerating SIMD vectorized analytics in NumPy/Pandas.
+  > **Need to switch your Market Data feed (e.g. to CME Datamine or Yahoo)?**  
+  > See: [How to Swap Market Data Providers](guides/data-sources.md#3-how-to-swap-market-data-providers-step-by-step).  
+  > **Need to switch your Fundamental data source (e.g. to EIA API or Kpler)?**  
+  > See: [How to Swap Fundamental Data Providers](guides/data-sources.md#4-how-to-swap-fundamental-data-providers-step-by-step).
+
+### Phase E: Deterministic Quantitative Engine (`apps/quant_engine`)
+* Calculates forward curves, backwardation/contango slopes, term structure splines, crack/crush spreads (e.g. 3:2:1 refinery margin), and 5-year historical seasonality envelopes. All math is deterministic; the LLM is never allowed to guess forward curve numbers.
+
+### Phase F: News, Sentiment & Macro Catalysts (`apps/news_intel`)
+* Ingests macroeconomic catalyst events (OPEC meetings, USDA WASDE releases, Fed interest rate decisions) and real-time news headlines, automatically linking entities to canonical commodities.
+  > **Need to switch your News or Sentiment Feed?**  
+  > See: [How to Swap News and Sentiment Providers](guides/data-sources.md#5-how-to-swap-news-and-sentiment-providers-step-by-step).
+
+### Phase G: Evidence-Linked AI Market Narratives (`apps/narratives`)
+* Generates executive morning market briefs, supply/demand balance commentary, and risk surveillance summaries.
+* **Anti-Hallucination Standard**: Context builder collects verified quantitative metrics (Cushing stocks, 1-week diff, prompt WTI, COT Managed Money Net). The LLM reasons *over* these ground-truth figures using a structured prompt template.
+  > **Need to change the LLM Provider or Model (e.g. Gemini, Claude, GPT-4o, Ollama)?**  
+  > See: [How to Swap LLM Models and Providers](guides/data-sources.md#6-how-to-swap-llm-models-and-providers-step-by-step).
+
+### Phase H: Surveillance Terminal & REST APIs (`apps/dashboard`, Production APIs)
+* High-density dark-theme dashboard displaying system health, asset tickers, pipeline ingestion status, visual data explorer (`/explorer/`), and comprehensive REST API endpoints.
 
 ---
 
-## Features of the System
+## 3. The 4 Non-Negotiable Directives
 
-* **Pluggable Provider Architecture**: Implements Strategy + Factory patterns with strongly-typed Data Transfer Objects (DTOs), enabling zero-friction data vendor swapping and offline resilience.
-* **Point-in-Time Correctness**: Tracks observation timestamps, publication dates, and ingestion audit trails via `PointInTimeModel` to guarantee zero lookahead bias in quantitative research.
-* **Deterministic Unit Conversion Engine**: Provides 45 canonical units of measure (energy, mass, volume, currency) with strict dimensional validation (`UnitMaster.convert_to()`) prior to AI reasoning.
-* **Global Exchange & Calendar Engine**: Canonical modeling for 15 global commodity exchanges, 18 operating sessions, civic vs trading holidays, and astronomical settlement date roll rules.
-* **Physical Commodity Master**: Canonical specifications for 23 physical benchmark commodities across 7 sectors, including chemical grade standards, delivery hubs, and crop seasonality.
-* **Multi-Venue Fungibility & Liquidity Filtering**: Maps cross-exchange listings with localized lot sizes and currency quotes, tracking ADV and Open Interest to isolate active liquidity.
-* **Futures & Contract Master (Phase 5)**: Canonical derivative specifications, standard commodity month codes (F-Z), institutional expiry date calculation, and benchmark index roll schedules (GSCI, BCOM).
-* **Dataset Master & Catalog (Phase 6)**: Canonical registry of 23 benchmark datasets, multi-asset commodity linkages, update cadences, ingestion modes, and pipeline SLAs.
-* **Variable Master & Metrics Catalog (Phase 7)**: Standardized dictionary of 40 canonical commodity variables, stock vs. flow aggregation behaviors, and display transformation hints.
-* **Provider Master & Source Catalog (Phase 8)**: Canonical directory of 20 institutional data vendors and agencies, 12-factor credential environment mapping, proactive rate limit budgets, and fallback failover chaining.
-* **Endpoint & API Metadata (Phase 9)**: 26 institutional benchmark API route templates, consolidated request schemas, payload envelope selectors, and dynamic URL builders.
-* **Real-Time Intelligence Terminal**: High-density dark-theme surveillance dashboard displaying operational telemetry, database health, pipeline metrics, and system diagnostics.
-* **High-Performance REST API Suite**: Production-grade endpoints for metadata, exchanges, commodities, contract specifications, datasets, variables, providers, and endpoints with rich filtering.
-* **Fact-Anchored LLM Market Narratives**: Evidence-linked commentary engine anchoring generative narrative synthesis directly to quantitative features and official data releases.
-* **Production MkDocs Documentation Suite**: Interactive documentation site deployed to GitHub Pages with interactive cURL/Python API consoles and provider integration guides.
+1. **Source Independence & Pluggable Providers**:
+   Core database models and analytics are completely agnostic to external data vendors. Changing a data source requires implementing one adapter class and changing one `.env` variable without modifying downstream quant code.
+2. **Point-in-Time Correctness (Zero Lookahead Bias)**:
+   Every observation preserves market trade dates, official release timestamps, and revision histories (`PointInTimeModel`).
+3. **Deterministic Arithmetic Precedes LLM Reasoning**:
+   Forward curves, crack spreads, and seasonality bands are calculated deterministically. The LLM does not perform mental arithmetic; it reasons over verified quantitative features.
+4. **High-Performance Missing Data Standard (Rule 5)**:
+   Unobserved metrics are strictly stored as SQL native `NULL`, preserving valid zeros (`0.0`), saving storage, and accelerating SIMD vectorization in Pandas (`np.nan`).
 
 ---
 
-## Core Architecture Principles
+## 4. Configuration Knobs
 
-1. **Source Independence (Plug-and-Play Providers)**:
-   The database models, business logic, and quantitative engines are strictly agnostic to external data vendors. Any external source (e.g. public APIs, Bloomberg, Refinitiv, CME Datamine, Argus, Platts) is isolated behind an adapter contract. Swapping a data provider requires changing only one adapter function without altering downstream analytics.
+To configure or swap any layer of the execution pipeline, update `.env` or Django settings:
 
-2. **Point-in-Time Correctness**:
-   Historical observations, market reports, and government balance sheets (e.g., USDA WASDE, EIA Weekly Petroleum Status) preserve exact observation timestamps, release timestamps, and revision histories to eliminate lookahead bias in backtests.
+```bash
+# -------------------------------------------------------------
+# PLUGGABLE PROVIDER CONFIGURATION (.env)
+# -------------------------------------------------------------
+# Market Price Data: 'static', 'yahoo', 'cme_datamine', 'interactive_brokers'
+MARKET_DATA_PROVIDER=static
 
-3. **Deterministic Precedence**:
-   Quantitative forward curve slopes, crack/crush spreads, carrying charges, seasonality curves, and supply/demand balances are computed deterministically before qualitative LLM reasoning.
+# Fundamental Balances: 'static', 'eia_api', 'kpler', 'usda'
+FUNDAMENTAL_DATA_PROVIDER=static
 
-4. **Institutional Precision**:
-   Trading vs. settlement schedules, rolled trade dates, exchange holiday calendars, conversion mathematics, and ISO standards (ISO 10383 MIC, ISO 3166-1 country codes, IANA timezones) are strictly modeled.
+# Commitment of Traders (COT): 'static', 'cftc_socrata'
+COT_DATA_PROVIDER=static
 
----
+# News & Sentiment: 'static', 'rss_feed', 'bloomberg_news', 'newsapi'
+NEWS_PROVIDER=static
 
-## Platform Modules & Capabilities
-
-| Module | Documentation | Key Capabilities | Status |
-| :--- | :--- | :--- | :---: |
-| **Core Infrastructure** | [Architecture Guide](modules/core-infrastructure.md) | Django 5.2, PostgreSQL, Docker, Abstract Models, Health Probes | :white_check_mark: Active |
-| **Taxonomy & Metadata** | [Taxonomy & Units](modules/taxonomy-and-units.md) | 34 Data Domains, 45 Commodity Units, Conversion Engine, 15 Frequencies | :white_check_mark: Active |
-| **Exchanges & Calendars** | [Exchange Master](modules/exchanges-and-calendars.md) | 15 Venues, 18 Sessions, Calendars, Trading vs. Settlement Rules | :white_check_mark: Active |
-| **Commodity Master** | [Physical Commodities](modules/commodity-master.md) | 23 Commodities, Grade Chemistry, Multi-Exchange Listings | :white_check_mark: Active |
-| **Futures & Derivatives** | [Futures & Contract Specifications](modules/contracts-and-derivatives.md) | 25 Benchmark Specs, 200+ Prompt Expiries, Algorithmic Rules, Roll Schedules | :white_check_mark: Active |
-| **Dataset Master & Catalog** | [Dataset Master](modules/dataset-master.md) | 23 Benchmark Datasets, Multi-Asset Linkages, Release Schedules, SLAs | :white_check_mark: Active |
-| **Variable Master & Metrics** | [Variable Master](modules/variable-master.md) | 40 Benchmark Variables, Stock vs Flow Resampling, Unit Enforcement, REST APIs | :white_check_mark: Active |
-| **Provider / Source Master** | [Provider Master](modules/provider-master.md) | 20 Benchmark Data Vendors, 12-Factor Auth References, Rate Limits, Failover Chaining | :white_check_mark: Active |
-| **Endpoint & API Metadata** | [Endpoint Master](modules/endpoint-master.md) | 26 Benchmark Route Templates, Parameter Schemas, Payload Envelope Extraction | :white_check_mark: Active |
-| **Market Data & Curves** | Quant Analytics | High-frequency OHLCV, Forward Curves, Intraday Volatility Surfaces | :soon: Planned |
-| **Supply & Demand** | Balance Sheets | USDA, EIA, IEA, Production/Consumption Fundamentals | :soon: Planned |
-| **LLM Market Narratives** | AI Intelligence | Point-in-time Market Commentary, RAG Retrieval, Risk Summaries | :soon: Planned |
+# LLM Reasoning Engine: 'gemini', 'claude', 'openai', 'ollama'
+LLM_PROVIDER=gemini
+LLM_MODEL=gemini-2.0-flash
+```

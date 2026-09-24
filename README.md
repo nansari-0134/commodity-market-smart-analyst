@@ -61,12 +61,103 @@ The architecture enforces a strict mathematical pipeline where deterministic dom
 * **Variable Master & Metrics Catalog (Phase 7)**: Standardized dictionary of 40 canonical commodity variables, stock vs. flow aggregation behaviors, and display transformation hints.
 * **Provider Master & Source Catalog (Phase 8)**: Canonical directory of 20 institutional data vendors and agencies, 12-factor credential environment mapping, proactive rate limit budgets, and fallback failover chaining.
 * **Endpoint & API Metadata (Phase 9)**: Canonical registry of 26 institutional benchmark API route templates, consolidated request schemas, payload envelope selectors, and dynamic URL builders.
+* **Market Data & Time-Series Store (Phase 10)**: Point-in-time exchange price bars (OHLCV, settlements, OI), official weekly government balances (EIA stocks, Cushing, natgas storage), and CFTC Commitment of Traders (COT) trader positioning with native SQL NULL handling (Rule 5).
 * **Real-Time Intelligence Terminal**: High-density dark-theme surveillance dashboard displaying operational telemetry, database health, pipeline metrics, and system diagnostics.
 * **High-Performance REST API Suite**: Production-grade endpoints for metadata, exchanges, commodities, contracts, datasets, variables, providers, and endpoints with rich filtering.
 * **Fact-Anchored LLM Market Narratives**: Evidence-linked commentary engine anchoring generative narrative synthesis directly to quantitative features and official data releases.
 * **Production MkDocs Documentation Suite**: Interactive documentation site deployed to GitHub Pages with interactive cURL/Python API consoles and provider integration guides.
 
 ---
+
+## Quickstart & Environment Setup
+
+When cloning this repository, the virtual environment folder (`.venv`) is excluded by `.gitignore`. Follow these setup steps to initialize your local environment:
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/nansari-0134/commodity-market-smart-analyst.git
+cd commodity-market-smart-analyst
+```
+
+### 2. Create and Activate a Virtual Environment
+Ensure you have **Python 3.11+** installed:
+
+```bash
+# Create local virtual environment
+python -m venv .venv
+```
+
+Activate the environment based on your operating system:
+
+* **Windows (PowerShell)**:
+  ```powershell
+  .\.venv\Scripts\Activate.ps1
+  ```
+* **Windows (Command Prompt)**:
+  ```cmd
+  .\.venv\Scripts\activate.bat
+  ```
+* **Linux / macOS**:
+  ```bash
+  source .venv/bin/activate
+  ```
+
+### 3. Install Dependencies
+The platform uses a modular 3-tier requirements structure (`requirements/`):
+* `requirements/base.txt`: Core application runtime (Django, DRF, Pydantic, Celery, Redis).
+* `requirements/local.txt`: Development & testing harness (`pytest`, `ruff`, `mkdocs-material`).
+* `requirements/production.txt`: Production WSGI/ASGI servers (`gunicorn`, `uvicorn`).
+* `requirements.txt`: Root convenience proxy pointing to `requirements/local.txt`.
+
+Install all development dependencies using either command:
+```bash
+# Standard single-command installation (uses root proxy)
+pip install -r requirements.txt
+
+# Or install local requirements explicitly
+pip install -r requirements/local.txt
+```
+
+### 4. Configure Environment Variables
+```bash
+cp .env.example .env
+```
+
+### 5. Initialize Database & Seed Master Data
+```bash
+# Run migrations
+python manage.py migrate
+
+# Seed foundational domain masters
+python manage.py seed_metadata
+python manage.py seed_exchanges
+python manage.py seed_commodities
+python manage.py seed_contracts
+python manage.py seed_providers
+python manage.py seed_datasets
+python manage.py seed_endpoints
+python manage.py seed_variables
+
+# Ingest initial time-series observations
+python manage.py ingest_market_data
+```
+
+### 6. Run the Test Suite & Dev Server
+```bash
+# Run automated tests (107/107 passing)
+pytest tests/ -v
+
+# Start local Intelligence Terminal & REST APIs
+python manage.py runserver 127.0.0.1:8000
+
+# Start documentation live preview (hot-reloading)
+mkdocs serve
+```
+
+---
+
+> [!NOTE]
+> **Standard Compliance**: This platform is for quantitative analysis and institutional workflow automation only. Not financial advice.
 
 <p align="center">
   <a href="https://nansari-0134.github.io/commodity-market-smart-analyst/">

@@ -62,6 +62,7 @@ LOCAL_APPS = [
     "apps.variables.apps.VariablesConfig",
     "apps.providers.apps.ProvidersConfig",
     "apps.endpoints.apps.EndpointsConfig",
+    "apps.market_data.apps.MarketDataConfig",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -205,4 +206,7 @@ DATASET_CATALOG_PROVIDER = env("DATASET_CATALOG_PROVIDER", default="static")
 VARIABLE_CATALOG_PROVIDER = env("VARIABLE_CATALOG_PROVIDER", default="static")
 PROVIDER_CATALOG_PROVIDER = env("PROVIDER_CATALOG_PROVIDER", default="static")
 ENDPOINT_CATALOG_PROVIDER = env("ENDPOINT_CATALOG_PROVIDER", default="static")
+MARKET_DATA_PROVIDER = env("MARKET_DATA_PROVIDER", default="static")
+FUNDAMENTAL_DATA_PROVIDER = env("FUNDAMENTAL_DATA_PROVIDER", default="static")
+COT_DATA_PROVIDER = env("COT_DATA_PROVIDER", default="static")
 

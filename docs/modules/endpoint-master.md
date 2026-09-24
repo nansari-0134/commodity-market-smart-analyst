@@ -125,6 +125,6 @@ The platform ships 26 institutional benchmark endpoint specifications out-of-the
 * **Resolver**: `get_endpoint_catalog()` honors `settings.ENDPOINT_CATALOG_PROVIDER`
 * **Idempotent CLI Command**:
 ```powershell
-.\.venv\Scripts\python.exe manage.py seed_endpoints
+python manage.py seed_endpoints
 ```
 Supports the `--clear` flag for database resets without risking data duplication.

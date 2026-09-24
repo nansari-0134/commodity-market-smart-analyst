@@ -115,8 +115,8 @@ Populate canonical commodities and multi-exchange listings:
 
 ```powershell
 # Standard idempotent seeding
-.\.venv\Scripts\python manage.py seed_commodities
+python manage.py seed_commodities
 
 # Reset and re-seed clean catalog
-.\.venv\Scripts\python manage.py seed_commodities --clear
+python manage.py seed_commodities --clear
 ```

@@ -1,545 +1,355 @@
-# Zero-Friction Data Provider Architecture & Integration Guide
+# Complete Data Provider & LLM Swapping Guide
 
-The **Commodity Market Intelligence Platform** is built on an architectural guarantee: **changing an external data vendor must require zero changes to core business logic, database models, REST APIs, or downstream quantitative analytics.**
+The **Commodity Market Intelligence Platform** is built on an absolute architectural guarantee: **replacing an external data vendor, news feed, or LLM reasoning model requires ZERO changes to core database models, REST APIs, or downstream quantitative analytics.**
+
+This guide gives the exact, step-by-step instructions and complete code implementations for swapping every data source in the system.
 
 ---
 
-## 1. The Core Architecture: The Pluggable Provider Pattern
+## 1. The Pluggable Provider Architecture
 
-In typical financial software, external API logic is often coupled directly with database models and views. If a vendor changes their API schema, deprecates an endpoint, or raises their prices, the entire application breaks.
+In typical financial software, external API logic is tightly coupled with database models and views. If a vendor changes their API schema, deprecates an endpoint, or raises their prices, the entire application breaks.
 
-In our system, every external data source sits behind a **3-Layer Pluggable Boundary**:
+In our system, every external feed is isolated behind a **3-Layer Strategy + Factory Boundary**:
 
 ```mermaid
 graph TD
-    subgraph L1 ["Layer 1: Configuration (.env / settings.py)"]
-        CFG["EXCHANGE_HOLIDAY_PROVIDER = 'apps.exchanges.providers.bloomberg.BloombergProvider'"]
+    subgraph Layer1 ["Layer 1: Configuration (.env)"]
+        CFG["MARKET_DATA_PROVIDER = 'yahoo'<br/>LLM_PROVIDER = 'claude'"]
     end
 
-    subgraph L2 ["Layer 2: Provider Contract (Abstract Interface)"]
-        Contract["BaseHolidayProvider (ABC)<br/>fetch_holidays: returns list of RawHolidayRecord"]
-        P1["NagerDateProvider (Default Free)"]
-        P2["BloombergProvider (Enterprise)"]
-        P3["RefinitivProvider (Enterprise)"]
-        P4["CustomInternalProvider (In-house)"]
+    subgraph Layer2 ["Layer 2: Pluggable Boundary (Strategy Interface)"]
+        Interface["BaseProvider (ABC)<br/>fetch_records() \u2192 list of Normalized DTOs"]
+        P1["Default / Free Provider"]
+        P2["Commercial Vendor (CME, Kpler, Bloomberg)"]
+        P3["Internal / Proprietary Source"]
     end
 
-    subgraph L3 ["Layer 3: Immutable Core (Never Modified)"]
-        Calib["Institutional Calibration Engine<br/>Trading vs Settlement, Rolled Dates, Early Closes"]
-        Models[("Canonical Models (ExchangeHoliday)")]
-        APIs["REST Endpoints & Quant Engines"]
+    subgraph Layer3 ["Layer 3: Core Analytical Engine (Never Modified)"]
+        Store["apps/market_data (Point-in-Time Store)"]
+        Quant["apps/quant_engine (Forward Curves, Spreads)"]
+        AI["apps/narratives (Evidence-Linked Briefings)"]
     end
 
-    CFG --> Contract
-    P1 -. implements .-> Contract
-    P2 -. implements .-> Contract
-    P3 -. implements .-> Contract
-    P4 -. implements .-> Contract
-    Contract -->|Normalized DTOs| Calib
-    Calib --> Models
-    Models --> APIs
+    CFG --> Interface
+    P1 -. Implements .-> Interface
+    P2 -. Implements .-> Interface
+    P3 -. Implements .-> Interface
+    Interface -->|Standardized DTOs| Store
+    Store --> Quant --> AI
 ```
 
 ---
 
-## 2. The 3 Steps to Swap Any Data Provider
+## 2. Developer Quick-Reference: What & Where to Change
 
-When someone wants to replace a default data source with a new provider (e.g. Bloomberg, Refinitiv, CME Datamine, or internal proprietary feeds), they only need to perform **3 simple steps**:
+| Target Component | How to Swap It | Files Touched |
+| :--- | :--- | :--- |
+| **Market Price Feed**<br>*(e.g., Yahoo, CME Datamine, Polygon)* | Implement `BaseMarketDataProvider` in `apps/market_data/providers/` and set `MARKET_DATA_PROVIDER=cme_datamine` in `.env`. | **1 adapter file**; zero database or quant logic changes. |
+| **Fundamental Inventory Source**<br>*(e.g., EIA API v2, Kpler, Vortexa, USDA)* | Implement `BaseFundamentalProvider` in `apps/market_data/providers/` and set `FUNDAMENTAL_DATA_PROVIDER=kpler` in `.env`. | **1 adapter file**; observations map automatically to canonical variables. |
+| **News & Sentiment Source**<br>*(e.g., RSS, Bloomberg News, NewsAPI)* | Implement `BaseNewsProvider` in `apps/news_intel/providers/` and set `NEWS_PROVIDER=bloomberg` in `.env`. | **1 adapter file**; articles auto-tag to physical commodities. |
+| **LLM Reasoning Engine**<br>*(e.g., Gemini, Claude, OpenAI GPT-4o, Local Ollama)* | Implement `BaseLLMProvider` in `apps/narratives/providers/` and set `LLM_PROVIDER=claude` in `.env`. | **1 adapter file**; prompt templates and context builders remain unchanged. |
+| **Add a Brand-New Feature**<br>*(e.g., Baltic Dry Index, Tanker Freight, EU Gas)* | Run `python manage.py add_feature` to register the feature in 10 seconds. | **Zero code changes**; Quant engine & LLM pick it up automatically. |
 
-### Step 1: Create a Provider Class
-Create a new file in the app's `providers/` folder implementing the standard base contract:
+---
+
+## 3. How to Swap Market Data Providers (Step-by-Step)
+
+Suppose you want to replace the default static benchmark provider with a live market pricing feed like **Yahoo Finance** or **CME Datamine**.
+
+### Step 3.1: Create the Provider Class
+Create a new file `apps/market_data/providers/yahoo_provider.py` inheriting from [`BaseMarketDataProvider`](file:///c:/Users/Shilpa/OneDrive/Documents/commodity-market-smart-analyst/apps/market_data/providers/base.py):
 
 ```python
-# apps/exchanges/providers/bloomberg.py
+# apps/market_data/providers/yahoo_provider.py
+from datetime import date, datetime, timezone
+from decimal import Decimal
+import yfinance as yf
+from .base import BaseMarketDataProvider, RawPriceObservation
+
+class YahooMarketDataProvider(BaseMarketDataProvider):
+    """Fetches daily commodity futures price bars from Yahoo Finance."""
+
+    TICKER_MAP = {
+        "CL": "CL=F",      # WTI Crude Oil
+        "BRENT": "BZ=F",   # Brent Crude Oil
+        "NG": "NG=F",      # Natural Gas
+        "GOLD": "GC=F",    # Gold
+        "CORN": "ZC=F",    # Corn
+    }
+
+    @property
+    def name(self) -> str:
+        return "Yahoo Finance Commodity Feed"
+
+    def fetch_price_observations(
+        self,
+        symbol: str,
+        start_date: date | None = None,
+        end_date: date | None = None,
+        **kwargs,
+    ) -> list[RawPriceObservation]:
+        ticker_str = self.TICKER_MAP.get(symbol.upper(), f"{symbol}=F")
+        df = yf.download(ticker_str, start=start_date, end=end_date, progress=False)
+
+        observations = []
+        for index, row in df.iterrows():
+            obs_date = index.date()
+            observations.append(
+                RawPriceObservation(
+                    symbol=symbol.upper(),
+                    observation_date=obs_date,
+                    contract_month="PROMPT",
+                    is_prompt=True,
+                    open_price=Decimal(str(round(row["Open"], 4))),
+                    high_price=Decimal(str(round(row["High"], 4))),
+                    low_price=Decimal(str(round(row["Low"], 4))),
+                    close_price=Decimal(str(round(row["Close"], 4))),
+                    settlement_price=Decimal(str(round(row["Close"], 4))),
+                    volume=int(row["Volume"]) if not row["Volume"].isna() else None,
+                    open_interest=None,
+                    publication_time=datetime.combine(obs_date, datetime.min.time(), tzinfo=timezone.utc),
+                    source_endpoint_code="YAHOO_FINANCE_API",
+                )
+            )
+        return observations
+```
+
+### Step 3.2: Register with the Factory
+In [`apps/market_data/providers/factory.py`](file:///c:/Users/Shilpa/OneDrive/Documents/commodity-market-smart-analyst/apps/market_data/providers/factory.py), register your new provider:
+
+```python
+from .yahoo_provider import YahooMarketDataProvider
+
+_MARKET_DATA_PROVIDERS["yahoo"] = YahooMarketDataProvider
+```
+
+### Step 3.3: Set in `.env`
+Update your `.env` configuration file:
+```bash
+MARKET_DATA_PROVIDER=yahoo
+```
+
+### Step 3.4: Test and Ingest
+Run the ingestion command to test your new feed:
+```powershell
+python manage.py ingest_market_data --type=prices --commodity=CL --days=30
+```
+
+---
+
+## 4. How to Swap Fundamental Data Providers (Step-by-Step)
+
+Suppose you want to switch from the static inventory simulator to the official **U.S. EIA API v2** or a private vessel intelligence vendor like **Kpler**.
+
+### Step 4.1: Create the Provider Class
+Create `apps/market_data/providers/eia_api_provider.py` inheriting from [`BaseFundamentalProvider`](file:///c:/Users/Shilpa/OneDrive/Documents/commodity-market-smart-analyst/apps/market_data/providers/base.py):
+
+```python
+# apps/market_data/providers/eia_api_provider.py
+from datetime import date, datetime, timezone
+from decimal import Decimal
+import httpx
+from django.conf import settings
+from .base import BaseFundamentalProvider, RawFundamentalObservation
+
+class EIAApiFundamentalProvider(BaseFundamentalProvider):
+    """Fetches official weekly petroleum and natural gas fundamentals from EIA API v2."""
+
+    SERIES_ROUTES = {
+        "CRUDE_CUSHING_STOCKS": "petroleum/stoc/wstk/data/?data[]=value&facets[series][]=WCSSTUS1",
+        "CRUDE_US_TOTAL_COMMERCIAL_STOCKS": "petroleum/stoc/wstk/data/?data[]=value&facets[series][]=WCESTUS1",
+        "NATGAS_LOWER_48_WORKING_STORAGE": "natural-gas/stor/wkly/data/?data[]=value&facets[series][]=NW2_EPG0_SWO_R48_BCF",
+    }
+
+    @property
+    def name(self) -> str:
+        return "U.S. Energy Information Administration (EIA v2 API)"
+
+    def fetch_fundamental_observations(
+        self,
+        variable_code: str,
+        start_date: date | None = None,
+        end_date: date | None = None,
+        **kwargs,
+    ) -> list[RawFundamentalObservation]:
+        route = self.SERIES_ROUTES.get(variable_code)
+        if not route:
+            return []
+
+        api_key = getattr(settings, "EIA_API_KEY", "")
+        url = f"https://api.eia.gov/v2/{route}&api_key={api_key}"
+
+        with httpx.Client(timeout=15.0) as client:
+            resp = client.get(url)
+            resp.raise_for_status()
+            data = resp.json()["response"]["data"]
+
+        observations = []
+        for row in data:
+            obs_date = datetime.strptime(row["period"], "%Y-%m-%d").date()
+            if start_date and obs_date < start_date:
+                continue
+            if end_date and obs_date > end_date:
+                continue
+
+            observations.append(
+                RawFundamentalObservation(
+                    variable_code=variable_code,
+                    observation_date=obs_date,
+                    value=Decimal(str(row["value"])) if row["value"] is not None else None,
+                    unit_code="MBBL" if "petroleum" in route else "BCF",
+                    period_end=obs_date,
+                    publication_time=datetime.now(timezone.utc),
+                    source_endpoint_code="EIA_V2_PETROLEUM",
+                )
+            )
+        return observations
+```
+
+### Step 4.2: Register with the Factory
+In [`apps/market_data/providers/factory.py`](file:///c:/Users/Shilpa/OneDrive/Documents/commodity-market-smart-analyst/apps/market_data/providers/factory.py):
+```python
+from .eia_api_provider import EIAApiFundamentalProvider
+
+_FUNDAMENTAL_PROVIDERS["eia_api"] = EIAApiFundamentalProvider
+```
+
+### Step 4.3: Set in `.env`
+```bash
+FUNDAMENTAL_DATA_PROVIDER=eia_api
+EIA_API_KEY=your_eia_api_key_here
+```
+
+### Step 4.4: Ingest and Verify
+```powershell
+python manage.py ingest_market_data --type=fundamentals --days=60
+```
+
+---
+
+## 5. How to Swap News and Sentiment Providers (Step-by-Step)
+
+Suppose you want to switch news ingestion from static headlines to **NewsAPI**, **Bloomberg Terminal RSS**, or **AlphaVantage News**.
+
+### Step 5.1: Create the Provider Class
+```python
+# apps/news_intel/providers/newsapi_provider.py
 from datetime import datetime
 import httpx
-from apps.exchanges.providers.base import BaseHolidayProvider, RawHolidayRecord
+from .base import BaseNewsProvider, RawNewsArticle
 
-class BloombergHolidayProvider(BaseHolidayProvider):
-    """Fetches exchange calendar closures from Bloomberg B-PIPE / Web API."""
-    
-    def fetch_holidays(self, exchange, year: int) -> list[RawHolidayRecord]:
-        endpoint = f"https://api.bloomberg.com/eikon/v1/calendars/{exchange.mic}/{year}"
-        headers = {"Authorization": "Bearer YOUR_API_KEY"}
-        
+class NewsApiProvider(BaseNewsProvider):
+    """Fetches real-time commodity news articles via NewsAPI."""
+
+    @property
+    def name(self) -> str:
+        return "NewsAPI Commercial Feed"
+
+    def fetch_articles(self, query: str, api_key: str) -> list[RawNewsArticle]:
+        url = f"https://newsapi.org/v2/everything?q={query}&apiKey={api_key}&language=en&sortBy=publishedAt"
         with httpx.Client(timeout=10.0) as client:
-            resp = client.get(endpoint, headers=headers)
-            resp.raise_for_status()
-            data = resp.json()
-            
+            resp = client.get(url)
+            articles = resp.json().get("articles", [])
+
         records = []
-        for item in data.get("holidays", []):
+        for item in articles:
             records.append(
-                RawHolidayRecord(
-                    date=datetime.strptime(item["date"], "%Y-%m-%d").date(),
-                    name=item["holiday_name"],
-                    country_code=exchange.country,
+                RawNewsArticle(
+                    headline=item["title"],
+                    summary=item.get("description", ""),
+                    source_name=item["source"]["name"],
+                    published_at=datetime.fromisoformat(item["publishedAt"].replace("Z", "+00:00")),
+                    url=item["url"],
                 )
             )
         return records
 ```
 
-### Step 2: Update Configuration
-Point to your new provider class in `.env` or `config/settings/base.py`:
-
+### Step 5.2: Set in `.env`
 ```bash
-# In .env:
-EXCHANGE_HOLIDAY_PROVIDER="apps.exchanges.providers.bloomberg.BloombergHolidayProvider"
+NEWS_PROVIDER=newsapi
+NEWSAPI_KEY=your_key_here
 ```
-
-### Step 3: Run the Sync Command
-```powershell
-python manage.py sync_exchange_holidays --exchange NYMEX --year 2026
-```
-
-**That's it!**
-- :white_check_mark: **Zero changes** to Django models (`ExchangeMaster`, `ExchangeHoliday`).
-- :white_check_mark: **Zero changes** to REST API views or serializers.
-- :white_check_mark: **Zero changes** to downstream quantitative curves, charts, or alerts.
-- :white_check_mark: The calibration engine automatically applies trading vs. settlement rules, Black Friday early settlement, and MCX split sessions to the raw dates.
 
 ---
 
-## 3. The Base Provider Contract Specification
+## 6. How to Swap LLM Models and Providers (Step-by-Step)
 
-Every data provider interface in the platform enforces strict typing using Python's `abc.ABC` and dataclasses.
+The Evidence-Based Narrative engine (`apps/narratives`) does not allow LLMs to perform arithmetic or access untrusted data. It provides the LLM with verified quantitative features (e.g. forward curve slopes, inventory deviations, COT positioning) and asks for institutional synthesis.
 
-### The Input Requirements
-A provider function receives only canonical entity objects or standardized scalars:
-- `exchange`: The `ExchangeMaster` instance (provides `exchange.code`, `exchange.mic`, `exchange.country`, `exchange.timezone`).
-- `year`: The 4-digit integer year (e.g. `2026`).
+You can swap between **Google Gemini**, **Anthropic Claude**, **OpenAI GPT-4o**, or a **local Ollama instance** by setting 1 variable:
 
-### The Output Requirements (Data Transfer Object)
-The provider must return a list of typed `RawHolidayRecord` objects:
-
+### Step 6.1: Provider Implementations
 ```python
-from dataclasses import dataclass
-from datetime import date as dt_date
+# apps/narratives/providers/claude_provider.py
+import anthropic
+from .base import BaseLLMProvider
 
-@dataclass(frozen=True)
-class RawHolidayRecord:
-    date: dt_date
-    name: str
-    country_code: str
-    source_api: str = "EXTERNAL_PROVIDER"
+class AnthropicClaudeProvider(BaseLLMProvider):
+    """Generates market narrative briefings using Anthropic Claude 3.5 Sonnet."""
+
+    def __init__(self, api_key: str, model: str = "claude-3-5-sonnet-20241022"):
+        self.client = anthropic.Anthropic(api_key=api_key)
+        self.model = model
+
+    def generate_briefing(self, prompt: str, system_context: str) -> str:
+        message = self.client.messages.create(
+            model=self.model,
+            max_tokens=1500,
+            temperature=0.2, # Low temperature for quantitative accuracy
+            system=system_context,
+            messages=[{"role": "user", "content": prompt}]
+        )
+        return message.content[0].text
 ```
 
-### Error Handling & Fallback Guarantees
-1. **No System Crashes**: If an external provider throws an HTTP error, socket timeout, or 401 Unauthorized, the provider wrapper catches the exception and logs a structured warning.
-2. **Automatic Circuit Breaker**: When an external provider fails, the system automatically activates the **Deterministic Fallback Engine** (`DEFAULT_CORE_HOLIDAYS`), ensuring zero downtime in production and 100% offline capability in testing environments.
-
----
-
-## 4. Case Study 2: Swapping Commodity Specifications Provider (`apps/commodities`)
-
-The same pluggable provider contract governs physical commodity definitions and multi-venue exchange listings.
-
-### Step 1: Implement `BaseCommodityCatalogProvider`
-Create your adapter class inheriting from `BaseCommodityCatalogProvider` in `apps/commodities/providers/` (e.g. `cme_provider.py`):
-
+For **local offline inference with Ollama**:
 ```python
-from decimal import Decimal
-from typing import List, Optional
-from apps.commodities.providers.base import (
-    BaseCommodityCatalogProvider,
-    RawCommoditySpec,
-    RawExchangeListingSpec,
-)
+# apps/narratives/providers/ollama_provider.py
+import httpx
+from .base import BaseLLMProvider
 
-class CMEDatamineCatalogProvider(BaseCommodityCatalogProvider):
-    """Fetches commodity definitions and exchange listings from CME Datamine API."""
+class LocalOllamaProvider(BaseLLMProvider):
+    """Runs local inference using Llama 3 / Mistral via local Ollama daemon."""
 
-    def __init__(self, api_key: str = ""):
-        self.api_key = api_key
+    def __init__(self, host: str = "http://localhost:11434", model: str = "llama3"):
+        self.host = host
+        self.model = model
 
-    def get_commodities(self) -> List[RawCommoditySpec]:
-        # 1. Fetch raw JSON payload from external API
-        # 2. Normalize into canonical RawCommoditySpec and RawExchangeListingSpec DTOs
-        # 3. Return clean list with zero vendor dictionary leakage
-        return [
-            RawCommoditySpec(
-                code="CL",
-                name="Light Sweet Crude Oil (WTI)",
-                sector="ENERGY",
-                group="CRUDE_OIL",
-                primary_exchange_code="NYMEX",
-                base_unit_code="BBL",
-                pricing_unit_code="USD_BBL",
-                standard_lot_size=Decimal("1000.0"),
-                standard_lot_unit_code="BBL",
-                minimum_tick_size=Decimal("0.01"),
-                tick_value=Decimal("10.00"),
-                tick_currency="USD",
-                settlement_method="PHYSICAL",
-                deliverable_grade_standard="Light Sweet Crude (API 37°-42°, Sulfur <= 0.42%)",
-                primary_delivery_hub="Cushing, Oklahoma",
-                listings=[
-                    RawExchangeListingSpec(
-                        exchange_code="NYMEX",
-                        ticker_symbol="CL",
-                        contract_size=Decimal("1000.0"),
-                        contract_unit_code="BBL",
-                        settlement_method="PHYSICAL",
-                        is_primary_benchmark=True,
-                        typical_daily_volume=950000,
-                    ),
-                    RawExchangeListingSpec(
-                        exchange_code="MCX",
-                        ticker_symbol="CRUDEOIL",
-                        contract_size=Decimal("100.0"),
-                        contract_unit_code="BBL",
-                        settlement_method="CASH",
-                        trading_currency="INR",
-                        typical_daily_volume=85000,
-                    ),
-                ],
+    def generate_briefing(self, prompt: str, system_context: str) -> str:
+        with httpx.Client(timeout=60.0) as client:
+            resp = client.post(
+                f"{self.host}/api/generate",
+                json={"model": self.model, "prompt": f"{system_context}\n\n{prompt}", "stream": False}
             )
-        ]
-
-    def get_commodity(self, code: str) -> Optional[RawCommoditySpec]:
-        for c in self.get_commodities():
-            if c.code.upper() == code.upper():
-                return c
-        return None
+            return resp.json()["response"]
 ```
 
-### Step 2: Register in `providers/factory.py` & `.env`
-Update `apps/commodities/providers/factory.py`:
-```python
-elif provider_type == "cme_datamine":
-    from .cme_provider import CMEDatamineCatalogProvider
-    return CMEDatamineCatalogProvider(api_key=settings.CME_DATAMINE_API_KEY)
-```
-
-In `.env`:
+### Step 6.2: Switch in `.env`
+To switch providers, update `.env`:
 ```bash
-COMMODITY_CATALOG_PROVIDER="cme_datamine"
-CME_DATAMINE_API_KEY="your-api-key"
-```
+# To use Anthropic Claude:
+LLM_PROVIDER=claude
+ANTHROPIC_API_KEY=sk-ant-...
 
-### Step 3: Run the Seeder
-```powershell
-python manage.py seed_commodities
+# OR to use local offline Ollama:
+LLM_PROVIDER=ollama
+OLLAMA_HOST=http://localhost:11434
+OLLAMA_MODEL=llama3:8b
+
+# OR to use Google Gemini:
+LLM_PROVIDER=gemini
+GEMINI_API_KEY=AIzaSy...
 ```
-The database models, REST endpoints, and UI dashboard update automatically with zero code changes.
 
 ---
 
-## 5. Case Study 3: Swapping Contract Specifications & Derivative Reference Provider (`apps/contracts`)
+## 7. How to Swap Exchange Calendar Providers (Step-by-Step)
 
-Derivative contract specifications and delivery cycle schedules are managed via `BaseContractSpecProvider` in `apps/contracts/providers/base.py`.
+To switch exchange holiday calendar feeds from the default free NagerDate API to an institutional vendor:
 
-### Step 1: Implement `BaseContractSpecProvider`
-Create your adapter class in `apps/contracts/providers/` (e.g. `cme_datamine_contracts.py`):
-
-```python
-from decimal import Decimal
-from typing import List, Optional
-from apps.contracts.providers.base import BaseContractSpecProvider, RawContractSpec
-
-class CMEDatamineContractProvider(BaseContractSpecProvider):
-    """Fetches futures contract specifications from CME Datamine Reference API."""
-
-    def __init__(self, api_key: str = ""):
-        self.api_key = api_key
-
-    def get_specifications(self) -> List[RawContractSpec]:
-        # 1. Fetch specifications from remote endpoint
-        # 2. Normalize into strongly typed RawContractSpec DTOs
-        return [
-            RawContractSpec(
-                commodity_code="CL",
-                exchange_mic="XNYM",
-                symbol_root="CL",
-                name="Light Sweet Crude Oil (WTI) Futures",
-                contract_size=Decimal("1000.0"),
-                contract_unit_code="BBL",
-                price_quote_unit_code="USD_BBL",
-                minimum_tick_size=Decimal("0.01"),
-                tick_value=Decimal("10.00"),
-                trading_currency="USD",
-                instrument_type="FUTURES",
-                settlement_method="PHYSICAL",
-                trading_months="ALL_12",
-                expiry_rule="DAY_OF_PRIOR_MONTH_WITH_BUS_OFFSET",
-                expiry_rule_parameter=25,
-                prompt_cycles_to_seed=12,
-            ),
-        ]
-
-    def get_specification(self, symbol_root: str, exchange_mic: str) -> Optional[RawContractSpec]:
-        for s in self.get_specifications():
-            if s.symbol_root.upper() == symbol_root.upper() and s.exchange_mic.upper() == exchange_mic.upper():
-                return s
-        return None
-```
-
-### Step 2: Register in `providers/factory.py` & `.env`
-Update `apps/contracts/providers/factory.py` or specify the dotted path in `.env`:
-```bash
-CONTRACT_SPEC_PROVIDER="apps.contracts.providers.cme_datamine_contracts.CMEDatamineContractProvider"
-CME_DATAMINE_API_KEY="your-cme-api-key"
-```
-
-### Step 3: Run the Contract Seeder
-```powershell
-python manage.py seed_contracts
-```
-The command automatically instantiates the provider, normalizes contract specs, and runs the `ContractExpiryService` algorithm to calculate exact prompt delivery schedules without code modifications.
-
----
-
-## 6. Case Study 4: Swapping the Dataset Master Catalog Provider
-
-In **Phase 6: Dataset Master**, the catalog of observable dataset definitions across categories (prices, inventories, balance sheets, weather, positioning) is governed by `BaseDatasetCatalogProvider`.
-
-Suppose an enterprise data governance team maintains their central dataset registry in **AWS Glue Data Catalog**, **Snowflake Data Marketplace**, or an internal metadata microservice.
-
-### Step 1: Implement `BaseDatasetCatalogProvider`
-Create `apps/datasets/providers/aws_glue_catalog.py`:
-
-```python
-from typing import List, Optional
-from apps.datasets.providers.base import BaseDatasetCatalogProvider, RawDatasetSpec
-
-class AWSGlueDatasetCatalogProvider(BaseDatasetCatalogProvider):
-    """Synchronizes dataset catalog specifications from AWS Glue Data Catalog."""
-
-    def get_datasets(self) -> List[RawDatasetSpec]:
-        # Connect to AWS Glue / Boto3 client
-        # Fetch metadata tables and transform to RawDatasetSpec DTOs
-        return [
-            RawDatasetSpec(
-                code="EIA_WPSR_PETROLEUM",
-                name="EIA Weekly Petroleum Status Report",
-                description="Weekly US crude oil inventories and refinery runs.",
-                domain_code="ENERGY",
-                frequency_code="WEEKLY",
-                source_authority="US Energy Information Administration (EIA)",
-                data_category="INVENTORIES_STOCKS",
-                update_cadence="WEEKLY_FIXED_DAY",
-                ingestion_mode="PULL_SCHEDULED_BATCH",
-                sla_max_delay_minutes=15,
-                primary_commodity_code="CL",
-                commodity_codes=["CL", "BRENT"],
-            ),
-        ]
-
-    def get_dataset(self, code: str) -> Optional[RawDatasetSpec]:
-        for spec in self.get_datasets():
-            if spec.code.upper() == code.upper():
-                return spec
-        return None
-```
-
-### Step 2: Configure Environment Variable
-In `.env` or Django settings:
-```bash
-DATASET_CATALOG_PROVIDER="apps.datasets.providers.aws_glue_catalog.AWSGlueDatasetCatalogProvider"
-```
-
-### Step 3: Run the Dataset Catalog Seeder
-```powershell
-python manage.py seed_datasets
-```
-The seeder resolves domain taxonomy foreign keys, links multiple commodities via ManyToMany, validates update cadences, and maintains strict idempotency.
-
----
-
-## 7. Case Study 5: Swapping the Variable Master Catalog Provider
-
-In **Phase 7: Variable Master**, the dictionary of canonical time-series variables and metric definitions is governed by `BaseVariableCatalogProvider`.
-
-Suppose an institutional quantitative research team stores their quantitative feature definitions in an enterprise **Feature Store** (e.g., **Feast**, **Databricks Feature Store**, or internal PostgreSQL database).
-
-### Step 1: Implement `BaseVariableCatalogProvider`
-Create `apps/variables/providers/enterprise_feature_store.py`:
-
-```python
-from typing import List, Optional
-from apps.variables.providers.base import BaseVariableCatalogProvider, RawVariableSpec
-
-class EnterpriseFeatureStoreVariableProvider(BaseVariableCatalogProvider):
-    """Synchronizes standardized metrics from an internal quantitative feature store."""
-
-    def get_variables(self) -> List[RawVariableSpec]:
-        # Connect to internal feature store or database
-        return [
-            RawVariableSpec(
-                code="CRUDE_CUSHING_STOCKS",
-                name="Cushing Oklahoma Ending Crude Oil Stocks",
-                description="Weekly ending stocks of crude oil at Cushing, Oklahoma.",
-                dataset_code="EIA_WPSR_PETROLEUM_STOCKS",
-                domain_code="INVENTORIES",
-                unit_code="MBBL",
-                commodity_code="CL",
-                data_type="DECIMAL",
-                aggregation_method="LAST",
-                default_transformation="DIFF_1W",
-                is_benchmark=True,
-                display_order=10,
-            ),
-        ]
-
-    def get_variable(self, code: str) -> Optional[RawVariableSpec]:
-        for spec in self.get_variables():
-            if spec.code.upper() == code.upper():
-                return spec
-        return None
-```
-
-### Step 2: Configure Environment Variable
-In `.env` or Django settings:
-```bash
-VARIABLE_CATALOG_PROVIDER="apps.variables.providers.enterprise_feature_store.EnterpriseFeatureStoreVariableProvider"
-```
-
-### Step 3: Run the Variable Seeder
-```powershell
-python manage.py seed_variables
-```
-The seeder resolves foreign keys to `DatasetMaster`, `DataDomainMaster`, `UnitMaster`, and `CommodityMaster`, ensuring deterministic stock vs. flow aggregation rules without modifying application code.
-
----
-
-## 8. Case Study 6: Swapping the Provider Master Catalog Provider
-
-In **Phase 8: Provider Master**, external vendors, government statistical agencies, exchange feeds, and rate limit policies are governed by `BaseProviderCatalogProvider`.
-
-Suppose an enterprise organization manages their vendor directories and API access credentials in an enterprise **Configuration Management Database (CMDB)** or **Internal API Gateway Registry** (e.g. Kong, Apigee, AWS Systems Manager Parameter Store).
-
-### Step 1: Implement `BaseProviderCatalogProvider`
-Create `apps/providers/providers/enterprise_cmdb.py`:
-
-```python
-from typing import List, Optional
-from apps.providers.providers.base import BaseProviderCatalogProvider, RawProviderSpec
-
-class EnterpriseCMDBProviderCatalog(BaseProviderCatalogProvider):
-    """Synchronizes external vendor metadata from an internal enterprise CMDB service."""
-
-    def get_providers(self) -> List[RawProviderSpec]:
-        # Connect to internal API gateway or CMDB
-        return [
-            RawProviderSpec(
-                code="EIA_GOV",
-                name="U.S. Energy Information Administration",
-                description="Official energy statistics.",
-                provider_type="GOVERNMENT_PUBLIC",
-                base_url="https://api.eia.gov/v2/",
-                auth_type="API_KEY_QUERY_PARAM",
-                env_var_name="EIA_API_KEY",
-                auth_param_name="api_key",
-                rate_limit_requests=5000,
-                rate_limit_window_seconds=3600,
-                target_sla_pct=99.80,
-                display_order=10,
-            ),
-        ]
-
-    def get_provider(self, code: str) -> Optional[RawProviderSpec]:
-        for spec in self.get_providers():
-            if spec.code.upper() == code.upper():
-                return spec
-        return None
-```
-
-### Step 2: Configure Environment Variable
-In `.env` or Django settings:
-```bash
-PROVIDER_CATALOG_PROVIDER="apps.providers.providers.enterprise_cmdb.EnterpriseCMDBProviderCatalog"
-```
-
-### Step 3: Run the Provider Seeder
-```powershell
-python manage.py seed_providers
-```
-The seeder loads all vendor definitions, maps environment variable keys, sets rate budgets, and establishes fallback chains idempotently.
-
----
-
-## 9. Case Study 7: Registering Custom API Endpoints & Route Templates (`apps/endpoints`)
-
-Vendor API routes and payload extraction rules are managed via `BaseEndpointCatalogProvider` in `apps/endpoints/providers/base.py`.
-
-### Step 1: Implement `BaseEndpointCatalogProvider`
-Create a custom catalog provider adapter (e.g. `apps/endpoints/providers/enterprise_routes.py`):
-
-```python
-from typing import List, Optional
-from apps.endpoints.providers.base import BaseEndpointCatalogProvider, RawEndpointSpec
-
-class EnterpriseRouteCatalogProvider(BaseEndpointCatalogProvider):
-    """Fetches API routes and schemas from an enterprise API gateway or Swagger/OpenAPI spec."""
-
-    def get_endpoints(self) -> List[RawEndpointSpec]:
-        return [
-            RawEndpointSpec(
-                code="CUSTOM_EIA_ELECTRICITY_SALES",
-                name="EIA Electricity Retail Sales API",
-                description="Monthly US retail sales of electricity by customer class.",
-                provider_code="EIA_GOV",
-                dataset_code=None,
-                protocol="REST_HTTP",
-                http_method="GET",
-                path_template="electricity/retail-sales/data/",
-                response_format="JSON",
-                data_envelope_path="response.data",
-                default_params={"frequency": "monthly"},
-                custom_headers={"Accept": "application/json"},
-                cache_ttl_seconds=86400,
-            ),
-        ]
-
-    def get_endpoint(self, code: str) -> Optional[RawEndpointSpec]:
-        for spec in self.get_endpoints():
-            if spec.code.upper() == code.upper():
-                return spec
-        return None
-```
-
-### Step 2: Configure Environment Variable
-In `.env` or Django settings:
-```bash
-ENDPOINT_CATALOG_PROVIDER="apps.endpoints.providers.enterprise_routes.EnterpriseRouteCatalogProvider"
-```
-
-### Step 3: Run the Endpoint Seeder
-```powershell
-python manage.py seed_endpoints
-```
-The seeder loads all endpoint route templates, validates parent `ProviderMaster` references and target `DatasetMaster` linkages, and updates the database idempotently.
-
----
-
-## 10. Universal Provider Registry Across All System Modules
-
-We apply this exact pluggable architecture across every data domain in the platform:
-
-| Data Domain | Module | Active Default Provider | Target Interface Contract | Future Institutional Providers |
-| :--- | :--- | :--- | :--- | :--- |
-| **Exchange Holidays** | `apps/exchanges` | Nager.Date API | `BaseHolidayProvider` | Bloomberg SIFMA, Refinitiv, CME Direct |
-| **Commodity Specifications** | `apps/commodities` | Static Reference Master | `BaseCommodityCatalogProvider` | Exchange Product Directories |
-| **Futures Reference Specs** | `apps/contracts` | Static Canonical Catalog | `BaseContractSpecProvider` | CME Datamine, ICE Reference Data |
-| **Dataset Master Catalog** | `apps/datasets` | Static Benchmark Catalog | `BaseDatasetCatalogProvider` | AWS Glue, Snowflake Marketplace, Collibra |
-| **Variable Master Catalog** | `apps/variables` | Static Benchmark Catalog | `BaseVariableCatalogProvider` | Feast, Databricks Feature Store, Hopsworks |
-| **Provider Master Catalog** | `apps/providers` | Static Benchmark Catalog | `BaseProviderCatalogProvider` | HashiCorp Vault, AWS SSM, Kong Gateway |
-| **Endpoint Master Catalog** | `apps/endpoints` | Static Benchmark Catalog | `BaseEndpointCatalogProvider` | OpenAPI / Swagger 3.0, Kong Gateway |
-| **Market Data (OHLCV)** | `apps/market_data` | Public / Open Market Feed | `BaseMarketDataProvider` | B-PIPE, Refinitiv Real-Time, Polygon |
-| **CFTC COT Positioning** | `apps/positioning` | CFTC Socrata API | `BaseCOTProvider` | CFTC Bulk FTP, Bloomberg COT |
-| **Weather & Climate** | `apps/weather` | NOAA / Open-Meteo | `BaseWeatherProvider` | ECMWF, Copernicus, Maxar Weather |
-| **Physical Inventories** | `apps/fundamentals` | EIA API v2 / USDA FAS | `BaseInventoryProvider` | Kpler, Vortexa, Kayrros Satellite |
-
----
-
-## 11. Developer Checklist for Adding Any New Data Provider
-
-Before committing a new provider adapter to the codebase, verify:
-
-- [ ] **Contract Compliance**: Does your class inherit from the domain's `BaseProvider`?
-- [ ] **Deterministic Output**: Does it return normalized DTOs (`RawHolidayRecord`, `RawContractSpec`, `RawPriceBar`, etc.) rather than raw vendor JSON?
-- [ ] **Timezone Normalization**: Are all timestamps converted to UTC before returning?
-- [ ] **Graceful Exception Handling**: Does it catch `httpx.RequestError` or timeout exceptions and avoid crashing the main thread?
-- [ ] **Config Switchable**: Can the system switch back and forth between providers by simply altering `.env`?
-- [ ] **Unit Tests**: Have you added mock tests verifying the parser against sample vendor JSON payloads?
-
+1. Create a class implementing [`BaseHolidayProvider`](file:///c:/Users/Shilpa/OneDrive/Documents/commodity-market-smart-analyst/apps/exchanges/providers/base.py).
+2. Return a list of `RawHolidayRecord(date, name, country_code)`.
+3. Set `EXCHANGE_HOLIDAY_PROVIDER=my_provider` in `.env`.
+4. Run `python manage.py seed_exchanges` to synchronize calendars.
