@@ -55,29 +55,34 @@ markdown_extensions:
 
 nav:
   - System Overview: index.md
-  - Architecture & Core Domain:
+  - Chapter 1 — System Execution Flow: flow-of-execution.md
+  - Chapter 2 — Asset & Venue Foundations:
+      - Physical Commodities & Specifications: modules/commodity-master.md
+      - Exchanges & Operating Calendars: modules/exchanges-and-calendars.md
+      - Futures Contracts & Expiry Rules: modules/contracts-and-derivatives.md
+      - Dimensional Units & Math Conversions: modules/taxonomy-and-units.md
       - Core Infrastructure: modules/core-infrastructure.md
-      - Commodity Taxonomy & Units: modules/taxonomy-and-units.md
-      - Exchanges & Trading Calendars: modules/exchanges-and-calendars.md
-      - Physical Commodities & Deliverables: modules/commodity-master.md
-      - Futures & Contract Specifications: modules/contracts-and-derivatives.md
-      - Dataset Master & Catalog: modules/dataset-master.md
+  - Chapter 3 — Metadata & Feature Catalog:
+      - Catalog Architecture & Data Map: modules/feature-catalog-overview.md
+      - Data Provider Master: modules/provider-master.md
+      - Dataset Master: modules/dataset-master.md
+      - Endpoint & Route Metadata: modules/endpoint-master.md
       - Variable Master & Metrics: modules/variable-master.md
-      - Provider & Source Master: modules/provider-master.md
-      - Endpoint & API Metadata: modules/endpoint-master.md
-      - Market Data & Observations: modules/market-data.md
-  - REST API Reference:
-      - API Overview & Quickstart: api/overview.md
-      - Metadata & Taxonomy Endpoints: api/metadata.md
-      - Exchanges & Calendars Endpoints: api/exchanges.md
-      - Commodity Catalog Endpoints: api/commodities.md
-      - Contracts & Derivatives Endpoints: api/contracts.md
-      - Dataset Catalog Endpoints: api/datasets.md
-      - Variable Catalog Endpoints: api/variables.md
-      - Provider Catalog Endpoints: api/providers.md
-      - Endpoint Catalog Endpoints: api/endpoints.md
-      - Market Data Endpoints: api/market-data.md
-  - Developer Guides:
-      - Adding Commodities & Exchanges: guides/adding-new-commodity-and-exchange.md
-      - Data Provider Integration: guides/data-sources.md
-      - Development & Operations: guides/development.md
+  - Chapter 4 — Ingestion & Market Observation Store:
+      - Market Data & Time-Series Observations: modules/market-data.md
+  - Chapter 5 — Integration & Swapping Playbooks:
+      - How to Swap Data Providers & LLMs: guides/data-sources.md
+      - How to Add New Features, Datasets & Variables: guides/adding-new-feature.md
+      - How to Add Commodities & Venues: guides/adding-new-commodity-and-exchange.md
+      - Development & CLI Workflows: guides/development.md
+  - Chapter 6 — REST API Reference:
+      - API Overview & Authentication: api/overview.md
+      - Market Data & Observations API: api/market-data.md
+      - Physical Commodities API: api/commodities.md
+      - Futures & Contracts API: api/contracts.md
+      - Exchanges & Calendars API: api/exchanges.md
+      - Units & Metadata API: api/metadata.md
+      - Dataset Catalog API: api/datasets.md
+      - Variable Catalog API: api/variables.md
+      - Provider Catalog API: api/providers.md
+      - Endpoint Catalog API: api/endpoints.md
