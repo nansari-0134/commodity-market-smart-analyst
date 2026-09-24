@@ -14,7 +14,7 @@
       
       
       
-        <link rel="next" href="modules/core-infrastructure/">
+        <link rel="next" href="modules/market-data/">
       
       
         
@@ -74,7 +74,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#commodity-market-intelligence-quant-system" class="md-skip">
+        <a href="#commodity-market-intelligence-platform" class="md-skip">
           Skip to content
         </a>
       
@@ -217,11 +217,31 @@
     
     
       <li class="md-tabs__item">
-        <a href="modules/core-infrastructure/" class="md-tabs__link">
+        <a href="modules/market-data/" class="md-tabs__link">
           
   
   
-  Architecture & Core Domain
+  Architecture & Modules
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="guides/data-sources/" class="md-tabs__link">
+          
+  
+  
+  Integration Guides
 
         </a>
       </li>
@@ -242,26 +262,6 @@
   
   
   REST API Reference
-
-        </a>
-      </li>
-    
-  
-
-      
-        
-  
-  
-  
-  
-    
-    
-      <li class="md-tabs__item">
-        <a href="guides/adding-new-commodity-and-exchange/" class="md-tabs__link">
-          
-  
-  
-  Developer Guides
 
         </a>
       </li>
@@ -380,10 +380,143 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#system-description" class="md-nav__link">
+  <a href="#1-system-vision-architecture" class="md-nav__link">
     <span class="md-ellipsis">
       
-        System Description
+        1. System Vision &amp; Architecture
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. System Vision &amp; Architecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#high-level-system-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        High-Level System Architecture
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-end-to-end-system-execution-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. End-to-End System Execution Flow
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. End-to-End System Execution Flow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-a-foundational-taxonomy-operating-calendars" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase A: Foundational Taxonomy &amp; Operating Calendars
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-b-physical-commodities-derivative-contracts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase B: Physical Commodities &amp; Derivative Contracts
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-c-metadata-catalog-feature-registry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase C: Metadata Catalog &amp; Feature Registry
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-d-ingestion-time-series-observation-store" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase D: Ingestion &amp; Time-Series Observation Store
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-e-deterministic-quantitative-engine-appsquant_engine" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase E: Deterministic Quantitative Engine (apps/quant_engine)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-f-news-sentiment-macro-catalysts-appsnews_intel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase F: News, Sentiment &amp; Macro Catalysts (apps/news_intel)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-g-evidence-linked-ai-market-narratives-appsnarratives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase G: Evidence-Linked AI Market Narratives (apps/narratives)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-h-surveillance-terminal-rest-apis-appsdashboard-production-apis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase H: Surveillance Terminal &amp; REST APIs (apps/dashboard, Production APIs)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-the-4-non-negotiable-directives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. The 4 Non-Negotiable Directives
       
     </span>
   </a>
@@ -391,43 +524,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#what-it-is-capable-of" class="md-nav__link">
+  <a href="#4-configuration-knobs" class="md-nav__link">
     <span class="md-ellipsis">
       
-        What It Is Capable Of
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#features-of-the-system" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Features of the System
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#core-architecture-principles" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Core Architecture Principles
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#platform-modules-capabilities" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Platform Modules &amp; Capabilities
+        4. Configuration Knobs
       
     </span>
   </a>
@@ -474,7 +574,7 @@
   <span class="md-ellipsis">
     
   
-    Architecture & Core Domain
+    Architecture & Modules
   
 
     
@@ -490,7 +590,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Architecture & Core Domain
+    Architecture & Modules
   
 
           </label>
@@ -503,70 +603,14 @@
   
   
     <li class="md-nav__item">
-      <a href="modules/core-infrastructure/" class="md-nav__link">
+      <a href="modules/market-data/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Core Infrastructure
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="modules/taxonomy-and-units/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Commodity Taxonomy & Units
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="modules/exchanges-and-calendars/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Exchanges & Trading Calendars
+    Market Data & Observations
   
 
     
@@ -594,7 +638,35 @@
   <span class="md-ellipsis">
     
   
-    Physical Commodities & Deliverables
+    Physical Commodities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="modules/exchanges-and-calendars/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exchanges & Calendars
   
 
     
@@ -622,7 +694,7 @@
   <span class="md-ellipsis">
     
   
-    Futures & Contract Specifications
+    Futures & Derivatives
   
 
     
@@ -643,14 +715,14 @@
   
   
     <li class="md-nav__item">
-      <a href="modules/dataset-master/" class="md-nav__link">
+      <a href="modules/taxonomy-and-units/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Dataset Master & Catalog
+    Taxonomy & Units
   
 
     
@@ -671,14 +743,14 @@
   
   
     <li class="md-nav__item">
-      <a href="modules/variable-master/" class="md-nav__link">
+      <a href="modules/feature-catalog-overview/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Variable Master & Metrics
+    Metadata Catalog
   
 
     
@@ -706,7 +778,35 @@
   <span class="md-ellipsis">
     
   
-    Provider & Source Master
+    Data Providers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="modules/dataset-master/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Datasets & Feeds
   
 
     
@@ -734,7 +834,63 @@
   <span class="md-ellipsis">
     
   
-    Endpoint & API Metadata
+    Endpoints & Routing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="modules/variable-master/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Variables & Metrics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="modules/core-infrastructure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core Infrastructure
   
 
     
@@ -787,7 +943,7 @@
   <span class="md-ellipsis">
     
   
-    REST API Reference
+    Integration Guides
   
 
     
@@ -803,7 +959,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    REST API Reference
+    Integration Guides
   
 
           </label>
@@ -816,14 +972,14 @@
   
   
     <li class="md-nav__item">
-      <a href="api/overview/" class="md-nav__link">
+      <a href="guides/data-sources/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    API Overview & Quickstart
+    Swapping Data Providers & LLMs
   
 
     
@@ -844,14 +1000,14 @@
   
   
     <li class="md-nav__item">
-      <a href="api/metadata/" class="md-nav__link">
+      <a href="guides/adding-new-feature/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Metadata & Taxonomy Endpoints
+    Adding Features & Variables
   
 
     
@@ -872,14 +1028,14 @@
   
   
     <li class="md-nav__item">
-      <a href="api/exchanges/" class="md-nav__link">
+      <a href="guides/adding-new-commodity-and-exchange/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Exchanges & Calendars Endpoints
+    Adding Commodities & Venues
   
 
     
@@ -900,154 +1056,14 @@
   
   
     <li class="md-nav__item">
-      <a href="api/commodities/" class="md-nav__link">
+      <a href="guides/development/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Commodity Catalog Endpoints
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="api/contracts/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Contracts & Derivatives Endpoints
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="api/datasets/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Dataset Catalog Endpoints
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="api/variables/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Variable Catalog Endpoints
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="api/providers/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Provider Catalog Endpoints
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="api/endpoints/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Endpoint Catalog Endpoints
+    Development & Operations
   
 
     
@@ -1100,7 +1116,7 @@
   <span class="md-ellipsis">
     
   
-    Developer Guides
+    REST API Reference
   
 
     
@@ -1116,7 +1132,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Developer Guides
+    REST API Reference
   
 
           </label>
@@ -1129,14 +1145,14 @@
   
   
     <li class="md-nav__item">
-      <a href="guides/adding-new-commodity-and-exchange/" class="md-nav__link">
+      <a href="api/overview/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Adding Commodities & Exchanges
+    API Overview
   
 
     
@@ -1157,14 +1173,14 @@
   
   
     <li class="md-nav__item">
-      <a href="guides/data-sources/" class="md-nav__link">
+      <a href="api/market-data/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Data Provider Integration
+    Market Data API
   
 
     
@@ -1185,14 +1201,210 @@
   
   
     <li class="md-nav__item">
-      <a href="guides/development/" class="md-nav__link">
+      <a href="api/commodities/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Development & Operations
+    Physical Commodities API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="api/contracts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Futures & Contracts API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="api/exchanges/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exchanges & Calendars API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="api/metadata/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Units & Metadata API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="api/datasets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dataset Catalog API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="api/variables/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Variable Catalog API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="api/providers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Provider Catalog API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="api/endpoints/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Endpoint Catalog API
   
 
     
@@ -1240,10 +1452,143 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#system-description" class="md-nav__link">
+  <a href="#1-system-vision-architecture" class="md-nav__link">
     <span class="md-ellipsis">
       
-        System Description
+        1. System Vision &amp; Architecture
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. System Vision &amp; Architecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#high-level-system-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        High-Level System Architecture
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-end-to-end-system-execution-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. End-to-End System Execution Flow
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. End-to-End System Execution Flow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-a-foundational-taxonomy-operating-calendars" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase A: Foundational Taxonomy &amp; Operating Calendars
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-b-physical-commodities-derivative-contracts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase B: Physical Commodities &amp; Derivative Contracts
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-c-metadata-catalog-feature-registry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase C: Metadata Catalog &amp; Feature Registry
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-d-ingestion-time-series-observation-store" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase D: Ingestion &amp; Time-Series Observation Store
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-e-deterministic-quantitative-engine-appsquant_engine" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase E: Deterministic Quantitative Engine (apps/quant_engine)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-f-news-sentiment-macro-catalysts-appsnews_intel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase F: News, Sentiment &amp; Macro Catalysts (apps/news_intel)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-g-evidence-linked-ai-market-narratives-appsnarratives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase G: Evidence-Linked AI Market Narratives (apps/narratives)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-h-surveillance-terminal-rest-apis-appsdashboard-production-apis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase H: Surveillance Terminal &amp; REST APIs (apps/dashboard, Production APIs)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-the-4-non-negotiable-directives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. The 4 Non-Negotiable Directives
       
     </span>
   </a>
@@ -1251,43 +1596,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#what-it-is-capable-of" class="md-nav__link">
+  <a href="#4-configuration-knobs" class="md-nav__link">
     <span class="md-ellipsis">
       
-        What It Is Capable Of
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#features-of-the-system" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Features of the System
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#core-architecture-principles" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Core Architecture Principles
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#platform-modules-capabilities" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Platform Modules &amp; Capabilities
+        4. Configuration Knobs
       
     </span>
   </a>
@@ -1314,159 +1626,215 @@
   
 
 
-<h1 id="commodity-market-intelligence-quant-system">Commodity Market Intelligence &amp; Quant System</h1>
-<p>Welcome to the technical architecture and module documentation for the <strong>Commodity Market Intelligence, Quantitative Research &amp; LLM Market Narrative System</strong>.</p>
+<h1 id="commodity-market-intelligence-platform">Commodity Market Intelligence Platform</h1>
+<p>Welcome to the technical architecture and institutional documentation for the <strong>Commodity Market Intelligence, Quantitative Research &amp; LLM Narrative System</strong>.</p>
 <div class="admonition warning">
-<p class="admonition-title">Standard Disclaimer &amp; Regulatory Notice</p>
-<p><strong>This platform is strictly an analytical research, workflow automation, and quantitative intelligence tool.</strong></p>
-<p>It is built to make commodity market data processing, curve analysis, and research workflows easier and more efficient. <strong>It does NOT provide financial advice, investment recommendations, buy/sell signals, or "trading calls."</strong> All market data, forward curves, balance sheets, and LLM-generated narratives are for institutional informational and workflow purposes only. Trading physical commodities, futures, and financial derivatives involves substantial risk of loss.</p>
+<p class="admonition-title">Regulatory Notice &amp; Standard Compliance</p>
+<p><strong>This platform is strictly an analytical research, workflow automation, and quantitative surveillance tool.</strong>
+It does <strong>NOT</strong> provide financial advice, trading recommendations, buy/sell signals, or "trading calls." All quantitative forward curves, balance sheets, and generative AI summaries are for institutional informational and workflow automation purposes only. Trading physical commodities, futures, and derivatives involves substantial risk of loss.</p>
 </div>
 <hr />
-<h2 id="system-description">System Description</h2>
-<p>The <strong>Commodity Market Intelligence &amp; Quantitative Platform</strong> is an enterprise-grade quantitative research, physical commodity surveillance, forward curve analytics, and AI-driven narrative intelligence platform. Built on strict institutional principles, the system models global physical commodities, derivative contract specifications, multi-venue exchange liquidity, and macroeconomic supply/demand fundamentals. </p>
-<p>The architecture enforces a strict mathematical pipeline where deterministic domain logic, dimensional unit conversion, and calendar math strictly precede any qualitative AI reasoning. External data vendor independence is guaranteed through pluggable provider adapters, and point-in-time publication tracking eliminates hindsight and lookahead bias across all research and backtesting workflows.</p>
+<h2 id="1-system-vision-architecture">1. System Vision &amp; Architecture</h2>
+<p>The <strong>Commodity Market Intelligence Platform</strong> models global physical commodities, derivative contract specifications, multi-venue exchange liquidity, and macroeconomic supply/demand fundamentals. </p>
+<p>The architecture enforces a strict mathematical pipeline where <strong>deterministic domain logic, dimensional unit conversion, and calendar math strictly precede any qualitative AI reasoning</strong>. External data vendor independence is guaranteed through pluggable provider adapters, and point-in-time publication tracking eliminates lookahead bias across all research and backtesting workflows.</p>
+<h3 id="high-level-system-architecture">High-Level System Architecture</h3>
 <pre class="mermaid"><code>graph TD
-    A[External Data Providers&lt;br/&gt;Exchanges, Gov APIs, Weather, News] --&gt; B[Data Source Adapters &amp; ETL]
-    B --&gt; C[Core Data Layer&lt;br/&gt;Metadata, Exchanges, Commodities, Contracts]
-    C --&gt; D[Quantitative Analytics Engine&lt;br/&gt;Curves, Spreads, Seasonality, Volatility]
-    D --&gt; E[LLM Narrative Engine&lt;br/&gt;Prompt Architecture, Market Commentary]
-    E --&gt; F[Delivery &amp; User Interface&lt;br/&gt;REST APIs, Real-time Dashboard, Webhook Alerts]</code></pre>
+    subgraph Vendors ["1. External Data Vendors &amp; Open APIs"]
+        V1["Exchanges&lt;br/&gt;(CME, ICE, LME, SHFE)"]
+        V2["Agencies&lt;br/&gt;(EIA, USDA, CFTC, NOAA)"]
+        V3["News Feeds&lt;br/&gt;(RSS, Reuters, Bloomberg)"]
+        V4["LLM Vendors&lt;br/&gt;(Gemini, Claude, GPT, Ollama)"]
+    end
+
+    subgraph Adapters ["2. Pluggable Ingestion Boundary (Strategy Pattern)"]
+        A1["Market Data Adapter&lt;br/&gt;BaseMarketDataProvider"]
+        A2["Fundamental Adapter&lt;br/&gt;BaseFundamentalProvider"]
+        A3["COT Positioning Adapter&lt;br/&gt;BaseCOTProvider"]
+        A4["News Intel Adapter&lt;br/&gt;BaseNewsProvider"]
+        A5["LLM Inference Adapter&lt;br/&gt;BaseLLMProvider"]
+    end
+
+    subgraph Registry ["3. Foundational Masters &amp; Metadata Catalog"]
+        M1["Commodity &amp; Contract Master&lt;br/&gt;23 Assets, Grades, Expiry Math"]
+        M2["Exchange Calendars &amp; Sessions&lt;br/&gt;15 Venues, Trading vs Settle"]
+        M3["Metadata Catalog&lt;br/&gt;Provider \u2192 Dataset \u2192 Endpoint \u2192 Variable"]
+    end
+
+    subgraph Store ["4. High-Performance Observation Store (apps/market_data)"]
+        S1["MarketPriceObservation&lt;br/&gt;OHLCV, Settlements, Volume, OI"]
+        S2["FundamentalObservation&lt;br/&gt;Stocks, Cushing, Storage, Balances"]
+        S3["CommitmentOfTradersObservation&lt;br/&gt;Managed Money, Commercial Net, % OI"]
+    end
+
+    subgraph Quant ["5. Deterministic Quant Engine (apps/quant_engine)"]
+        Q1["Forward Curve Splines &amp; Slopes&lt;br/&gt;Backwardation vs Contango"]
+        Q2["Crack &amp; Processing Spreads&lt;br/&gt;3:2:1 Refinery Margin, Crush"]
+        Q3["Seasonality Bands &amp; Z-Scores&lt;br/&gt;5-Year &amp; 10-Year Envelopes"]
+    end
+
+    subgraph AI ["6. Evidence-Linked AI Narratives (apps/narratives)"]
+        N1["Fact Extraction &amp; Context Builder&lt;br/&gt;Anti-Hallucination Grounding"]
+        N2["LLM Narrative Synthesis&lt;br/&gt;Executive Briefs &amp; Risk Alerts"]
+    end
+
+    subgraph UI ["7. Intelligence Terminal (apps/dashboard)"]
+        U1["Real-Time Dashboard &amp; Visual Explorer"]
+        U2["Production REST APIs"]
+    end
+
+    V1 --&gt; A1
+    V2 --&gt; A2
+    V2 --&gt; A3
+    V3 --&gt; A4
+    V4 --&gt; A5
+
+    A1 --&gt; S1
+    A2 --&gt; S2
+    A3 --&gt; S3
+
+    M1 -. Anchors .-&gt; S1
+    M2 -. Calendar Rules .-&gt; S1
+    M3 -. Schema &amp; Rules .-&gt; S2
+
+    S1 --&gt; Q1
+    S1 --&gt; Q2
+    S1 --&gt; Q3
+    S2 --&gt; Q2
+
+    Q1 --&gt; N1
+    Q2 --&gt; N1
+    Q3 --&gt; N1
+    A4 --&gt; N1
+    N1 --&gt; A5 --&gt; N2
+
+    S1 --&gt; U1
+    Q1 --&gt; U1
+    N2 --&gt; U1
+    S1 --&gt; U2
+    Q1 --&gt; U2
+    N2 --&gt; U2</code></pre>
 <hr />
-<h2 id="what-it-is-capable-of">What It Is Capable Of</h2>
+<h2 id="2-end-to-end-system-execution-flow">2. End-to-End System Execution Flow</h2>
+<p>The platform executes across <strong>7 coordinated lifecycle phases</strong>. Below is the exact operational responsibility of each module, its inputs and outputs, and direct links to swap underlying data sources:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>[Phase A: Foundations]       Taxonomy, Units &amp; Exchange Calendars
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>        \u2502
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>[Phase B: Physical &amp; Derivs]   Asset Master &amp; Contract Specifications
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>        \u2502
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>[Phase C: Metadata Registry]   Data Map: Provider \u2192 Dataset \u2192 Endpoint \u2192 Variable
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>        \u2502
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>[Phase D: Ingestion Store]     Point-in-Time Observations (Prices, Fundamentals, COT)
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>        \u2502
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>[Phase E: Quant Analytics]     Forward Curves, Term Structure &amp; Seasonality
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>        \u2502
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>[Phase F: News &amp; Catalysts]    Event Calendar &amp; Entity Tagging
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>        \u2502
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>[Phase G: AI Intelligence]     Fact-Anchored LLM Narratives &amp; Executive Briefs
+</span></code></pre></div>
+<h3 id="phase-a-foundational-taxonomy-operating-calendars">Phase A: Foundational Taxonomy &amp; Operating Calendars</h3>
 <ul>
-<li><strong>Multi-Asset &amp; Multi-Venue Normalization</strong>: Harmonizing heterogeneous physical commodity specifications, delivery hubs, chemical grade thresholds, and trading units across major global exchanges (CME, NYMEX, CBOT, ICE, LME, BMD, MCX, SGX, SHFE).</li>
-<li><strong>Deterministic Forward Curve &amp; Term Structure Modeling</strong>: Generating continuous forward curves, term structure spreads, calendar rolls, and seasonal basis analysis without lookahead bias.</li>
-<li><strong>Complex Expiry &amp; Calendar Arithmetic</strong>: Computing exact contract last trading days, notice days, and physical/cash settlement dates based on exchange holiday rules and astro-financial dark days (e.g. Good Friday, holiday shifts).</li>
-<li><strong>Multi-Exchange Fungibility &amp; Arbitrage Surveillance</strong>: Tracking cross-listed physical assets, pricing unit conversions, and monitoring liquid vs illiquid contracts using ADV (Average Daily Volume) and Open Interest (OI) metrics.</li>
-<li><strong>Strict Dimensional Unit Conversion</strong>: Deterministically executing mathematical transformations across mass, volume, energy, and currency dimensions before data feeds into analytics models.</li>
-<li><strong>Evidence-Linked AI Narrative Generation</strong>: Generating macroeconomic market summaries and executive briefings where every qualitative LLM claim is linked to verifiable quantitative metrics, historical releases, and audit trails.</li>
-<li><strong>Vendor-Agnostic Extensibility</strong>: Ingesting market and fundamental data from any vendor (CME Datamine, ICE, Bloomberg, Refinitiv, USDA, EIA) via swappable provider contracts without changing database schemas or analytical engines.</li>
+<li><strong>Taxonomy &amp; Units (<code>apps/metadata</code>)</strong>: Provides standard Units of Measure (UOM), observation frequencies, and dimensional mathematical conversion. Deterministic math <strong>must</strong> precede all analysis. Converting 1 Barrel of Crude Oil to Metric Tons or Gallons is strictly calculated using <code>UnitMaster.convert_to()</code> before any quantitative model or LLM touches the number.</li>
+<li><strong>Exchanges &amp; Calendars (<code>apps/exchanges</code>)</strong>: Models 15 global commodity exchanges (CME, ICE, LME, SHFE, SGX, etc.), 18 operating trading sessions, and institutional holiday calendars. Resolves active trading days vs. cash settlement days.<blockquote>
+<p><strong>Need to change an Exchange Calendar Source?</strong><br />
+See: <a href="guides/data-sources/#7-how-to-swap-exchange-calendar-providers-step-by-step">How to Swap Exchange Calendar Providers</a>.</p>
+</blockquote>
+</li>
+</ul>
+<h3 id="phase-b-physical-commodities-derivative-contracts">Phase B: Physical Commodities &amp; Derivative Contracts</h3>
+<ul>
+<li><strong>Commodity Master (<code>apps/commodities</code>)</strong>: Standardizes physical specifications (API gravity, sulfur content, delivery hubs, crop planting calendars) across 23 physical benchmark commodities.</li>
+<li><strong>Contracts &amp; Derivatives (<code>apps/contracts</code>)</strong>: Models derivative contract specifications, F-Z standardized month codes, algorithmic expiry date calculations, and benchmark index roll schedules (S&amp;P GSCI, Bloomberg BCOM).</li>
+</ul>
+<h3 id="phase-c-metadata-catalog-feature-registry">Phase C: Metadata Catalog &amp; Feature Registry</h3>
+<ul>
+<li><strong>Catalog Registry (<code>apps/providers</code>, <code>apps/datasets</code>, <code>apps/endpoints</code>, <code>apps/variables</code>)</strong>: Tracks complete data provenance:
+  <div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>ProviderMaster (WHO: The Vendor, e.g. EIA, CME, USDA)
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>   \u2193
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>DatasetMaster (WHAT: The Report/Table, e.g. Weekly Petroleum Status Report)
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>   \u2193
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>EndpointMaster (WHERE: The URL &amp; Protocol, e.g. /v2/petroleum/pri/spt/data)
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>   \u2193
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>VariableMaster (WHICH: The Observable Metric, e.g. CRUDE_CUSHING_STOCKS)
+</span></code></pre></div><blockquote>
+<p><strong>Need to add a brand-new feature or metric to the platform?</strong><br />
+See: <a href="guides/adding-new-feature/">How to Add New Features, Datasets &amp; Variables</a>.</p>
+</blockquote>
+</li>
+</ul>
+<h3 id="phase-d-ingestion-time-series-observation-store">Phase D: Ingestion &amp; Time-Series Observation Store</h3>
+<ul>
+<li><strong>Observation Store (<code>apps/market_data</code>)</strong>: The quantitative storage layer ingesting and indexing point-in-time time-series:</li>
+<li><code>MarketPriceObservation</code>: Daily/intraday OHLCV, settlement prices, open interest, and volume.</li>
+<li><code>FundamentalObservation</code>: Government storage balances, weekly inventory changes, refinery runs.</li>
+<li><code>CommitmentOfTradersObservation</code>: CFTC institutional trader positioning (Managed Money Net, Commercial Net, % of Open Interest).</li>
+<li><strong>Point-in-Time &amp; Missing Data Guarantees</strong>:</li>
+<li><strong>Rule 2 (Anti-Lookahead)</strong>: Every observation tracks <code>observation_date</code> (market trade date) and <code>publication_time</code> (official UTC release timestamp).</li>
+<li><strong>Rule 5 (Native SQL NULL)</strong>: Preserves exact zero (<code>0.0</code>) vs unobserved (<code>NULL</code>), accelerating SIMD vectorized analytics in NumPy/Pandas.<blockquote>
+<p><strong>Need to switch your Market Data feed (e.g. to CME Datamine or Yahoo)?</strong><br />
+See: <a href="guides/data-sources/#3-how-to-swap-market-data-providers-step-by-step">How to Swap Market Data Providers</a>.<br />
+<strong>Need to switch your Fundamental data source (e.g. to EIA API or Kpler)?</strong><br />
+See: <a href="guides/data-sources/#4-how-to-swap-fundamental-data-providers-step-by-step">How to Swap Fundamental Data Providers</a>.</p>
+</blockquote>
+</li>
+</ul>
+<h3 id="phase-e-deterministic-quantitative-engine-appsquant_engine">Phase E: Deterministic Quantitative Engine (<code>apps/quant_engine</code>)</h3>
+<ul>
+<li>Calculates forward curves, backwardation/contango slopes, term structure splines, crack/crush spreads (e.g. 3:2:1 refinery margin), and 5-year historical seasonality envelopes. All math is deterministic; the LLM is never allowed to guess forward curve numbers.</li>
+</ul>
+<h3 id="phase-f-news-sentiment-macro-catalysts-appsnews_intel">Phase F: News, Sentiment &amp; Macro Catalysts (<code>apps/news_intel</code>)</h3>
+<ul>
+<li>Ingests macroeconomic catalyst events (OPEC meetings, USDA WASDE releases, Fed interest rate decisions) and real-time news headlines, automatically linking entities to canonical commodities.<blockquote>
+<p><strong>Need to switch your News or Sentiment Feed?</strong><br />
+See: <a href="guides/data-sources/#5-how-to-swap-news-and-sentiment-providers-step-by-step">How to Swap News and Sentiment Providers</a>.</p>
+</blockquote>
+</li>
+</ul>
+<h3 id="phase-g-evidence-linked-ai-market-narratives-appsnarratives">Phase G: Evidence-Linked AI Market Narratives (<code>apps/narratives</code>)</h3>
+<ul>
+<li>Generates executive morning market briefs, supply/demand balance commentary, and risk surveillance summaries.</li>
+<li><strong>Anti-Hallucination Standard</strong>: Context builder collects verified quantitative metrics (Cushing stocks, 1-week diff, prompt WTI, COT Managed Money Net). The LLM reasons <em>over</em> these ground-truth figures using a structured prompt template.<blockquote>
+<p><strong>Need to change the LLM Provider or Model (e.g. Gemini, Claude, GPT-4o, Ollama)?</strong><br />
+See: <a href="guides/data-sources/#6-how-to-swap-llm-models-and-providers-step-by-step">How to Swap LLM Models and Providers</a>.</p>
+</blockquote>
+</li>
+</ul>
+<h3 id="phase-h-surveillance-terminal-rest-apis-appsdashboard-production-apis">Phase H: Surveillance Terminal &amp; REST APIs (<code>apps/dashboard</code>, Production APIs)</h3>
+<ul>
+<li>High-density dark-theme dashboard displaying system health, asset tickers, pipeline ingestion status, visual data explorer (<code>/explorer/</code>), and comprehensive REST API endpoints.</li>
 </ul>
 <hr />
-<h2 id="features-of-the-system">Features of the System</h2>
-<ul>
-<li><strong>Pluggable Provider Architecture</strong>: Implements Strategy + Factory patterns with strongly-typed Data Transfer Objects (DTOs), enabling zero-friction data vendor swapping and offline resilience.</li>
-<li><strong>Point-in-Time Correctness</strong>: Tracks observation timestamps, publication dates, and ingestion audit trails via <code>PointInTimeModel</code> to guarantee zero lookahead bias in quantitative research.</li>
-<li><strong>Deterministic Unit Conversion Engine</strong>: Provides 45 canonical units of measure (energy, mass, volume, currency) with strict dimensional validation (<code>UnitMaster.convert_to()</code>) prior to AI reasoning.</li>
-<li><strong>Global Exchange &amp; Calendar Engine</strong>: Canonical modeling for 15 global commodity exchanges, 18 operating sessions, civic vs trading holidays, and astronomical settlement date roll rules.</li>
-<li><strong>Physical Commodity Master</strong>: Canonical specifications for 23 physical benchmark commodities across 7 sectors, including chemical grade standards, delivery hubs, and crop seasonality.</li>
-<li><strong>Multi-Venue Fungibility &amp; Liquidity Filtering</strong>: Maps cross-exchange listings with localized lot sizes and currency quotes, tracking ADV and Open Interest to isolate active liquidity.</li>
-<li><strong>Futures &amp; Contract Master (Phase 5)</strong>: Canonical derivative specifications, standard commodity month codes (F-Z), institutional expiry date calculation, and benchmark index roll schedules (GSCI, BCOM).</li>
-<li><strong>Dataset Master &amp; Catalog (Phase 6)</strong>: Canonical registry of 23 benchmark datasets, multi-asset commodity linkages, update cadences, ingestion modes, and pipeline SLAs.</li>
-<li><strong>Variable Master &amp; Metrics Catalog (Phase 7)</strong>: Standardized dictionary of 40 canonical commodity variables, stock vs. flow aggregation behaviors, and display transformation hints.</li>
-<li><strong>Provider Master &amp; Source Catalog (Phase 8)</strong>: Canonical directory of 20 institutional data vendors and agencies, 12-factor credential environment mapping, proactive rate limit budgets, and fallback failover chaining.</li>
-<li><strong>Endpoint &amp; API Metadata (Phase 9)</strong>: 26 institutional benchmark API route templates, consolidated request schemas, payload envelope selectors, and dynamic URL builders.</li>
-<li><strong>Real-Time Intelligence Terminal</strong>: High-density dark-theme surveillance dashboard displaying operational telemetry, database health, pipeline metrics, and system diagnostics.</li>
-<li><strong>High-Performance REST API Suite</strong>: Production-grade endpoints for metadata, exchanges, commodities, contract specifications, datasets, variables, providers, and endpoints with rich filtering.</li>
-<li><strong>Fact-Anchored LLM Market Narratives</strong>: Evidence-linked commentary engine anchoring generative narrative synthesis directly to quantitative features and official data releases.</li>
-<li><strong>Production MkDocs Documentation Suite</strong>: Interactive documentation site deployed to GitHub Pages with interactive cURL/Python API consoles and provider integration guides.</li>
-</ul>
-<hr />
-<h2 id="core-architecture-principles">Core Architecture Principles</h2>
+<h2 id="3-the-4-non-negotiable-directives">3. The 4 Non-Negotiable Directives</h2>
 <ol>
-<li>
-<p><strong>Source Independence (Plug-and-Play Providers)</strong>:
-   The database models, business logic, and quantitative engines are strictly agnostic to external data vendors. Any external source (e.g. public APIs, Bloomberg, Refinitiv, CME Datamine, Argus, Platts) is isolated behind an adapter contract. Swapping a data provider requires changing only one adapter function without altering downstream analytics.</p>
-</li>
-<li>
-<p><strong>Point-in-Time Correctness</strong>:
-   Historical observations, market reports, and government balance sheets (e.g., USDA WASDE, EIA Weekly Petroleum Status) preserve exact observation timestamps, release timestamps, and revision histories to eliminate lookahead bias in backtests.</p>
-</li>
-<li>
-<p><strong>Deterministic Precedence</strong>:
-   Quantitative forward curve slopes, crack/crush spreads, carrying charges, seasonality curves, and supply/demand balances are computed deterministically before qualitative LLM reasoning.</p>
-</li>
-<li>
-<p><strong>Institutional Precision</strong>:
-   Trading vs. settlement schedules, rolled trade dates, exchange holiday calendars, conversion mathematics, and ISO standards (ISO 10383 MIC, ISO 3166-1 country codes, IANA timezones) are strictly modeled.</p>
-</li>
+<li><strong>Source Independence &amp; Pluggable Providers</strong>:
+   Core database models and analytics are completely agnostic to external data vendors. Changing a data source requires implementing one adapter class and changing one <code>.env</code> variable without modifying downstream quant code.</li>
+<li><strong>Point-in-Time Correctness (Zero Lookahead Bias)</strong>:
+   Every observation preserves market trade dates, official release timestamps, and revision histories (<code>PointInTimeModel</code>).</li>
+<li><strong>Deterministic Arithmetic Precedes LLM Reasoning</strong>:
+   Forward curves, crack spreads, and seasonality bands are calculated deterministically. The LLM does not perform mental arithmetic; it reasons over verified quantitative features.</li>
+<li><strong>High-Performance Missing Data Standard (Rule 5)</strong>:
+   Unobserved metrics are strictly stored as SQL native <code>NULL</code>, preserving valid zeros (<code>0.0</code>), saving storage, and accelerating SIMD vectorization in Pandas (<code>np.nan</code>).</li>
 </ol>
 <hr />
-<h2 id="platform-modules-capabilities">Platform Modules &amp; Capabilities</h2>
-<table>
-<thead>
-<tr>
-<th style="text-align: left;">Module</th>
-<th style="text-align: left;">Documentation</th>
-<th style="text-align: left;">Key Capabilities</th>
-<th style="text-align: center;">Status</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;"><strong>Core Infrastructure</strong></td>
-<td style="text-align: left;"><a href="modules/core-infrastructure/">Architecture Guide</a></td>
-<td style="text-align: left;">Django 5.2, PostgreSQL, Docker, Abstract Models, Health Probes</td>
-<td style="text-align: center;"><img alt="✅" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/2705.svg" title=":white_check_mark:" /> Active</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>Taxonomy &amp; Metadata</strong></td>
-<td style="text-align: left;"><a href="modules/taxonomy-and-units/">Taxonomy &amp; Units</a></td>
-<td style="text-align: left;">34 Data Domains, 45 Commodity Units, Conversion Engine, 15 Frequencies</td>
-<td style="text-align: center;"><img alt="✅" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/2705.svg" title=":white_check_mark:" /> Active</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>Exchanges &amp; Calendars</strong></td>
-<td style="text-align: left;"><a href="modules/exchanges-and-calendars/">Exchange Master</a></td>
-<td style="text-align: left;">15 Venues, 18 Sessions, Calendars, Trading vs. Settlement Rules</td>
-<td style="text-align: center;"><img alt="✅" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/2705.svg" title=":white_check_mark:" /> Active</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>Commodity Master</strong></td>
-<td style="text-align: left;"><a href="modules/commodity-master/">Physical Commodities</a></td>
-<td style="text-align: left;">23 Commodities, Grade Chemistry, Multi-Exchange Listings</td>
-<td style="text-align: center;"><img alt="✅" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/2705.svg" title=":white_check_mark:" /> Active</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>Futures &amp; Derivatives</strong></td>
-<td style="text-align: left;"><a href="modules/contracts-and-derivatives/">Futures &amp; Contract Specifications</a></td>
-<td style="text-align: left;">25 Benchmark Specs, 200+ Prompt Expiries, Algorithmic Rules, Roll Schedules</td>
-<td style="text-align: center;"><img alt="✅" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/2705.svg" title=":white_check_mark:" /> Active</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>Dataset Master &amp; Catalog</strong></td>
-<td style="text-align: left;"><a href="modules/dataset-master/">Dataset Master</a></td>
-<td style="text-align: left;">23 Benchmark Datasets, Multi-Asset Linkages, Release Schedules, SLAs</td>
-<td style="text-align: center;"><img alt="✅" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/2705.svg" title=":white_check_mark:" /> Active</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>Variable Master &amp; Metrics</strong></td>
-<td style="text-align: left;"><a href="modules/variable-master/">Variable Master</a></td>
-<td style="text-align: left;">40 Benchmark Variables, Stock vs Flow Resampling, Unit Enforcement, REST APIs</td>
-<td style="text-align: center;"><img alt="✅" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/2705.svg" title=":white_check_mark:" /> Active</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>Provider / Source Master</strong></td>
-<td style="text-align: left;"><a href="modules/provider-master/">Provider Master</a></td>
-<td style="text-align: left;">20 Benchmark Data Vendors, 12-Factor Auth References, Rate Limits, Failover Chaining</td>
-<td style="text-align: center;"><img alt="✅" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/2705.svg" title=":white_check_mark:" /> Active</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>Endpoint &amp; API Metadata</strong></td>
-<td style="text-align: left;"><a href="modules/endpoint-master/">Endpoint Master</a></td>
-<td style="text-align: left;">26 Benchmark Route Templates, Parameter Schemas, Payload Envelope Extraction</td>
-<td style="text-align: center;"><img alt="✅" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/2705.svg" title=":white_check_mark:" /> Active</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>Market Data &amp; Curves</strong></td>
-<td style="text-align: left;">Quant Analytics</td>
-<td style="text-align: left;">High-frequency OHLCV, Forward Curves, Intraday Volatility Surfaces</td>
-<td style="text-align: center;"><img alt="🔜" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/1f51c.svg" title=":soon:" /> Planned</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>Supply &amp; Demand</strong></td>
-<td style="text-align: left;">Balance Sheets</td>
-<td style="text-align: left;">USDA, EIA, IEA, Production/Consumption Fundamentals</td>
-<td style="text-align: center;"><img alt="🔜" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/1f51c.svg" title=":soon:" /> Planned</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>LLM Market Narratives</strong></td>
-<td style="text-align: left;">AI Intelligence</td>
-<td style="text-align: left;">Point-in-time Market Commentary, RAG Retrieval, Risk Summaries</td>
-<td style="text-align: center;"><img alt="🔜" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/1f51c.svg" title=":soon:" /> Planned</td>
-</tr>
-</tbody>
-</table>
+<h2 id="4-configuration-knobs">4. Configuration Knobs</h2>
+<p>To configure or swap any layer of the execution pipeline, update <code>.env</code> or Django settings:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># -------------------------------------------------------------</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="c1"># PLUGGABLE PROVIDER CONFIGURATION (.env)</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="c1"># -------------------------------------------------------------</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1"># Market Price Data: 'static', 'yahoo', 'cme_datamine', 'interactive_brokers'</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="nv">MARKET_DATA_PROVIDER</span><span class="o">=</span>static
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="c1"># Fundamental Balances: 'static', 'eia_api', 'kpler', 'usda'</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="nv">FUNDAMENTAL_DATA_PROVIDER</span><span class="o">=</span>static
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="c1"># Commitment of Traders (COT): 'static', 'cftc_socrata'</span>
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="nv">COT_DATA_PROVIDER</span><span class="o">=</span>static
+</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>
+</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="c1"># News &amp; Sentiment: 'static', 'rss_feed', 'bloomberg_news', 'newsapi'</span>
+</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="nv">NEWS_PROVIDER</span><span class="o">=</span>static
+</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>
+</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="c1"># LLM Reasoning Engine: 'gemini', 'claude', 'openai', 'ollama'</span>
+</span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="nv">LLM_PROVIDER</span><span class="o">=</span>gemini
+</span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="nv">LLM_MODEL</span><span class="o">=</span>gemini-2.0-flash
+</span></code></pre></div>
 
 
 

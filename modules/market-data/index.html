@@ -13,10 +13,10 @@
       
       
       
-        <link rel="prev" href="../provider-master/">
+        <link rel="prev" href="../..">
       
       
-        <link rel="next" href="../endpoint-master/">
+        <link rel="next" href="../commodity-master/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>Datasets & Feeds - Commodity Market Intelligence & Quant Platform</title>
+        <title>Market Data & Observations - Commodity Market Intelligence & Quant Platform</title>
       
     
     
@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#dataset-master-catalog-architecture" class="md-skip">
+        <a href="#module-architecture-market-data-observation-store-appsmarket_data" class="md-skip">
           Skip to content
         </a>
       
@@ -109,7 +109,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Datasets & Feeds
+              Market Data & Observations
             
           </span>
         </div>
@@ -219,7 +219,7 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="../market-data/" class="md-tabs__link">
+        <a href="./" class="md-tabs__link">
           
   
   
@@ -403,10 +403,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../market-data/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Market Data & Observations
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -422,6 +449,165 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-architectural-role-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Architectural Role &amp; Pipeline
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-developer-quick-reference-how-this-guarantees-easy-replacements-feature-additions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Developer Quick-Reference: How This Guarantees Easy Replacements &amp; Feature Additions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-core-directives-enforced" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Core Directives Enforced
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Core Directives Enforced">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-rule-2-point-in-time-correctness-anti-lookahead-bias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Rule 2: Point-in-Time Correctness (Anti-Lookahead Bias)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-rule-5-native-sql-null-for-unobserved-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Rule 5: Native SQL NULL for Unobserved Metrics
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-relational-data-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Relational Data Models
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Relational Data Models">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#marketpriceobservation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MarketPriceObservation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fundamentalobservation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FundamentalObservation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#commitmentoftradersobservation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CommitmentOfTradersObservation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-management-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Management Commands
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Management Commands">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#batch-ingestion-ingest_market_data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Batch Ingestion (ingest_market_data)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -599,37 +785,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Datasets & Feeds
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../dataset-master/" class="md-nav__link">
         
   
   
@@ -645,165 +804,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#1-domain-concept-architectural-role" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        1. Domain Concept &amp; Architectural Role
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#2-canonical-data-categories" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2. Canonical Data Categories
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#3-update-cadences-ingestion-modes-slas" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3. Update Cadences, Ingestion Modes &amp; SLAs
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="3. Update Cadences, Ingestion Modes &amp; SLAs">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#update-cadences" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Update Cadences
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#ingestion-modes-pipeline-architecture" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Ingestion Modes &amp; Pipeline Architecture
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#sla-latency-monitoring" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        SLA &amp; Latency Monitoring
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#4-multi-asset-commodity-linkage" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        4. Multi-Asset &amp; Commodity Linkage
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#5-pluggable-catalog-provider-architecture" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        5. Pluggable Catalog Provider Architecture
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="5. Pluggable Catalog Provider Architecture">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#static-vs-external-catalog-providers" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Static vs External Catalog Providers
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#6-model-reference-database-tables" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        6. Model Reference &amp; Database Tables
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="6. Model Reference &amp; Database Tables">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#datasetmaster-datasets_master" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        DatasetMaster (datasets_master)
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1441,10 +1441,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#1-domain-concept-architectural-role" class="md-nav__link">
+  <a href="#1-architectural-role-pipeline" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1. Domain Concept &amp; Architectural Role
+        1. Architectural Role &amp; Pipeline
       
     </span>
   </a>
@@ -1452,10 +1452,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#2-canonical-data-categories" class="md-nav__link">
+  <a href="#2-developer-quick-reference-how-this-guarantees-easy-replacements-feature-additions" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Canonical Data Categories
+        2. Developer Quick-Reference: How This Guarantees Easy Replacements &amp; Feature Additions
       
     </span>
   </a>
@@ -1463,22 +1463,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#3-update-cadences-ingestion-modes-slas" class="md-nav__link">
+  <a href="#3-core-directives-enforced" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. Update Cadences, Ingestion Modes &amp; SLAs
+        3. Core Directives Enforced
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="3. Update Cadences, Ingestion Modes &amp; SLAs">
+    <nav class="md-nav" aria-label="3. Core Directives Enforced">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#update-cadences" class="md-nav__link">
+  <a href="#1-rule-2-point-in-time-correctness-anti-lookahead-bias" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Update Cadences
+        1. Rule 2: Point-in-Time Correctness (Anti-Lookahead Bias)
       
     </span>
   </a>
@@ -1486,21 +1486,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#ingestion-modes-pipeline-architecture" class="md-nav__link">
+  <a href="#2-rule-5-native-sql-null-for-unobserved-metrics" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Ingestion Modes &amp; Pipeline Architecture
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#sla-latency-monitoring" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        SLA &amp; Latency Monitoring
+        2. Rule 5: Native SQL NULL for Unobserved Metrics
       
     </span>
   </a>
@@ -1513,33 +1502,44 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#4-multi-asset-commodity-linkage" class="md-nav__link">
+  <a href="#4-relational-data-models" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4. Multi-Asset &amp; Commodity Linkage
+        4. Relational Data Models
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Relational Data Models">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#marketpriceobservation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MarketPriceObservation
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#5-pluggable-catalog-provider-architecture" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#fundamentalobservation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        5. Pluggable Catalog Provider Architecture
+        FundamentalObservation
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="5. Pluggable Catalog Provider Architecture">
-      <ul class="md-nav__list">
+</li>
         
           <li class="md-nav__item">
-  <a href="#static-vs-external-catalog-providers" class="md-nav__link">
+  <a href="#commitmentoftradersobservation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Static vs External Catalog Providers
+        CommitmentOfTradersObservation
       
     </span>
   </a>
@@ -1552,22 +1552,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#6-model-reference-database-tables" class="md-nav__link">
+  <a href="#5-management-commands" class="md-nav__link">
     <span class="md-ellipsis">
       
-        6. Model Reference &amp; Database Tables
+        5. Management Commands
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="6. Model Reference &amp; Database Tables">
+    <nav class="md-nav" aria-label="5. Management Commands">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#datasetmaster-datasets_master" class="md-nav__link">
+  <a href="#batch-ingestion-ingest_market_data" class="md-nav__link">
     <span class="md-ellipsis">
       
-        DatasetMaster (datasets_master)
+        Batch Ingestion (ingest_market_data)
       
     </span>
   </a>
@@ -1599,195 +1599,98 @@
   
 
 
-<h1 id="dataset-master-catalog-architecture">Dataset Master &amp; Catalog Architecture</h1>
-<p>The <code>apps/datasets</code> module establishes the canonical catalog of commodity market datasets, reporting cadences, ingestion protocols, source authorities, point-in-time revision policies, and service level agreements (SLAs).</p>
+<h1 id="module-architecture-market-data-observation-store-appsmarket_data">Module Architecture: Market Data &amp; Observation Store (<code>apps/market_data</code>)</h1>
+<p>The <strong>Market Data &amp; Time-Series Observation Store</strong> is the quantitative heartbeat and central ingestion layer of the Commodity Market Intelligence Platform. It ingests, stores, and serves high-fidelity market prices, official government supply/demand fundamentals, and CFTC institutional trader positioning with strict point-in-time integrity.</p>
 <hr />
-<h2 id="1-domain-concept-architectural-role">1. Domain Concept &amp; Architectural Role</h2>
-<p>Commodity intelligence systems rely on heterogeneous data streams spanning financial market prices, governmental fundamental balance sheets, corporate inventory surveys, satellite weather observations, customs trade flows, and regulatory trader positioning.</p>
-<p>Without a centralized catalog, quantitative research and ETL pipelines suffer from severe architectural challenges:
-* <strong>Vendor Coupling</strong>: Codebases become hardcoded to specific vendor table schemas and delivery mechanisms.
-* <strong>Lookahead Bias</strong>: Backtesting engines evaluate historical data using the release date or revision status available today rather than at the historical point in time.
-* <strong>Lack of Multi-Asset Clarity</strong>: Crucial reports like the <strong>USDA WASDE</strong> (World Agricultural Supply and Demand Estimates) or the <strong>CFTC Commitments of Traders (COT)</strong> cover dozens of commodities simultaneously; systems that force a strict 1-to-1 dataset-to-commodity mapping break down.
-* <strong>Pipeline Blindness</strong>: Data pipelines fail silently when releases are delayed or schemas drift without clear SLAs or cadence definitions.</p>
-<p>The <code>DatasetMaster</code> solves these challenges by acting as the single source of truth for <strong>dataset definitions and governance</strong>:</p>
+<h2 id="1-architectural-role-pipeline">1. Architectural Role &amp; Pipeline</h2>
 <pre class="mermaid"><code>graph TD
-    A[External Publishing Authorities&lt;br/&gt;USDA, EIA, CFTC, CME, NOAA, IEA] --&gt; B[Pluggable Dataset Provider&lt;br/&gt;BaseDatasetCatalogProvider]
-    B --&gt; C[DatasetMaster Catalog&lt;br/&gt;Code, Category, Cadence, Ingestion, SLAs]
-    C --&gt; D[Multi-Asset Linkage&lt;br/&gt;Primary Commodity + ManyToMany Commodities]
-    C --&gt; E[ETL &amp; Ingestion Scheduler&lt;br/&gt;Cadence, Release Schedules, SLAs]
-    C --&gt; F[Point-in-Time Revision Policies&lt;br/&gt;Zero Lookahead Bias Enforcement]</code></pre>
+    subgraph External ["External Data Vendors &amp; Public Feeds"]
+        E1["Exchanges (CME, ICE, LME, SHFE)"]
+        E2["Agencies (EIA v2, USDA WASDE, CFTC)"]
+        E3["Commercial Aggregators &amp; Web Feeds"]
+    end
+
+    subgraph Adapters ["Pluggable Ingestion Adapters (Strategy + Factory)"]
+        A1["BaseMarketDataProvider&lt;br/&gt;(CME Datamine, Yahoo, Static)"]
+        A2["BaseFundamentalProvider&lt;br/&gt;(EIA API, Kpler, Static)"]
+        A3["BaseCOTProvider&lt;br/&gt;(CFTC SODA API, Static)"]
+    end
+
+    subgraph Store ["apps/market_data (Point-in-Time Observation Store)"]
+        M1["MarketPriceObservation&lt;br/&gt;OHLCV, Settlements, Volume, Open Interest"]
+        M2["FundamentalObservation&lt;br/&gt;EIA Stocks, Cushing, Refinery Runs, Gas Storage"]
+        M3["CommitmentOfTradersObservation&lt;br/&gt;Managed Money, Commercial Net, % OI"]
+    end
+
+    subgraph Downstream ["Downstream Analytical Engines"]
+        Q1["apps/quant_engine (Phase 11)&lt;br/&gt;Forward Curves, Splines, Crack Spreads"]
+        N1["apps/narratives (Phase 13)&lt;br/&gt;Evidence-Linked LLM Market Briefings"]
+    end
+
+    E1 --&gt; A1 --&gt; M1
+    E2 --&gt; A2 --&gt; M2
+    E2 --&gt; A3 --&gt; M3
+    M1 --&gt; Q1
+    M2 --&gt; Q1
+    M3 --&gt; Q1
+    Q1 --&gt; N1</code></pre>
 <hr />
-<h2 id="2-canonical-data-categories">2. Canonical Data Categories</h2>
-<p>Datasets are categorized into 9 distinct functional domains:</p>
+<h2 id="2-developer-quick-reference-how-this-guarantees-easy-replacements-feature-additions">2. Developer Quick-Reference: How This Guarantees Easy Replacements &amp; Feature Additions</h2>
+<p>If you or another developer pick up this platform and need to swap a data source, news provider, fundamental feed, or LLM, use this quick reference table:</p>
 <table>
 <thead>
 <tr>
-<th style="text-align: left;">Category Code</th>
-<th style="text-align: left;">Category Name</th>
-<th style="text-align: left;">Typical Source Authorities</th>
-<th style="text-align: left;">Representative Benchmark Series</th>
+<th style="text-align: left;">What You Want to Change</th>
+<th style="text-align: left;">How to Do It in This Architecture</th>
+<th style="text-align: left;">Files Touched</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align: left;"><code>MARKET_PRICES</code></td>
-<td style="text-align: left;">Market Prices &amp; Spreads</td>
-<td style="text-align: left;">CME, ICE, LME, SHFE, MCX</td>
-<td style="text-align: left;">Daily settlement prices, continuous front-month curves, intraday tick bars.</td>
+<td style="text-align: left;"><strong>Change Market Data Source</strong><br><em>(e.g., switch from Static/Yahoo to CME Datamine, ICE, or Bloomberg)</em></td>
+<td style="text-align: left;">Implement <code>BaseMarketDataProvider</code> in <code>apps/market_data/providers/</code> and set <code>MARKET_DATA_PROVIDER=cme_datamine</code> in <code>.env</code>.</td>
+<td style="text-align: left;"><strong>1 adapter file</strong>; zero database or quant logic changes.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>INVENTORIES_STOCKS</code></td>
-<td style="text-align: left;">Inventories &amp; Warehouse Stocks</td>
-<td style="text-align: left;">EIA, LME, API, USDA</td>
-<td style="text-align: left;">US Crude inventories (Cushing), LME registered warrant stocks, port grain elevator stocks.</td>
+<td style="text-align: left;"><strong>Change Fundamental Source</strong><br><em>(e.g., switch from EIA API to Kpler, Vortexa, or USDA)</em></td>
+<td style="text-align: left;">Implement <code>BaseFundamentalProvider</code> in <code>apps/market_data/providers/</code> and set <code>FUNDAMENTAL_DATA_PROVIDER=kpler</code> in <code>.env</code>.</td>
+<td style="text-align: left;"><strong>1 adapter file</strong>; observations map automatically to canonical variables.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>SUPPLY_DEMAND</code></td>
-<td style="text-align: left;">Supply &amp; Demand Balances</td>
-<td style="text-align: left;">USDA, IEA, OPEC, CONAB</td>
-<td style="text-align: left;">Global balance sheets, ending stocks, crush volumes, domestic disappearance.</td>
+<td style="text-align: left;"><strong>Change News / Sentiment Provider</strong><br><em>(e.g., switch from RSS to Bloomberg News, Reuters, or AlphaVantage)</em></td>
+<td style="text-align: left;">Implement <code>BaseNewsProvider</code> in <code>apps/news_intel/providers/</code> and set <code>NEWS_PROVIDER=bloomberg</code> in <code>.env</code>.</td>
+<td style="text-align: left;"><strong>1 adapter file</strong>; news articles auto-tag to commodities.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>TRADE_FLOWS</code></td>
-<td style="text-align: left;">Trade Flows &amp; Customs</td>
-<td style="text-align: left;">USDA FAS, General Administration of Customs</td>
-<td style="text-align: left;">Weekly export inspections, vessel tracking, bilateral trade matrices.</td>
+<td style="text-align: left;"><strong>Change LLM Provider</strong><br><em>(e.g., switch from Google Gemini to Claude, OpenAI, or local Ollama)</em></td>
+<td style="text-align: left;">Implement <code>BaseLLMProvider</code> in <code>apps/narratives/providers/</code> and set <code>LLM_PROVIDER=claude</code> in <code>.env</code>.</td>
+<td style="text-align: left;"><strong>1 adapter file</strong>; prompt templates and context builders remain unchanged.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>POSITIONING</code></td>
-<td style="text-align: left;">Trader Positioning &amp; COT</td>
-<td style="text-align: left;">CFTC, ICE Europe</td>
-<td style="text-align: left;">Disaggregated COT, managed money net length, commercial hedging commitments.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>WEATHER_CLIMATE</code></td>
-<td style="text-align: left;">Weather &amp; Satellite Climate</td>
-<td style="text-align: left;">NOAA, ECMWF, NASA</td>
-<td style="text-align: left;">Soil moisture anomalies, cumulative precipitation, ENSO (El Niño / La Niña) indices.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>MACROECONOMIC</code></td>
-<td style="text-align: left;">Macroeconomic &amp; FX Rates</td>
-<td style="text-align: left;">Federal Reserve (FRED), IMF, World Bank</td>
-<td style="text-align: left;">US Dollar Index (DXY), shipping freight indices (Baltic Dry Index), central bank interest rates.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>PRODUCTION_CAPACITY</code></td>
-<td style="text-align: left;">Production &amp; Extraction</td>
-<td style="text-align: left;">Baker Hughes, OPEC, USGS</td>
-<td style="text-align: left;">Active oil/gas rig counts, refinery utilization rates, mine output reports.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>ENVIRONMENTAL</code></td>
-<td style="text-align: left;">Environmental &amp; Emissions</td>
-<td style="text-align: left;">EU ETS, California CARB</td>
-<td style="text-align: left;">Carbon credit allowances, renewable fuel standard (RFS) RIN generation.</td>
+<td style="text-align: left;"><strong>Add a Brand-New Feature for LLM</strong><br><em>(e.g., Baltic Dry Index, Vessel Waiting Times, European Gas Storage)</em></td>
+<td style="text-align: left;">1. Add variable to <code>VariableMaster</code>.<br>2. Ingest observations.<br>The Quant Engine and LLM context builder pick it up automatically!</td>
+<td style="text-align: left;"><strong>Zero code refactoring</strong>. Fully extensible.</td>
 </tr>
 </tbody>
 </table>
 <hr />
-<h2 id="3-update-cadences-ingestion-modes-slas">3. Update Cadences, Ingestion Modes &amp; SLAs</h2>
-<h3 id="update-cadences">Update Cadences</h3>
-<table>
-<thead>
-<tr>
-<th style="text-align: left;">Cadence</th>
-<th style="text-align: left;">Description</th>
-<th style="text-align: left;">Example Datasets</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;"><code>REALTIME_STREAM</code></td>
-<td style="text-align: left;">Continuous tick or streaming trade feed.</td>
-<td style="text-align: left;">Order book depth, real-time FX/futures ticks.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>HOURLY</code></td>
-<td style="text-align: left;">Hourly periodic snapshots.</td>
-<td style="text-align: left;">Pipeline flows, intraday electricity nodal prices.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>DAILY_EOD</code></td>
-<td style="text-align: left;">Daily closing/settlement snapshot.</td>
-<td style="text-align: left;">Exchange settlement prices, official currency fixings.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>WEEKLY_FIXED_DAY</code></td>
-<td style="text-align: left;">Released weekly on a predetermined calendar day.</td>
-<td style="text-align: left;">EIA Petroleum (Wed 10:30 ET), CFTC COT (Fri 15:30 ET).</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>MONTHLY_CALENDAR_DAY</code></td>
-<td style="text-align: left;">Released monthly around a specific calendar date.</td>
-<td style="text-align: left;">USDA WASDE (9th-12th of month), OPEC Monthly Oil Report.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>QUARTERLY</code></td>
-<td style="text-align: left;">Quarterly institutional updates.</td>
-<td style="text-align: left;">USDA Grain Stocks, corporate inventory filings.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>SEASONAL_CROP_CYCLE</code></td>
-<td style="text-align: left;">Published only during the active agricultural season.</td>
-<td style="text-align: left;">USDA NASS Crop Progress &amp; Condition (April–November).</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>EVENT_DRIVEN</code></td>
-<td style="text-align: left;">Published on an ad-hoc or unannounced basis.</td>
-<td style="text-align: left;">Emergency OPEC+ ministerial communiqués, unscheduled refinery outages.</td>
-</tr>
-</tbody>
-</table>
-<h3 id="ingestion-modes-pipeline-architecture">Ingestion Modes &amp; Pipeline Architecture</h3>
-<p>The platform categorizes how data enters the analytical pipeline:</p>
-<ol>
-<li><strong><code>PULL_SCHEDULED_BATCH</code></strong>: Cron or Celery Beat scheduler queries remote REST APIs or FTP servers at scheduled publication times.</li>
-<li><strong><code>PULL_POLL_CHANGE_DETECTION</code></strong>: High-frequency polling utilizing HTTP <code>ETag</code> or <code>If-Modified-Since</code> headers to ingest data within seconds of publication.</li>
-<li><strong><code>PUSH_WEBHOOK_STREAM</code></strong>: Inbound webhook receivers or streaming sockets push observations into the platform.</li>
-<li><strong><code>PUSH_MESSAGE_QUEUE</code></strong>: Enterprise event streaming via Apache Kafka or RabbitMQ.</li>
-<li><strong><code>MANUAL_INGESTION</code></strong>: Controlled analyst upload portal for bespoke non-digital industry reports.</li>
-</ol>
-<h3 id="sla-latency-monitoring">SLA &amp; Latency Monitoring</h3>
-<p>Each dataset defines <code>sla_max_delay_minutes</code>:
-* <strong>Threshold Calculation</strong>: Measures the elapsed duration between scheduled publication time and completed database ingestion.
-* <strong>Automated Alerting</strong>: If the delay exceeds the SLA threshold, system telemetry registers a warning state on the Operations Dashboard.</p>
+<h2 id="3-core-directives-enforced">3. Core Directives Enforced</h2>
+<h3 id="1-rule-2-point-in-time-correctness-anti-lookahead-bias">1. Rule 2: Point-in-Time Correctness (Anti-Lookahead Bias)</h3>
+<p>Commodity research and quantitative backtests require absolute chronological honesty. For every observation, three distinct temporal milestones are recorded:
+- <code>observation_date</code>: The physical trade date or survey cutoff date (e.g. Tuesday for CFTC COT).
+- <code>publication_time</code>: The exact UTC timestamp when the data was made publicly accessible (e.g. Friday 20:30 UTC for CFTC, Wednesday 14:30 UTC for EIA).
+- <code>ingestion_time</code>: System ingestion audit timestamp.</p>
+<p>Historical queries and backtesting engines query data with <code>publication_time &lt;= point_in_time_query</code>, preventing lookahead leakage.</p>
+<h3 id="2-rule-5-native-sql-null-for-unobserved-metrics">2. Rule 5: Native SQL <code>NULL</code> for Unobserved Metrics</h3>
+<p>Unobserved metrics (such as a session with volume but no settlement, or an unreleased inventory figure) are strictly stored as SQL native <code>NULL</code> (<code>null=True, blank=True</code>).
+- <strong>Memory &amp; Storage Efficiency</strong>: Uses native 1-bit database null bitmaps rather than 32-byte status strings.
+- <strong>Mathematical Distinction</strong>: Distinguishes between <code>0.0</code> (a valid real zero) and <code>NULL</code> (unobserved / pending).
+- <strong>SIMD C-Vectorization</strong>: Exporting querysets directly to Pandas/NumPy translates native <code>NULL</code> into <code>np.nan</code>, accelerating vectorized vector calculations.
+- <strong>Presentation &amp; LLM Layer</strong>: The API and LLM layers automatically format <code>NULL</code> values as <code>"NOT_AVAILABLE"</code>.</p>
 <hr />
-<h2 id="4-multi-asset-commodity-linkage">4. Multi-Asset &amp; Commodity Linkage</h2>
-<p>Macroeconomic and governmental reports often cover multiple physical commodities simultaneously. <code>DatasetMaster</code> models this flexibility using a dual-link structure:</p>
-<ol>
-<li><strong><code>primary_commodity</code> (<code>ForeignKey</code>, optional)</strong>: Identifies the single benchmark asset when a dataset is dedicated to one commodity (e.g. Baker Hughes Rig Count -&gt; Crude Oil, LME Copper Stocks -&gt; Copper).</li>
-<li><strong><code>commodities</code> (<code>ManyToManyField</code>, optional)</strong>: Links all underlying commodities for comprehensive multi-asset balance sheets (e.g., USDA WASDE covers Corn, Soybeans, Wheat, Cotton; CFTC COT covers Energy, Metals, and Ags).</li>
-</ol>
-<p>This enables analytical queries like:
-<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Retrieve all datasets affecting Corn fundamentals</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">corn_datasets</span> <span class="o">=</span> <span class="n">DatasetMaster</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">Q</span><span class="p">(</span><span class="n">primary_commodity__code</span><span class="o">=</span><span class="s2">"CORN"</span><span class="p">)</span> <span class="o">|</span> <span class="n">Q</span><span class="p">(</span><span class="n">commodities__code</span><span class="o">=</span><span class="s2">"CORN"</span><span class="p">)</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="p">)</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
-</span></code></pre></div></p>
-<hr />
-<h2 id="5-pluggable-catalog-provider-architecture">5. Pluggable Catalog Provider Architecture</h2>
-<p>In accordance with Core Directive #1 (Source Independence), dataset definitions are completely decoupled from storage mechanisms using the Strategy + Factory pattern:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># apps/datasets/providers/base.py</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="k">class</span><span class="w"> </span><span class="nc">BaseDatasetCatalogProvider</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="nd">@abstractmethod</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_datasets</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">RawDatasetSpec</span><span class="p">]:</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">        </span><span class="sd">"""Fetch all canonical dataset specifications."""</span>
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>        <span class="k">pass</span>
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
-</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    <span class="nd">@abstractmethod</span>
-</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">code</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">RawDatasetSpec</span><span class="p">]:</span>
-</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">        </span><span class="sd">"""Retrieve a single dataset specification by code."""</span>
-</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>        <span class="k">pass</span>
-</span></code></pre></div>
-<h3 id="static-vs-external-catalog-providers">Static vs External Catalog Providers</h3>
-<ul>
-<li><strong><code>StaticDatasetCatalogProvider</code></strong>: Standard built-in provider populating 23 institutional benchmark datasets across energy, agriculture, metals, weather, and macro indicators.</li>
-<li><strong>Custom Enterprise Providers</strong>: Data teams can implement custom providers that synchronize datasets from AWS Glue Data Catalog, Snowflake Data Marketplace, or internal metadata repositories by implementing <code>BaseDatasetCatalogProvider</code> and updating <code>DATASET_CATALOG_PROVIDER</code> in settings.</li>
-</ul>
-<hr />
-<h2 id="6-model-reference-database-tables">6. Model Reference &amp; Database Tables</h2>
-<h3 id="datasetmaster-datasets_master"><code>DatasetMaster</code> (<code>datasets_master</code>)</h3>
+<h2 id="4-relational-data-models">4. Relational Data Models</h2>
+<h3 id="marketpriceobservation"><code>MarketPriceObservation</code></h3>
+<p>Captures session prices, daily settlements, volume, and open interest for physical benchmarks and individual futures contracts.</p>
 <table>
 <thead>
 <tr>
@@ -1799,116 +1702,243 @@
 <tbody>
 <tr>
 <td style="text-align: left;"><code>id</code></td>
-<td style="text-align: left;"><code>UUID</code></td>
+<td style="text-align: left;">UUID</td>
 <td style="text-align: left;">Primary key.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>code</code></td>
-<td style="text-align: left;"><code>CharField(60)</code></td>
-<td style="text-align: left;">Unique canonical identifier (e.g. <code>USDA_WASDE</code>, <code>EIA_WPSR_PETROLEUM</code>).</td>
+<td style="text-align: left;"><code>commodity</code></td>
+<td style="text-align: left;">FK (<code>CommodityMaster</code>)</td>
+<td style="text-align: left;">Canonical underlying physical commodity (e.g., <code>CL</code>, <code>BRENT</code>, <code>NG</code>).</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>name</code></td>
-<td style="text-align: left;"><code>CharField(150)</code></td>
-<td style="text-align: left;">Full commercial/institutional title.</td>
+<td style="text-align: left;"><code>contract</code></td>
+<td style="text-align: left;">FK (<code>ContractSpecification</code>)</td>
+<td style="text-align: left;">Specific derivative specification (optional).</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>description</code></td>
-<td style="text-align: left;"><code>TextField</code></td>
-<td style="text-align: left;">Detailed methodology and coverage description.</td>
+<td style="text-align: left;"><code>delivery_month</code></td>
+<td style="text-align: left;">CharField(16)</td>
+<td style="text-align: left;">Delivery month code (e.g. <code>'2026-11'</code>, <code>'PROMPT'</code>).</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>domain</code></td>
-<td style="text-align: left;"><code>ForeignKey</code></td>
-<td style="text-align: left;">Data domain taxonomy classification (<code>metadata.DataDomainMaster</code>).</td>
+<td style="text-align: left;"><code>is_prompt</code></td>
+<td style="text-align: left;">BooleanField (indexed)</td>
+<td style="text-align: left;">True for continuous front-month benchmark series.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>primary_commodity</code></td>
-<td style="text-align: left;"><code>ForeignKey</code></td>
-<td style="text-align: left;">Primary benchmark commodity anchor (optional).</td>
+<td style="text-align: left;"><code>observation_date</code></td>
+<td style="text-align: left;">DateField (indexed)</td>
+<td style="text-align: left;">Market pricing date.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>commodities</code></td>
-<td style="text-align: left;"><code>ManyToManyField</code></td>
-<td style="text-align: left;">All physical commodities covered by this dataset.</td>
+<td style="text-align: left;"><code>open_price</code></td>
+<td style="text-align: left;">Decimal(18, 6)</td>
+<td style="text-align: left;">Opening price (<code>NULL</code> if unobserved).</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>exchange</code></td>
-<td style="text-align: left;"><code>ForeignKey</code></td>
-<td style="text-align: left;">Associated exchange venue (if venue-specific).</td>
+<td style="text-align: left;"><code>high_price</code></td>
+<td style="text-align: left;">Decimal(18, 6)</td>
+<td style="text-align: left;">High price (<code>NULL</code> if unobserved).</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>frequency</code></td>
-<td style="text-align: left;"><code>ForeignKey</code></td>
-<td style="text-align: left;">Standard temporal frequency (<code>metadata.FrequencyMaster</code>).</td>
+<td style="text-align: left;"><code>low_price</code></td>
+<td style="text-align: left;">Decimal(18, 6)</td>
+<td style="text-align: left;">Low price (<code>NULL</code> if unobserved).</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>data_category</code></td>
-<td style="text-align: left;"><code>CharField(40)</code></td>
-<td style="text-align: left;">Functional category (<code>MARKET_PRICES</code>, <code>SUPPLY_DEMAND</code>, etc.).</td>
+<td style="text-align: left;"><code>close_price</code></td>
+<td style="text-align: left;">Decimal(18, 6)</td>
+<td style="text-align: left;">Close price (<code>NULL</code> if unobserved).</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>update_cadence</code></td>
-<td style="text-align: left;"><code>CharField(40)</code></td>
-<td style="text-align: left;">Publication frequency (<code>DAILY_EOD</code>, <code>WEEKLY_FIXED_DAY</code>, etc.).</td>
+<td style="text-align: left;"><code>settlement_price</code></td>
+<td style="text-align: left;">Decimal(18, 6) (indexed)</td>
+<td style="text-align: left;">Official exchange daily settlement price.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>ingestion_mode</code></td>
-<td style="text-align: left;"><code>CharField(40)</code></td>
-<td style="text-align: left;">Acquisition mode (<code>PULL_SCHEDULED_BATCH</code>, <code>PUSH_WEBHOOK_STREAM</code>, etc.).</td>
+<td style="text-align: left;"><code>volume</code></td>
+<td style="text-align: left;">BigIntegerField</td>
+<td style="text-align: left;">Session volume.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>release_schedule</code></td>
-<td style="text-align: left;"><code>JSONField</code></td>
-<td style="text-align: left;">Structured timing parameters (day, hour, minute, timezone).</td>
+<td style="text-align: left;"><code>open_interest</code></td>
+<td style="text-align: left;">BigIntegerField</td>
+<td style="text-align: left;">End-of-session open interest.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>retention_policy</code></td>
-<td style="text-align: left;"><code>CharField(40)</code></td>
-<td style="text-align: left;">Historical retention rules (<code>INDEFINITE_POINT_IN_TIME</code>, etc.).</td>
+<td style="text-align: left;"><code>quality_status</code></td>
+<td style="text-align: left;">CharField(16)</td>
+<td style="text-align: left;">Data quality status (<code>VALID</code>, <code>STALE</code>, <code>SUSPECT</code>, etc.).</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>license_type</code></td>
-<td style="text-align: left;"><code>CharField(40)</code></td>
-<td style="text-align: left;">Usage rights (<code>PUBLIC_DOMAIN</code>, <code>PROPRIETARY_COMMERCIAL</code>, etc.).</td>
+<td style="text-align: left;"><code>source_endpoint</code></td>
+<td style="text-align: left;">FK (<code>EndpointMaster</code>)</td>
+<td style="text-align: left;">Originating ingestion endpoint route.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>point_in_time_enabled</code></td>
-<td style="text-align: left;"><code>BooleanField</code></td>
-<td style="text-align: left;">True if publication timestamps and revision tracking are enforced.</td>
+<td style="text-align: left;"><code>publication_time</code></td>
+<td style="text-align: left;">DateTimeField</td>
+<td style="text-align: left;">UTC publication timestamp.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>supports_revisions</code></td>
-<td style="text-align: left;"><code>BooleanField</code></td>
-<td style="text-align: left;">True if source authority issues retroactive revisions.</td>
+<td style="text-align: left;"><code>is_preliminary</code></td>
+<td style="text-align: left;">BooleanField</td>
+<td style="text-align: left;">Flag indicating preliminary estimate.</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>sla_max_delay_minutes</code></td>
-<td style="text-align: left;"><code>IntegerField</code></td>
-<td style="text-align: left;">Maximum tolerable pipeline delay in minutes before warning.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>source_authority</code></td>
-<td style="text-align: left;"><code>CharField(150)</code></td>
-<td style="text-align: left;">Publishing agency (e.g. <code>USDA</code>, <code>EIA</code>, <code>CFTC</code>, <code>NOAA</code>).</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>documentation_url</code></td>
-<td style="text-align: left;"><code>URLField</code></td>
-<td style="text-align: left;">Official agency methodology reference URL.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>is_active</code></td>
-<td style="text-align: left;"><code>BooleanField</code></td>
-<td style="text-align: left;">True if dataset is active.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>display_order</code></td>
-<td style="text-align: left;"><code>IntegerField</code></td>
-<td style="text-align: left;">Sorting order in dashboards and tables.</td>
+<td style="text-align: left;"><code>revision_number</code></td>
+<td style="text-align: left;">PositiveIntegerField</td>
+<td style="text-align: left;">Revision sequence (0 = initial).</td>
 </tr>
 </tbody>
 </table>
+<h3 id="fundamentalobservation"><code>FundamentalObservation</code></h3>
+<p>Captures weekly government storage reports, refinery utilization rates, and trade balances.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Field</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>id</code></td>
+<td style="text-align: left;">UUID</td>
+<td style="text-align: left;">Primary key.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>variable</code></td>
+<td style="text-align: left;">FK (<code>VariableMaster</code>)</td>
+<td style="text-align: left;">Standardized observable metric (e.g., <code>CRUDE_CUSHING_STOCKS</code>).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>observation_date</code></td>
+<td style="text-align: left;">DateField (indexed)</td>
+<td style="text-align: left;">Survey reference date.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>value</code></td>
+<td style="text-align: left;">Decimal(20, 6)</td>
+<td style="text-align: left;">Observed numerical value (<code>NULL</code> for unobserved).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>unit</code></td>
+<td style="text-align: left;">FK (<code>UnitMaster</code>)</td>
+<td style="text-align: left;">Standardized Unit of Measure (e.g. <code>MBBL</code>, <code>BCF</code>).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>period_start</code></td>
+<td style="text-align: left;">DateField</td>
+<td style="text-align: left;">Survey window start (e.g. Saturday for EIA).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>period_end</code></td>
+<td style="text-align: left;">DateField</td>
+<td style="text-align: left;">Survey window end (e.g. Friday for EIA).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>publication_time</code></td>
+<td style="text-align: left;">DateTimeField</td>
+<td style="text-align: left;">Official agency release time (e.g. Wednesday 14:30 UTC).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>source_endpoint</code></td>
+<td style="text-align: left;">FK (<code>EndpointMaster</code>)</td>
+<td style="text-align: left;">Originating ingestion endpoint route.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>revision_number</code></td>
+<td style="text-align: left;">PositiveIntegerField</td>
+<td style="text-align: left;">Revision sequence number.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="commitmentoftradersobservation"><code>CommitmentOfTradersObservation</code></h3>
+<p>Captures CFTC institutional trader positioning across Managed Money (Hedge Funds/CTAs) and Commercial Hedgers.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Field / Property</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>commodity</code></td>
+<td style="text-align: left;">FK (<code>CommodityMaster</code>)</td>
+<td style="text-align: left;">Commodity anchor.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>observation_date</code></td>
+<td style="text-align: left;">DateField (indexed)</td>
+<td style="text-align: left;">Tuesday survey cutoff date.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>report_type</code></td>
+<td style="text-align: left;">CharField(20)</td>
+<td style="text-align: left;"><code>DISAGGREGATED</code>, <code>LEGACY</code>, or <code>FINANCIAL</code>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>open_interest</code></td>
+<td style="text-align: left;">BigIntegerField</td>
+<td style="text-align: left;">Total reported open interest.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>prod_merc_long/short</code></td>
+<td style="text-align: left;">BigIntegerField</td>
+<td style="text-align: left;">Producer/Merchant/Processor hedging.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>swap_long/short</code></td>
+<td style="text-align: left;">BigIntegerField</td>
+<td style="text-align: left;">Swap Dealers hedging and positioning.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>money_manager_long/short</code></td>
+<td style="text-align: left;">BigIntegerField</td>
+<td style="text-align: left;">Managed Money / Speculative Fund positioning.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>money_manager_net</code></td>
+<td style="text-align: left;">Property (int)</td>
+<td style="text-align: left;"><code>Long - Short</code> speculative net positioning.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>commercial_net</code></td>
+<td style="text-align: left;">Property (int)</td>
+<td style="text-align: left;"><code>(Prod Long + Swap Long) - (Prod Short + Swap Short)</code>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>money_manager_net_pct_oi</code></td>
+<td style="text-align: left;">Property (float)</td>
+<td style="text-align: left;">Managed Money Net as a percentage of Total Open Interest.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>commercial_net_pct_oi</code></td>
+<td style="text-align: left;">Property (float)</td>
+<td style="text-align: left;">Commercial Net as a percentage of Total Open Interest.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-management-commands">5. Management Commands</h2>
+<h3 id="batch-ingestion-ingest_market_data">Batch Ingestion (<code>ingest_market_data</code>)</h3>
+<p>The management command populates time series from the active pluggable providers idempotently:</p>
+<div class="language-powershell highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c"># Ingest all domains (prices, fundamentals, COT) for default commodities (90 days history)</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">python</span> <span class="n">manage</span><span class="p">.</span><span class="n">py</span> <span class="n">ingest_market_data</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c"># Ingest only prompt and curve prices for WTI Crude (CL) and Brent (BRENT)</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="n">python</span> <span class="n">manage</span><span class="p">.</span><span class="n">py</span> <span class="n">ingest_market_data</span> <span class="p">-</span><span class="n">-type</span><span class="p">=</span><span class="n">prices</span> <span class="p">-</span><span class="n">-commodity</span><span class="p">=</span><span class="n">CL</span><span class="p">,</span><span class="n">BRENT</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="c"># Ingest 120 days of CFTC positioning data</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="n">python</span> <span class="n">manage</span><span class="p">.</span><span class="n">py</span> <span class="n">ingest_market_data</span> <span class="p">-</span><span class="n">-type</span><span class="p">=</span><span class="n">cot</span> <span class="p">-</span><span class="n">-days</span><span class="p">=</span><span class="n">120</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="c"># Reset and re-seed observations cleanly</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="n">python</span> <span class="n">manage</span><span class="p">.</span><span class="n">py</span> <span class="n">ingest_market_data</span> <span class="p">-</span><span class="n">-clear</span>
+</span></code></pre></div>
 
 
 
