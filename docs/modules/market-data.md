@@ -143,14 +143,14 @@ The management command populates time series from the active pluggable providers
 
 ```powershell
 # Ingest all domains (prices, fundamentals, COT) for default commodities (90 days history)
-.\.venv\Scripts\python.exe manage.py ingest_market_data
+python manage.py ingest_market_data
 
 # Ingest only prompt and curve prices for WTI Crude (CL) and Brent (BRENT)
-.\.venv\Scripts\python.exe manage.py ingest_market_data --type=prices --commodity=CL,BRENT
+python manage.py ingest_market_data --type=prices --commodity=CL,BRENT
 
 # Ingest 120 days of CFTC positioning data
-.\.venv\Scripts\python.exe manage.py ingest_market_data --type=cot --days=120
+python manage.py ingest_market_data --type=cot --days=120
 
 # Reset and re-seed observations cleanly
-.\.venv\Scripts\python.exe manage.py ingest_market_data --clear
+python manage.py ingest_market_data --clear
 ```

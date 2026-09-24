@@ -69,6 +69,85 @@ The architecture enforces a strict mathematical pipeline where deterministic dom
 
 ---
 
+## Quickstart & Environment Setup
+
+When cloning this repository, the virtual environment folder (`.venv`) is excluded by `.gitignore`. Follow these setup steps to initialize your local environment:
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/nansari-0134/commodity-market-smart-analyst.git
+cd commodity-market-smart-analyst
+```
+
+### 2. Create and Activate a Virtual Environment
+Ensure you have **Python 3.11+** installed:
+
+```bash
+# Create local virtual environment
+python -m venv .venv
+```
+
+Activate the environment based on your operating system:
+
+* **Windows (PowerShell)**:
+  ```powershell
+  .\.venv\Scripts\Activate.ps1
+  ```
+* **Windows (Command Prompt)**:
+  ```cmd
+  .\.venv\Scripts\activate.bat
+  ```
+* **Linux / macOS**:
+  ```bash
+  source .venv/bin/activate
+  ```
+
+### 3. Install Dependencies
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Configure Environment Variables
+```bash
+cp .env.example .env
+```
+
+### 5. Initialize Database & Seed Master Data
+```bash
+# Run migrations
+python manage.py migrate
+
+# Seed foundational domain masters
+python manage.py seed_metadata
+python manage.py seed_exchanges
+python manage.py seed_commodities
+python manage.py seed_contracts
+python manage.py seed_providers
+python manage.py seed_datasets
+python manage.py seed_endpoints
+python manage.py seed_variables
+
+# Ingest initial time-series observations
+python manage.py ingest_market_data
+```
+
+### 6. Run the Test Suite & Dev Server
+```bash
+# Run automated tests (107/107 passing)
+pytest tests/ -v
+
+# Start local Intelligence Terminal & REST APIs
+python manage.py runserver 127.0.0.1:8000
+
+# Start documentation live preview (hot-reloading)
+mkdocs serve
+```
+
+---
+
+> [!NOTE]
+> **Standard Compliance**: This platform is for quantitative analysis and institutional workflow automation only. Not financial advice.
+
 <p align="center">
   <a href="https://nansari-0134.github.io/commodity-market-smart-analyst/">
     <strong>Explore the Complete Architecture & Live Interactive API Documentation →</strong>

@@ -56,7 +56,7 @@ Run the command directly in PowerShell or Bash:
 
 ```powershell
 # Register the Baltic Dry Index (creates Provider, Dataset, Endpoint, and Variable in 1 atomic step)
-.\.venv\Scripts\python.exe manage.py add_feature `
+python manage.py add_feature `
     --code=BALTIC_DRY_INDEX `
     --name="Baltic Dry Index" `
     --unit=INDEX_PTS `
@@ -96,7 +96,7 @@ For bulk onboarding or CI/CD pipelines, define your feature in a simple JSON fil
 
 Run the loader:
 ```powershell
-.\.venv\Scripts\python.exe manage.py add_feature --json-file=path/to/feature.json
+python manage.py add_feature --json-file=path/to/feature.json
 ```
 
 ---

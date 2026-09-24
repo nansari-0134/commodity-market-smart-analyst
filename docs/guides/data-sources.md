@@ -133,7 +133,7 @@ MARKET_DATA_PROVIDER=yahoo
 ### Step 3.4: Test and Ingest
 Run the ingestion command to test your new feed:
 ```powershell
-.\.venv\Scripts\python.exe manage.py ingest_market_data --type=prices --commodity=CL --days=30
+python manage.py ingest_market_data --type=prices --commodity=CL --days=30
 ```
 
 ---
@@ -223,7 +223,7 @@ EIA_API_KEY=your_eia_api_key_here
 
 ### Step 4.4: Ingest and Verify
 ```powershell
-.\.venv\Scripts\python.exe manage.py ingest_market_data --type=fundamentals --days=60
+python manage.py ingest_market_data --type=fundamentals --days=60
 ```
 
 ---
