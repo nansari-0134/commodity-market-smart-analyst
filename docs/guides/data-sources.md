@@ -1,4 +1,4 @@
-# Chapter 5: Complete Data Provider & LLM Swapping Guide
+# Complete Data Provider & LLM Swapping Guide
 
 The **Commodity Market Intelligence Platform** is built on an absolute architectural guarantee: **replacing an external data vendor, news feed, or LLM reasoning model requires ZERO changes to core database models, REST APIs, or downstream quantitative analytics.**
 

@@ -1,4 +1,4 @@
-# Chapter 3: Metadata Catalog & Feature Registry Architecture
+# Metadata Catalog & Feature Registry Architecture
 
 In this platform, data does not exist as isolated, mystery CSVs or ad-hoc API calls. Every measurable physical metric, futures curve point, and supply/demand fundamental is registered in the **4-Tier Metadata Catalog**.
 

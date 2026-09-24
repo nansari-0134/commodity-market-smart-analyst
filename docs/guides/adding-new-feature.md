@@ -1,4 +1,4 @@
-# Chapter 5: How to Add New Features, Datasets & Variables
+# How to Add New Features, Datasets & Variables
 
 When expanding the platform to support a new commodity metric, alternative data feed, or analytical feature (e.g. European Gas Storage, Baltic Dry Index, Tanker Freight Rates, or Weather Indices), this guide explains **exactly what needs to be updated and how to do it in under 2 minutes**.
 
