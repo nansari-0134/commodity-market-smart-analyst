@@ -431,6 +431,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../modules/quant-engine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quantitative Engine
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../modules/commodity-master/" class="md-nav__link">
         
   
@@ -1067,6 +1095,45 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#8-how-to-extend-quantitative-models-custom-spreads-step-by-step" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. How to Extend Quantitative Models &amp; Custom Spreads (Step-by-Step)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. How to Extend Quantitative Models &amp; Custom Spreads (Step-by-Step)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#adding-a-new-processing-spread-eg-palm-oil-vs-gasoil-pogo-spread" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Adding a New Processing Spread (e.g. Palm Oil vs Gasoil POGO Spread)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#registering-a-new-logical-commodity-complex" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Registering a New Logical Commodity Complex
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1264,6 +1331,34 @@
     
   
     Market Data API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/quant-engine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quantitative Engine API
   
 
     
@@ -1767,6 +1862,45 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#8-how-to-extend-quantitative-models-custom-spreads-step-by-step" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. How to Extend Quantitative Models &amp; Custom Spreads (Step-by-Step)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. How to Extend Quantitative Models &amp; Custom Spreads (Step-by-Step)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#adding-a-new-processing-spread-eg-palm-oil-vs-gasoil-pogo-spread" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Adding a New Processing Spread (e.g. Palm Oil vs Gasoil POGO Spread)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#registering-a-new-logical-commodity-complex" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Registering a New Logical Commodity Complex
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2115,6 +2249,36 @@
 <li>Set <code>EXCHANGE_HOLIDAY_PROVIDER=my_provider</code> in <code>.env</code>.</li>
 <li>Run <code>python manage.py seed_exchanges</code> to synchronize calendars.</li>
 </ol>
+<hr />
+<h2 id="8-how-to-extend-quantitative-models-custom-spreads-step-by-step">8. How to Extend Quantitative Models &amp; Custom Spreads (Step-by-Step)</h2>
+<p>The <strong>Quantitative Research Engine</strong> (<code>apps/quant_engine</code>) is built with a <strong>Zero-ORM vectorized calculation core</strong> (<code>apps/quant_engine/core/</code>). Mathematical models are pure functions that operate directly on NumPy arrays and scalar floats without touching database ORM layers or network sockets.</p>
+<h3 id="adding-a-new-processing-spread-eg-palm-oil-vs-gasoil-pogo-spread">Adding a New Processing Spread (e.g. Palm Oil vs Gasoil POGO Spread)</h3>
+<ol>
+<li>Add the mathematical calculation function to <a href="file:///c:/Users/Shilpa/OneDrive/Documents/commodity-market-smart-analyst/apps/quant_engine/core/spreads.py"><code>apps/quant_engine/core/spreads.py</code></a>:
+   <div class="language-python highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">compute_pogo_spread</span><span class="p">(</span><span class="n">palm_oil_price_usd_mt</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">gasoil_price_usd_mt</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="w">    </span><span class="sd">"""Palm Oil vs Gasoil Spread (POGO) in $/metric ton."""</span>
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>    <span class="k">return</span> <span class="n">palm_oil_price_usd_mt</span> <span class="o">-</span> <span class="n">gasoil_price_usd_mt</span>
+</span></code></pre></div></li>
+<li>Update the Pydantic schema in <a href="file:///c:/Users/Shilpa/OneDrive/Documents/commodity-market-smart-analyst/apps/quant_engine/evidence/schema.py"><code>apps/quant_engine/evidence/schema.py</code></a>:
+   <div class="language-python highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">SpreadsEvidence</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>    <span class="n">crack_321</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>    <span class="n">crush_margin</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>    <span class="n">spark_spread</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>    <span class="n">pogo_spread</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+</span></code></pre></div></li>
+<li>Wire the calculation into <a href="file:///c:/Users/Shilpa/OneDrive/Documents/commodity-market-smart-analyst/apps/quant_engine/services/evidence_builder.py"><code>apps/quant_engine/services/evidence_builder.py</code></a>.</li>
+</ol>
+<h3 id="registering-a-new-logical-commodity-complex">Registering a New Logical Commodity Complex</h3>
+<p>To add a new economic complex with custom cointegration tracking:
+1. Open <a href="file:///c:/Users/Shilpa/OneDrive/Documents/commodity-market-smart-analyst/apps/quant_engine/core/cross_commodity.py"><code>apps/quant_engine/core/cross_commodity.py</code></a>.
+2. Add the complex definition to <code>LOGICAL_COMMODITY_COMPLEXES</code>:
+   <div class="language-python highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="s2">"PLASTICS_PETROCHEM"</span><span class="p">:</span> <span class="p">{</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>    <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"Plastics &amp; Petrochemical Chain"</span><span class="p">,</span>
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>    <span class="s2">"commodities"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"CL"</span><span class="p">,</span> <span class="s2">"NG"</span><span class="p">,</span> <span class="s2">"PROPANE"</span><span class="p">,</span> <span class="s2">"ETHYLENE"</span><span class="p">,</span> <span class="s2">"POLYPROPYLENE"</span><span class="p">],</span>
+</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>    <span class="s2">"rationale"</span><span class="p">:</span> <span class="s2">"Cracking of naphtha (from crude) and ethane/propane (from natural gas) into basic olefins and polymers."</span><span class="p">,</span>
+</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="p">}</span>
+</span></code></pre></div>
+3. The cross-commodity engine automatically evaluates Engle-Granger cointegration, Ornstein-Uhlenbeck half-lives, and residual Z-scores across all member pairs.</p>
 
 
 

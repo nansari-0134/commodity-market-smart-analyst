@@ -1,0 +1,2263 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Architecture, Data Models, Data Provider Swapping Guide, and Phase Specifications.">
+      
+      
+        <meta name="author" content="Quantitative Research & Systems Engineering Team">
+      
+      
+      
+        <link rel="prev" href="../market-data/">
+      
+      
+        <link rel="next" href="../commodity-master/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/logo.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Quantitative Engine - Commodity Market Intelligence & Quant Platform</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="white" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#module-architecture-quantitative-research-forward-curves-engine-appsquant_engine" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Commodity Market Intelligence &amp; Quant Platform" class="md-header__button md-logo" aria-label="Commodity Market Intelligence & Quant Platform" data-md-component="logo">
+      
+  <img src="../../assets/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Commodity Market Intelligence & Quant Platform
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Quantitative Engine
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/nansari-0134/commodity-market-smart-analyst" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    commodity-market-smart-analyst
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  System Overview
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../market-data/" class="md-tabs__link">
+          
+  
+  
+  Architecture & Modules
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../guides/data-sources/" class="md-tabs__link">
+          
+  
+  
+  Integration Guides
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/overview/" class="md-tabs__link">
+          
+  
+  
+  REST API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Commodity Market Intelligence &amp; Quant Platform" class="md-nav__button md-logo" aria-label="Commodity Market Intelligence & Quant Platform" data-md-component="logo">
+      
+  <img src="../../assets/logo.png" alt="logo">
+
+    </a>
+    Commodity Market Intelligence & Quant Platform
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/nansari-0134/commodity-market-smart-analyst" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    commodity-market-smart-analyst
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture & Modules
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture & Modules
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../market-data/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Market Data & Observations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quantitative Engine
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quantitative Engine
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-architectural-pipeline-data-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Architectural Pipeline &amp; Data Flow
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-core-mathematical-principles-design-directives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Core Mathematical Principles &amp; Design Directives
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Core Mathematical Principles &amp; Design Directives">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-vectorized-zero-orm-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Vectorized Zero-ORM Architecture
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-zero-llm-mental-math" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Zero LLM Mental Math
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-point-in-time-historical-honesty" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Point-in-Time Historical Honesty
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-core-engine-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Core Engine Components
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Core Engine Components">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-market-state-volatility-market_statepy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A. Market State &amp; Volatility (market_state.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b-forward-curves-monotone-splines-splinepy-curvepy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        B. Forward Curves &amp; Monotone Splines (spline.py &amp; curve.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c-physical-processing-spreads-spreadspy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C. Physical Processing Spreads (spreads.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#d-cross-commodity-macro-sensitivity-engine-cross_commoditypy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        D. Cross-Commodity &amp; Macro Sensitivity Engine (cross_commodity.py)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="D. Cross-Commodity &amp; Macro Sensitivity Engine (cross_commodity.py)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-all-pairs-correlation-cointegration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. All-Pairs Correlation &amp; Cointegration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-curated-logical-commodity-complexes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Curated Logical Commodity Complexes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-macro-factor-sensitivities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Macro Factor Sensitivities
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#e-seasonality-directional-pattern-recognition-seasonalitypy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        E. Seasonality &amp; Directional Pattern Recognition (seasonality.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#f-multi-dimensional-divergence-detection-divergencepy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        F. Multi-Dimensional Divergence Detection (divergence.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-intermediate-evidence-schema-quantitativeevidencepackage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Intermediate Evidence Schema (QuantitativeEvidencePackage)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-persistence-models-appsquant_enginemodelspy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Persistence Models (apps/quant_engine/models.py)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Persistence Models (apps/quant_engine/models.py)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#discoveryregistry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DiscoveryRegistry
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#evidencepackagesnapshot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EvidencePackageSnapshot
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-regulatory-analytical-disclaimers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Regulatory &amp; Analytical Disclaimers
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../commodity-master/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physical Commodities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../exchanges-and-calendars/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exchanges & Calendars
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts-and-derivatives/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Futures & Derivatives
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../taxonomy-and-units/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Taxonomy & Units
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../feature-catalog-overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Metadata Catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../provider-master/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data Providers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dataset-master/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Datasets & Feeds
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../endpoint-master/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Endpoints & Routing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../variable-master/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Variables & Metrics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../core-infrastructure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core Infrastructure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Integration Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Integration Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/data-sources/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Swapping Data Providers & LLMs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/adding-new-feature/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adding Features & Variables
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/adding-new-commodity-and-exchange/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adding Commodities & Venues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/development/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development & Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    REST API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    REST API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/market-data/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Market Data API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/quant-engine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quantitative Engine API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/commodities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physical Commodities API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/contracts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Futures & Contracts API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/exchanges/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exchanges & Calendars API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/metadata/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Units & Metadata API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/datasets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dataset Catalog API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/variables/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Variable Catalog API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/providers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Provider Catalog API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/endpoints/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Endpoint Catalog API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-architectural-pipeline-data-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Architectural Pipeline &amp; Data Flow
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-core-mathematical-principles-design-directives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Core Mathematical Principles &amp; Design Directives
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Core Mathematical Principles &amp; Design Directives">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-vectorized-zero-orm-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Vectorized Zero-ORM Architecture
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-zero-llm-mental-math" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Zero LLM Mental Math
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-point-in-time-historical-honesty" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Point-in-Time Historical Honesty
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-core-engine-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Core Engine Components
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Core Engine Components">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-market-state-volatility-market_statepy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A. Market State &amp; Volatility (market_state.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b-forward-curves-monotone-splines-splinepy-curvepy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        B. Forward Curves &amp; Monotone Splines (spline.py &amp; curve.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c-physical-processing-spreads-spreadspy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C. Physical Processing Spreads (spreads.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#d-cross-commodity-macro-sensitivity-engine-cross_commoditypy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        D. Cross-Commodity &amp; Macro Sensitivity Engine (cross_commodity.py)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="D. Cross-Commodity &amp; Macro Sensitivity Engine (cross_commodity.py)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-all-pairs-correlation-cointegration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. All-Pairs Correlation &amp; Cointegration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-curated-logical-commodity-complexes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Curated Logical Commodity Complexes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-macro-factor-sensitivities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Macro Factor Sensitivities
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#e-seasonality-directional-pattern-recognition-seasonalitypy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        E. Seasonality &amp; Directional Pattern Recognition (seasonality.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#f-multi-dimensional-divergence-detection-divergencepy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        F. Multi-Dimensional Divergence Detection (divergence.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-intermediate-evidence-schema-quantitativeevidencepackage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Intermediate Evidence Schema (QuantitativeEvidencePackage)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-persistence-models-appsquant_enginemodelspy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Persistence Models (apps/quant_engine/models.py)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Persistence Models (apps/quant_engine/models.py)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#discoveryregistry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DiscoveryRegistry
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#evidencepackagesnapshot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EvidencePackageSnapshot
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-regulatory-analytical-disclaimers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Regulatory &amp; Analytical Disclaimers
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="module-architecture-quantitative-research-forward-curves-engine-appsquant_engine">Module Architecture: Quantitative Research &amp; Forward Curves Engine (<code>apps/quant_engine</code>)</h1>
+<p>The <strong>Quantitative Research &amp; Forward Curves Engine</strong> is the deterministic analytical core of the Commodity Market Intelligence Platform. It sits directly between the raw point-in-time observation store (<code>apps/market_data</code>) and the LLM narrative synthesis layer (<code>apps/narratives</code>).</p>
+<p>In strict alignment with the platform's <strong>Deterministic Math Directive</strong>, this module performs all multi-horizon volatility, forward curve spline interpolation, crack/crush spread modeling, cross-commodity cointegration, macro sensitivity tracking, and seasonality pattern recognition using pure vectorized NumPy and SciPy routines before any language model is invoked.</p>
+<hr />
+<h2 id="1-architectural-pipeline-data-flow">1. Architectural Pipeline &amp; Data Flow</h2>
+<pre class="mermaid"><code>graph TD
+    subgraph DataStore ["apps/market_data (Point-in-Time Store)"]
+        P["MarketPriceObservation&lt;br/&gt;OHLCV, Settlements, Volume, Open Interest"]
+        F["FundamentalObservation&lt;br/&gt;EIA Stocks, Refinery Utilization, Storage"]
+        C["CommitmentOfTradersObservation&lt;br/&gt;Managed Money, Commercial Net"]
+    end
+
+    subgraph QuantCore ["apps/quant_engine/core (Pure Vectorized Zero-ORM)"]
+        MS["market_state.py&lt;br/&gt;Returns, Realized Vol, Garman-Klass, ATR, RVOL, Shock-Z"]
+        SP["spline.py &amp; curve.py&lt;br/&gt;SciPy PCHIP Monotone Spline, Roll Yield, Curvature"]
+        CR["spreads.py&lt;br/&gt;3:2:1 Crack Spread, Soybean Crush, Spark Spread"]
+        XC["cross_commodity.py&lt;br/&gt;All-Pairs (253) Correlation, Engle-Granger Cointegration, OU Half-Life"]
+        SN["seasonality.py&lt;br/&gt;5Y/10Y Envelopes, Directional Windows, 1M Vol Peak Expectation"]
+        DV["divergence.py&lt;br/&gt;Price vs OI, Price vs COT, Price vs Curve, Robust MAD-Z"]
+    end
+
+    subgraph Service ["apps/quant_engine/services"]
+        EB["QuantitativeEvidencePackageBuilder&lt;br/&gt;Bridge ORM to NumPy -&gt; Strict Pydantic Schema"]
+    end
+
+    subgraph Persistence ["apps/quant_engine/models"]
+        DR["DiscoveryRegistry&lt;br/&gt;Systematic Catalog of Significant Anomaly Findings"]
+        EPS["EvidencePackageSnapshot&lt;br/&gt;Point-in-Time Immutable Snapshots"]
+    end
+
+    subgraph Downstream ["Downstream Execution &amp; Reporting"]
+        API["REST API Endpoints&lt;br/&gt;/api/quant/..."]
+        LLM["apps/narratives (Phase 13)&lt;br/&gt;Prompt Synthesis Grounded in Deterministic Evidence"]
+    end
+
+    P --&gt; EB
+    F --&gt; EB
+    C --&gt; EB
+
+    EB --&gt; MS
+    EB --&gt; SP
+    EB --&gt; CR
+    EB --&gt; XC
+    EB --&gt; SN
+    EB --&gt; DV
+
+    MS --&gt; EB
+    SP --&gt; EB
+    CR --&gt; EB
+    XC --&gt; EB
+    SN --&gt; EB
+    DV --&gt; EB
+
+    EB --&gt; EPS
+    EB --&gt; DR
+    EB --&gt; API
+    EB --&gt; LLM</code></pre>
+<hr />
+<h2 id="2-core-mathematical-principles-design-directives">2. Core Mathematical Principles &amp; Design Directives</h2>
+<h3 id="1-vectorized-zero-orm-architecture">1. Vectorized Zero-ORM Architecture</h3>
+<p>All statistical and mathematical calculations inside <code>apps/quant_engine/core/</code> are decoupled from Django models and database queries. Core functions take pure <code>numpy.ndarray</code> arrays and scalar floats:
+- <strong>Sub-Millisecond Speed</strong>: Vectorized linear algebra and spline evaluations execute in <code>&lt; 1.5 ms</code>.
+- <strong>Source Independence</strong>: Core mathematical routines can be unit-tested without a database or swapped into standalone Celery/Ray compute workers.
+- <strong>Robust Numerical Stability</strong>: Zero third-party C-extension fragility. Cointegration Engle-Granger tests use pure NumPy linear algebra OLS regressions and augmented Dickey-Fuller (ADF) Dickey-Fuller critical tau polynomial expansions.</p>
+<h3 id="2-zero-llm-mental-math">2. Zero LLM Mental Math</h3>
+<p>Language models are notorious for arithmetic drift, hallucinated percentages, and inability to calculate log returns or monotone spline derivatives.
+- The Quant Engine computes every metric (returns, annualized volatility, crack spreads, roll yields, ADF $t$-statistics, $p$-values, half-lives, seasonal win rates) deterministically.
+- Downstream narrative models receive a fully populated and validated Pydantic v2 <code>QuantitativeEvidencePackage</code> containing structured, immutable numeric values.</p>
+<h3 id="3-point-in-time-historical-honesty">3. Point-in-Time Historical Honesty</h3>
+<p>When building an evidence package for a given <code>as_of_date</code>:
+- Market prices, inventory levels, and COT positioning are strictly filtered by <code>publication_time &lt;= point_in_time_query</code>.
+- Forward curves only ingest contract settlements that traded on or prior to the evaluation date, preventing future lookahead leakage into backtests or LLM briefings.</p>
+<hr />
+<h2 id="3-core-engine-components">3. Core Engine Components</h2>
+<h3 id="a-market-state-volatility-market_statepy">A. Market State &amp; Volatility (<code>market_state.py</code>)</h3>
+<p>Calculates high-fidelity volatility and liquidity metrics across multiple lookback windows:
+* <strong>Log Returns</strong>: $r_t = \ln(P_t / P_{t-1})$ evaluated across 1D, 5D, 21D (1M), 63D (3M), and 252D (1Y).
+* <strong>Close-to-Close Realized Volatility</strong>: Annualized historical volatility:
+  $$\sigma_{realized} = \sqrt{252 \times \frac{1}{N-1} \sum_{i=1}^{N} (r_i - \bar{r})^2}$$
+* <strong>Garman-Klass Extreme-Value Volatility</strong>: Ingests intraday High, Low, Open, and Close to reduce variance by ~8x relative to close-to-close estimators:
+  $$\sigma_{GK}^2 = \frac{252}{N} \sum_{i=1}^{N} \left[ 0.5 \left(\ln \frac{H_i}{L_i}\right)^2 - (2\ln 2 - 1) \left(\ln \frac{C_i}{O_i}\right)^2 \right]$$
+* <strong>Parkinson High-Low Volatility</strong>: Continuous Brownian-motion based dispersion.
+* <strong>Average True Range (ATR)</strong>: 14-period Wilder standard measuring price range expansion.
+* <strong>Volume Metrics</strong>:
+  - Relative Volume (RVOL): $\text{RVOL} = \text{Volume}<em 20D="20D">t / \overline{\text{Volume}}</em>$.
+  - Volume Shock Z-Score: Standardized deviation of log volume relative to historical mean.
+* <strong>Open Interest (OI) Regime</strong>: Identifies structural positioning flows:
+  - <code>ACCUMULATION</code>: Price $\uparrow$, Open Interest $\uparrow$ (Aggressive long buying).
+  - <code>SHORT_BUILD</code>: Price $\downarrow$, Open Interest $\uparrow$ (Aggressive short initiation).
+  - <code>LIQUIDATION</code>: Price $\downarrow$, Open Interest $\downarrow$ (Longs exiting positions).
+  - <code>SHORT_COVERING</code>: Price $\uparrow$, Open Interest $\downarrow$ (Shorts forced to buy to cover).</p>
+<hr />
+<h3 id="b-forward-curves-monotone-splines-splinepy-curvepy">B. Forward Curves &amp; Monotone Splines (<code>spline.py</code> &amp; <code>curve.py</code>)</h3>
+<p>Commodity futures term structures often exhibit localized supply stress (backwardation) or storage gluts (contango). Standard cubic splines introduce artificial oscillations (Runge phenomenon).
+* <strong>PCHIP Monotone Hermite Splines</strong>: Uses SciPy's Piecewise Cubic Hermite Interpolating Polynomial (<code>scipy.interpolate.PchipInterpolator</code>) to preserve shape monotonicity between discrete contract maturities.
+* <strong>Term Structure Sampling</strong>: Interpolates daily points from Day 0 (Spot) through Month 24, providing continuous forward curves for any maturity.
+* <strong>Roll Yield &amp; Annualized Slope</strong>:
+  $$\text{Roll Yield}<em M1="M1">{1Y} = \frac{P</em> \times 100\%$$
+* } - P_{M12}}{P_{M1}<strong>Curvature (Butterfly Spread)</strong>: $2 \times P_{M2} - (P_{M1} + P_{M3})$, quantifying kinks in prompt physical delivery.</p>
+<hr />
+<h3 id="c-physical-processing-spreads-spreadspy">C. Physical Processing Spreads (<code>spreads.py</code>)</h3>
+<p>Computes real-time refining and processing margins with automated volumetric unit conversions:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Processing Complex</th>
+<th style="text-align: left;">Formula</th>
+<th style="text-align: left;">Units</th>
+<th style="text-align: left;">Physical Interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Refinery 3:2:1 Crack Spread</strong></td>
+<td style="text-align: left;">$\frac{2 \times P_{\text{RBOB}} \times 42 + 1 \times P_{\text{HO}} \times 42 - 3 \times P_{\text{WTI}}}{3}$</td>
+<td style="text-align: left;">\$/barrel</td>
+<td style="text-align: left;">Economic incentive for refineries to process light sweet crude into gasoline and distillates.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Soybean Crush Margin</strong></td>
+<td style="text-align: left;">$(P_{\text{Meal}} \times 0.022) + (P_{\text{Oil}} \times 0.11) - P_{\text{Beans}}$</td>
+<td style="text-align: left;">\$/bushel</td>
+<td style="text-align: left;">Economic profitability of crushing raw soybeans into soybean meal (protein feed) and soybean oil (food/biodiesel).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Natural Gas Spark Spread</strong></td>
+<td style="text-align: left;">$P_{\text{Power}} - (\text{Heat Rate} \times P_{\text{NG}})$</td>
+<td style="text-align: left;">\$/MWh</td>
+<td style="text-align: left;">Margin earned by gas-fired power plants burning natural gas to generate electricity.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="d-cross-commodity-macro-sensitivity-engine-cross_commoditypy">D. Cross-Commodity &amp; Macro Sensitivity Engine (<code>cross_commodity.py</code>)</h3>
+<h4 id="1-all-pairs-correlation-cointegration">1. All-Pairs Correlation &amp; Cointegration</h4>
+<ul>
+<li>Computes pairwise return correlation matrix across all 253 commodity pairs ($N \times (N-1) / 2$).</li>
+<li><strong>Engle-Granger Two-Step Cointegration</strong>:</li>
+<li>OLS regression of $Y_t$ on $X_t$ to establish dynamic hedge ratio $\beta$:
+     $$Y_t = \alpha + \beta X_t + \epsilon_t$$</li>
+<li>Augmented Dickey-Fuller (ADF) unit root test on residuals $\epsilon_t$ to verify stationarity ($I(0)$).</li>
+<li>Continuous Ornstein-Uhlenbeck (OU) mean-reversion modeling to compute equilibrium half-life in days:
+     $$\Delta \epsilon_t = \theta (\mu - \epsilon_{t-1}) \Delta t + \sigma dW_t \implies \text{Half-Life} = \frac{\ln 2}{\theta}$$</li>
+<li>Residual Z-score: Standardized deviation of current spread from equilibrium mean, highlighting statistical arbitrage opportunities.</li>
+</ul>
+<h4 id="2-curated-logical-commodity-complexes">2. Curated Logical Commodity Complexes</h4>
+<p>To complement brute-force all-pairs statistical search, the engine maintains 8 curated physical/economic complexes with explicit structural rationales:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Complex Code</th>
+<th style="text-align: left;">Logical Name</th>
+<th style="text-align: left;">Commodities</th>
+<th style="text-align: left;">Economic / Physical Relationship Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>REFINERY_ENERGY</code></td>
+<td style="text-align: left;">Refinery Energy Complex</td>
+<td style="text-align: left;">WTI, Brent, RBOB Gasoline, Heating Oil, Gasoil</td>
+<td style="text-align: left;">Direct physical refining inputs and output products. High cointegration governed by cracking margins and crude runs.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>OILSEED_CRUSH</code></td>
+<td style="text-align: left;">Oilseed Crush Complex</td>
+<td style="text-align: left;">Soybeans, Soybean Oil, Soybean Meal</td>
+<td style="text-align: left;">Structural input-output processing relationship. Cointegration maintained by soybean crush plants and feed demand.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>BIOFUEL_SUGAR</code></td>
+<td style="text-align: left;">Biofuel &amp; Sugar Feedstock Complex</td>
+<td style="text-align: left;">Sugar #11, Ethanol, WTI Crude Oil</td>
+<td style="text-align: left;">Brazilian flex-fuel vehicle fleet creates structural parity: Mills toggle between cane-for-sugar and cane-for-ethanol based on crude parity.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>GRAIN_FEED</code></td>
+<td style="text-align: left;">Feedgrain &amp; Starch Complex</td>
+<td style="text-align: left;">Corn, Chicago Wheat, Kansas Wheat</td>
+<td style="text-align: left;">Direct substitutability in livestock feed rations and shared midwestern growing acres.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>LIVESTOCK_FEEDING</code></td>
+<td style="text-align: left;">Livestock Feeding Complex</td>
+<td style="text-align: left;">Live Cattle, Feeder Cattle, Corn</td>
+<td style="text-align: left;">Feedlot economics: Corn is the primary input cost to fatten feeder cattle into market-ready live cattle.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>POWER_SPARK</code></td>
+<td style="text-align: left;">Natural Gas &amp; Power Generation</td>
+<td style="text-align: left;">Natural Gas, Electricity</td>
+<td style="text-align: left;">Natural gas is the marginal fuel source for peak power generation via combined-cycle turbines.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>PRECIOUS_MONETARY</code></td>
+<td style="text-align: left;">Precious Monetary Complex</td>
+<td style="text-align: left;">Gold, Silver, Platinum</td>
+<td style="text-align: left;">Monetary metals with store-of-value dynamics, real interest rate sensitivity, and central bank reserve allocations.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>BASE_METALS</code></td>
+<td style="text-align: left;">Base Industrial Metals</td>
+<td style="text-align: left;">Copper, Aluminum, Zinc, Nickel</td>
+<td style="text-align: left;">Global macroeconomic, construction, and green energy transition industrial barometers.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="3-macro-factor-sensitivities">3. Macro Factor Sensitivities</h4>
+<p>Tracks direct correlation and sensitivity between physical commodities and exogenous macro drivers:
+- <strong>US Dollar Index (DXY)</strong>: Inversely correlated with dollar-denominated globally traded commodities.
+- <strong>US 10-Year Real Yields</strong>: Primary opportunity-cost driver for non-yielding store-of-value assets (Gold, Silver).
+- <strong>WTI Crude Oil</strong>: Macro energy bellwether driving transportation and chemical input costs for agricultural softs (Sugar, Corn).</p>
+<hr />
+<h3 id="e-seasonality-directional-pattern-recognition-seasonalitypy">E. Seasonality &amp; Directional Pattern Recognition (<code>seasonality.py</code>)</h3>
+<p>Agricultural and energy commodities follow distinct seasonal patterns driven by crop planting/harvest schedules, summer driving demand, and winter heating inventory drawdowns:
+* <strong>Day-of-Year 5Y &amp; 10Y Envelopes</strong>: Computes normalized seasonal trajectories with median, 10th percentile, and 90th percentile bounds.
+* <strong>Directional Tenure Windows</strong>: Evaluates 10-day, 30-day, and 63-day historical forward performance over the past 5 to 10 years:
+  - Historical win rate (% of years with positive forward return over window).
+  - Student's $t$-statistic and directional move conviction score.
+* <strong>Forward 1-Month Volatility Peak Expectation</strong>: Pinpoints historical calendar months with recurring volatility expansion (e.g. August Midwest weather market for corn/soybeans).
+* <strong>Physical Commodity Lifecycle Integration</strong>: Encodes official agronomic and consumption cycles:
+  - <code>CORN</code>: US planting (Apr-May), pollination window (Jul), harvest pressure (Sep-Nov).
+  - <code>WTI</code>: Refinery spring maintenance (Mar-Apr), summer driving peak (Jun-Aug), winter diesel build (Oct-Nov).
+  - <code>NG</code>: Shoulder injection season (Apr-Oct), peak heating withdrawal (Dec-Feb).</p>
+<hr />
+<h3 id="f-multi-dimensional-divergence-detection-divergencepy">F. Multi-Dimensional Divergence Detection (<code>divergence.py</code>)</h3>
+<p>Detects quantitative anomalies where price action conflicts with institutional positioning or fundamental indicators:
+- <strong>Price vs Open Interest</strong>: Price making 20-day new highs on deteriorating open interest signals exhaustion / short-squeeze ending.
+- <strong>Price vs Commercial COT</strong>: Price reaching multi-month highs while commercial hedgers hold near-record net short positions indicates institutional distribution into retail buying.
+- <strong>Price vs Forward Curve</strong>: Spot price rallying while front-month calendar spreads collapse into contango signals prompt physical oversupply.
+- <strong>Robust Outlier Scoring</strong>: Utilizes Median Absolute Deviation (MAD-Z):
+  $$\text{MAD-Z} = \frac{0.6745 \times (x_i - \text{median}(X))}{\text{median}(|x_i - \text{median}(X)|)}$$
+  Ensures resilience against extreme black-swan outliers.</p>
+<hr />
+<h2 id="4-intermediate-evidence-schema-quantitativeevidencepackage">4. Intermediate Evidence Schema (<code>QuantitativeEvidencePackage</code>)</h2>
+<p>The ultimate deliverable of <code>apps/quant_engine</code> is a strictly-typed Pydantic v2 <code>QuantitativeEvidencePackage</code> matching Section 5.12 of the Master Architecture PDF.</p>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">{</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="nt">"commodity_code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CL"</span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span><span class="nt">"as_of_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-09-24"</span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span><span class="nt">"market_state"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="nt">"settlement_price"</span><span class="p">:</span><span class="w"> </span><span class="mf">75.85</span><span class="p">,</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="nt">"returns_1d"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0125</span><span class="p">,</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="nt">"returns_5d"</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.0084</span><span class="p">,</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="nt">"returns_21d"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0412</span><span class="p">,</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="nt">"returns_63d"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0789</span><span class="p">,</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">    </span><span class="nt">"realized_vol_21d"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.2450</span><span class="p">,</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">    </span><span class="nt">"realized_vol_63d"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.2280</span><span class="p">,</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">    </span><span class="nt">"garman_klass_vol_21d"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.2310</span><span class="p">,</span>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">    </span><span class="nt">"atr_14"</span><span class="p">:</span><span class="w"> </span><span class="mf">1.65</span><span class="p">,</span>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">    </span><span class="nt">"rvol_20d"</span><span class="p">:</span><span class="w"> </span><span class="mf">1.34</span><span class="p">,</span>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">    </span><span class="nt">"volume_shock_zscore"</span><span class="p">:</span><span class="w"> </span><span class="mf">1.82</span><span class="p">,</span>
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">    </span><span class="nt">"oi_regime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ACCUMULATION"</span>
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">  </span><span class="p">},</span>
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">  </span><span class="nt">"forward_curve"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">    </span><span class="nt">"prompt_spread_m1_m2"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.45</span><span class="p">,</span>
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="w">    </span><span class="nt">"roll_yield_1y_pct"</span><span class="p">:</span><span class="w"> </span><span class="mf">5.82</span><span class="p">,</span>
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="w">    </span><span class="nt">"term_structure_slope"</span><span class="p">:</span><span class="w"> </span><span class="s2">"BACKWARDATION"</span><span class="p">,</span>
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="w">    </span><span class="nt">"butterfly_curvature"</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.12</span><span class="p">,</span>
+</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="w">    </span><span class="nt">"interpolated_nodes"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="w">      </span><span class="p">{</span><span class="nt">"month"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nt">"days"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nt">"price"</span><span class="p">:</span><span class="w"> </span><span class="mf">75.85</span><span class="p">},</span>
+</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="w">      </span><span class="p">{</span><span class="nt">"month"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">"days"</span><span class="p">:</span><span class="w"> </span><span class="mi">30</span><span class="p">,</span><span class="w"> </span><span class="nt">"price"</span><span class="p">:</span><span class="w"> </span><span class="mf">75.40</span><span class="p">},</span>
+</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a><span class="w">      </span><span class="p">{</span><span class="nt">"month"</span><span class="p">:</span><span class="w"> </span><span class="mi">12</span><span class="p">,</span><span class="w"> </span><span class="nt">"days"</span><span class="p">:</span><span class="w"> </span><span class="mi">365</span><span class="p">,</span><span class="w"> </span><span class="nt">"price"</span><span class="p">:</span><span class="w"> </span><span class="mf">71.43</span><span class="p">}</span>
+</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a><span class="w">    </span><span class="p">]</span>
+</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a><span class="w">  </span><span class="p">},</span>
+</span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a><span class="w">  </span><span class="nt">"spreads"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a><span class="w">    </span><span class="nt">"crack_321"</span><span class="p">:</span><span class="w"> </span><span class="mf">24.50</span><span class="p">,</span>
+</span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a><span class="w">    </span><span class="nt">"crush_margin"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+</span><span id="__span-0-32"><a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a><span class="w">    </span><span class="nt">"spark_spread"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span>
+</span><span id="__span-0-33"><a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a><span class="w">  </span><span class="p">},</span>
+</span><span id="__span-0-34"><a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a><span class="w">  </span><span class="nt">"cross_commodity"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-35"><a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a><span class="w">    </span><span class="nt">"logical_complex"</span><span class="p">:</span><span class="w"> </span><span class="s2">"REFINERY_ENERGY"</span><span class="p">,</span>
+</span><span id="__span-0-36"><a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a><span class="w">    </span><span class="nt">"logical_complex_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Refinery Energy Complex"</span><span class="p">,</span>
+</span><span id="__span-0-37"><a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a><span class="w">    </span><span class="nt">"economic_rationale"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Direct physical refining inputs and output products. High cointegration governed by cracking margins and crude runs."</span><span class="p">,</span>
+</span><span id="__span-0-38"><a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a><span class="w">    </span><span class="nt">"cointegration_pairs"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-0-39"><a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a><span class="w">      </span><span class="p">{</span>
+</span><span id="__span-0-40"><a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a><span class="w">        </span><span class="nt">"pair"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CL-XB"</span><span class="p">,</span>
+</span><span id="__span-0-41"><a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a><span class="w">        </span><span class="nt">"hedge_ratio_beta"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.84</span><span class="p">,</span>
+</span><span id="__span-0-42"><a id="__codelineno-0-42" name="__codelineno-0-42" href="#__codelineno-0-42"></a><span class="w">        </span><span class="nt">"adf_t_statistic"</span><span class="p">:</span><span class="w"> </span><span class="mf">-3.85</span><span class="p">,</span>
+</span><span id="__span-0-43"><a id="__codelineno-0-43" name="__codelineno-0-43" href="#__codelineno-0-43"></a><span class="w">        </span><span class="nt">"p_value"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0024</span><span class="p">,</span>
+</span><span id="__span-0-44"><a id="__codelineno-0-44" name="__codelineno-0-44" href="#__codelineno-0-44"></a><span class="w">        </span><span class="nt">"is_cointegrated"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+</span><span id="__span-0-45"><a id="__codelineno-0-45" name="__codelineno-0-45" href="#__codelineno-0-45"></a><span class="w">        </span><span class="nt">"half_life_days"</span><span class="p">:</span><span class="w"> </span><span class="mf">4.2</span><span class="p">,</span>
+</span><span id="__span-0-46"><a id="__codelineno-0-46" name="__codelineno-0-46" href="#__codelineno-0-46"></a><span class="w">        </span><span class="nt">"residual_zscore"</span><span class="p">:</span><span class="w"> </span><span class="mf">-1.45</span>
+</span><span id="__span-0-47"><a id="__codelineno-0-47" name="__codelineno-0-47" href="#__codelineno-0-47"></a><span class="w">      </span><span class="p">}</span>
+</span><span id="__span-0-48"><a id="__codelineno-0-48" name="__codelineno-0-48" href="#__codelineno-0-48"></a><span class="w">    </span><span class="p">],</span>
+</span><span id="__span-0-49"><a id="__codelineno-0-49" name="__codelineno-0-49" href="#__codelineno-0-49"></a><span class="w">    </span><span class="nt">"macro_factor_sensitivities"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-50"><a id="__codelineno-0-50" name="__codelineno-0-50" href="#__codelineno-0-50"></a><span class="w">      </span><span class="nt">"US_DOLLAR_INDEX"</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.68</span><span class="p">,</span>
+</span><span id="__span-0-51"><a id="__codelineno-0-51" name="__codelineno-0-51" href="#__codelineno-0-51"></a><span class="w">      </span><span class="nt">"CRUDE_OIL_WTI"</span><span class="p">:</span><span class="w"> </span><span class="mf">1.00</span>
+</span><span id="__span-0-52"><a id="__codelineno-0-52" name="__codelineno-0-52" href="#__codelineno-0-52"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-0-53"><a id="__codelineno-0-53" name="__codelineno-0-53" href="#__codelineno-0-53"></a><span class="w">  </span><span class="p">},</span>
+</span><span id="__span-0-54"><a id="__codelineno-0-54" name="__codelineno-0-54" href="#__codelineno-0-54"></a><span class="w">  </span><span class="nt">"seasonality"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-55"><a id="__codelineno-0-55" name="__codelineno-0-55" href="#__codelineno-0-55"></a><span class="w">    </span><span class="nt">"directional_patterns"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-0-56"><a id="__codelineno-0-56" name="__codelineno-0-56" href="#__codelineno-0-56"></a><span class="w">      </span><span class="p">{</span>
+</span><span id="__span-0-57"><a id="__codelineno-0-57" name="__codelineno-0-57" href="#__codelineno-0-57"></a><span class="w">        </span><span class="nt">"tenure_days"</span><span class="p">:</span><span class="w"> </span><span class="mi">30</span><span class="p">,</span>
+</span><span id="__span-0-58"><a id="__codelineno-0-58" name="__codelineno-0-58" href="#__codelineno-0-58"></a><span class="w">        </span><span class="nt">"direction"</span><span class="p">:</span><span class="w"> </span><span class="s2">"BULLISH"</span><span class="p">,</span>
+</span><span id="__span-0-59"><a id="__codelineno-0-59" name="__codelineno-0-59" href="#__codelineno-0-59"></a><span class="w">        </span><span class="nt">"historical_win_rate"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.80</span><span class="p">,</span>
+</span><span id="__span-0-60"><a id="__codelineno-0-60" name="__codelineno-0-60" href="#__codelineno-0-60"></a><span class="w">        </span><span class="nt">"mean_return"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.042</span><span class="p">,</span>
+</span><span id="__span-0-61"><a id="__codelineno-0-61" name="__codelineno-0-61" href="#__codelineno-0-61"></a><span class="w">        </span><span class="nt">"t_statistic"</span><span class="p">:</span><span class="w"> </span><span class="mf">2.65</span><span class="p">,</span>
+</span><span id="__span-0-62"><a id="__codelineno-0-62" name="__codelineno-0-62" href="#__codelineno-0-62"></a><span class="w">        </span><span class="nt">"significance"</span><span class="p">:</span><span class="w"> </span><span class="s2">"HIGH"</span>
+</span><span id="__span-0-63"><a id="__codelineno-0-63" name="__codelineno-0-63" href="#__codelineno-0-63"></a><span class="w">      </span><span class="p">}</span>
+</span><span id="__span-0-64"><a id="__codelineno-0-64" name="__codelineno-0-64" href="#__codelineno-0-64"></a><span class="w">    </span><span class="p">],</span>
+</span><span id="__span-0-65"><a id="__codelineno-0-65" name="__codelineno-0-65" href="#__codelineno-0-65"></a><span class="w">    </span><span class="nt">"forward_vol_peak"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-66"><a id="__codelineno-0-66" name="__codelineno-0-66" href="#__codelineno-0-66"></a><span class="w">      </span><span class="nt">"historical_peak_month"</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span>
+</span><span id="__span-0-67"><a id="__codelineno-0-67" name="__codelineno-0-67" href="#__codelineno-0-67"></a><span class="w">      </span><span class="nt">"peak_month_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"October"</span><span class="p">,</span>
+</span><span id="__span-0-68"><a id="__codelineno-0-68" name="__codelineno-0-68" href="#__codelineno-0-68"></a><span class="w">      </span><span class="nt">"expected_vol_ratio"</span><span class="p">:</span><span class="w"> </span><span class="mf">1.25</span><span class="p">,</span>
+</span><span id="__span-0-69"><a id="__codelineno-0-69" name="__codelineno-0-69" href="#__codelineno-0-69"></a><span class="w">      </span><span class="nt">"narrative"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Historical volatility expands into October due to heating oil inventory repositioning and shoulder season refinery maintenance."</span>
+</span><span id="__span-0-70"><a id="__codelineno-0-70" name="__codelineno-0-70" href="#__codelineno-0-70"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-0-71"><a id="__codelineno-0-71" name="__codelineno-0-71" href="#__codelineno-0-71"></a><span class="w">  </span><span class="p">},</span>
+</span><span id="__span-0-72"><a id="__codelineno-0-72" name="__codelineno-0-72" href="#__codelineno-0-72"></a><span class="w">  </span><span class="nt">"divergences"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-0-73"><a id="__codelineno-0-73" name="__codelineno-0-73" href="#__codelineno-0-73"></a><span class="w">    </span><span class="p">{</span>
+</span><span id="__span-0-74"><a id="__codelineno-0-74" name="__codelineno-0-74" href="#__codelineno-0-74"></a><span class="w">      </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"PRICE_OI_DIVERGENCE"</span><span class="p">,</span>
+</span><span id="__span-0-75"><a id="__codelineno-0-75" name="__codelineno-0-75" href="#__codelineno-0-75"></a><span class="w">      </span><span class="nt">"severity"</span><span class="p">:</span><span class="w"> </span><span class="s2">"MODERATE"</span><span class="p">,</span>
+</span><span id="__span-0-76"><a id="__codelineno-0-76" name="__codelineno-0-76" href="#__codelineno-0-76"></a><span class="w">      </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Price pushing new 20-day high with open interest declining (potential short covering exhaustion)."</span>
+</span><span id="__span-0-77"><a id="__codelineno-0-77" name="__codelineno-0-77" href="#__codelineno-0-77"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-0-78"><a id="__codelineno-0-78" name="__codelineno-0-78" href="#__codelineno-0-78"></a><span class="w">  </span><span class="p">]</span>
+</span><span id="__span-0-79"><a id="__codelineno-0-79" name="__codelineno-0-79" href="#__codelineno-0-79"></a><span class="p">}</span>
+</span></code></pre></div>
+<hr />
+<h2 id="5-persistence-models-appsquant_enginemodelspy">5. Persistence Models (<code>apps/quant_engine/models.py</code>)</h2>
+<h3 id="discoveryregistry"><code>DiscoveryRegistry</code></h3>
+<p>An auditable discovery catalog that logs statistically significant anomalies, cointegration breaks, and regime transitions.
+* <code>discovery_type</code>: <code>COINTEGRATION_BREAK</code>, <code>SEASONAL_ANOMALY</code>, <code>OI_DIVERGENCE</code>, <code>SPREAD_EXTREME</code>, <code>CURVE_INVERSION</code>.
+* <code>commodity</code>: Related commodity foreign key.
+* <code>metrics</code>: JSON dictionary storing exact $z$-scores, $p$-values, and beta ratios.
+* <code>is_active</code>: Flag indicating whether the anomaly currently persists.</p>
+<h3 id="evidencepackagesnapshot"><code>EvidencePackageSnapshot</code></h3>
+<p>Immutable point-in-time snapshot of the generated <code>QuantitativeEvidencePackage</code>. Ensures historical research queries, audit trails, and narrative briefings can be reproduced verbatim.</p>
+<hr />
+<h2 id="6-regulatory-analytical-disclaimers">6. Regulatory &amp; Analytical Disclaimers</h2>
+<p>All outputs of the Quantitative Research Engine are computed strictly for analytical and research workflow automation. They do not constitute financial advice, trading signals, or investment recommendations under SEC, CFTC, or FCA regulations.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2026. For analytical workflow automation only — Not financial advice or trading calls.
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "navigation.tracking", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

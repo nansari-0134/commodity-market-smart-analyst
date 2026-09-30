@@ -631,6 +631,34 @@
   
   
     <li class="md-nav__item">
+      <a href="modules/quant-engine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quantitative Engine
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="modules/commodity-master/" class="md-nav__link">
         
   
@@ -1181,6 +1209,34 @@
     
   
     Market Data API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="api/quant-engine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quantitative Engine API
   
 
     
@@ -1778,7 +1834,9 @@ See: <a href="guides/data-sources/#4-how-to-swap-fundamental-data-providers-step
 </ul>
 <h3 id="phase-e-deterministic-quantitative-engine-appsquant_engine">Phase E: Deterministic Quantitative Engine (<code>apps/quant_engine</code>)</h3>
 <ul>
-<li>Calculates forward curves, backwardation/contango slopes, term structure splines, crack/crush spreads (e.g. 3:2:1 refinery margin), and 5-year historical seasonality envelopes. All math is deterministic; the LLM is never allowed to guess forward curve numbers.</li>
+<li>Zero-ORM vectorized pure NumPy/SciPy core calculating forward curves, continuous PCHIP monotone splines, term structure slope &amp; roll yields, processing margins (3:2:1 crack, soybean crush, spark spread), all-pairs (253) correlation &amp; Engle-Granger cointegration, 8 logical physical complexes, and multi-tenure seasonality pattern recognition.</li>
+<li>Produces the canonical <code>QuantitativeEvidencePackage</code> (Section 5.12).</li>
+<li><strong>Documentation</strong>: See <a href="modules/quant-engine/">Quantitative Engine Module Architecture</a> and <a href="api/quant-engine/">Quantitative Engine REST API</a>.</li>
 </ul>
 <h3 id="phase-f-news-sentiment-macro-catalysts-appsnews_intel">Phase F: News, Sentiment &amp; Macro Catalysts (<code>apps/news_intel</code>)</h3>
 <ul>
