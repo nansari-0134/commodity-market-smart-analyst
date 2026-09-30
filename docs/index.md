@@ -154,7 +154,9 @@ The platform executes across **7 coordinated lifecycle phases**. Below is the ex
   > See: [How to Swap Fundamental Data Providers](guides/data-sources.md#4-how-to-swap-fundamental-data-providers-step-by-step).
 
 ### Phase E: Deterministic Quantitative Engine (`apps/quant_engine`)
-* Calculates forward curves, backwardation/contango slopes, term structure splines, crack/crush spreads (e.g. 3:2:1 refinery margin), and 5-year historical seasonality envelopes. All math is deterministic; the LLM is never allowed to guess forward curve numbers.
+* Zero-ORM vectorized pure NumPy/SciPy core calculating forward curves, continuous PCHIP monotone splines, term structure slope & roll yields, processing margins (3:2:1 crack, soybean crush, spark spread), all-pairs (253) correlation & Engle-Granger cointegration, 8 logical physical complexes, and multi-tenure seasonality pattern recognition.
+* Produces the canonical `QuantitativeEvidencePackage` (Section 5.12).
+* **Documentation**: See [Quantitative Engine Module Architecture](modules/quant-engine.md) and [Quantitative Engine REST API](api/quant-engine.md).
 
 ### Phase F: News, Sentiment & Macro Catalysts (`apps/news_intel`)
 * Ingests macroeconomic catalyst events (OPEC meetings, USDA WASDE releases, Fed interest rate decisions) and real-time news headlines, automatically linking entities to canonical commodities.

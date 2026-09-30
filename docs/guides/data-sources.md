@@ -353,3 +353,40 @@ To switch exchange holiday calendar feeds from the default free NagerDate API to
 2. Return a list of `RawHolidayRecord(date, name, country_code)`.
 3. Set `EXCHANGE_HOLIDAY_PROVIDER=my_provider` in `.env`.
 4. Run `python manage.py seed_exchanges` to synchronize calendars.
+
+---
+
+## 8. How to Extend Quantitative Models & Custom Spreads (Step-by-Step)
+
+The **Quantitative Research Engine** (`apps/quant_engine`) is built with a **Zero-ORM vectorized calculation core** (`apps/quant_engine/core/`). Mathematical models are pure functions that operate directly on NumPy arrays and scalar floats without touching database ORM layers or network sockets.
+
+### Adding a New Processing Spread (e.g. Palm Oil vs Gasoil POGO Spread)
+1. Add the mathematical calculation function to [`apps/quant_engine/core/spreads.py`](file:///c:/Users/Shilpa/OneDrive/Documents/commodity-market-smart-analyst/apps/quant_engine/core/spreads.py):
+   ```python
+   def compute_pogo_spread(palm_oil_price_usd_mt: float, gasoil_price_usd_mt: float) -> float:
+       """Palm Oil vs Gasoil Spread (POGO) in $/metric ton."""
+       return palm_oil_price_usd_mt - gasoil_price_usd_mt
+   ```
+2. Update the Pydantic schema in [`apps/quant_engine/evidence/schema.py`](file:///c:/Users/Shilpa/OneDrive/Documents/commodity-market-smart-analyst/apps/quant_engine/evidence/schema.py):
+   ```python
+   class SpreadsEvidence(BaseModel):
+       crack_321: Optional[float] = None
+       crush_margin: Optional[float] = None
+       spark_spread: Optional[float] = None
+       pogo_spread: Optional[float] = None
+   ```
+3. Wire the calculation into [`apps/quant_engine/services/evidence_builder.py`](file:///c:/Users/Shilpa/OneDrive/Documents/commodity-market-smart-analyst/apps/quant_engine/services/evidence_builder.py).
+
+### Registering a New Logical Commodity Complex
+To add a new economic complex with custom cointegration tracking:
+1. Open [`apps/quant_engine/core/cross_commodity.py`](file:///c:/Users/Shilpa/OneDrive/Documents/commodity-market-smart-analyst/apps/quant_engine/core/cross_commodity.py).
+2. Add the complex definition to `LOGICAL_COMMODITY_COMPLEXES`:
+   ```python
+   "PLASTICS_PETROCHEM": {
+       "name": "Plastics & Petrochemical Chain",
+       "commodities": ["CL", "NG", "PROPANE", "ETHYLENE", "POLYPROPYLENE"],
+       "rationale": "Cracking of naphtha (from crude) and ethane/propane (from natural gas) into basic olefins and polymers.",
+   }
+   ```
+3. The cross-commodity engine automatically evaluates Engle-Granger cointegration, Ornstein-Uhlenbeck half-lives, and residual Z-scores across all member pairs.
+

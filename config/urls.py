@@ -28,6 +28,8 @@ urlpatterns = [
     path("api/endpoints/", include("apps.endpoints.urls")),
     # Market Data & Time-Series Observations
     path("api/market-data/", include("apps.market_data.urls")),
+    # Quantitative Research & Forward Curves Engine
+    path("api/quant/", include("apps.quant_engine.urls")),
     # Main terminal / intelligence dashboard
     path("", include("apps.dashboard.urls")),
 ]

@@ -12,11 +12,13 @@ from apps.market_data.models import (
     MarketPriceObservation,
     FundamentalObservation,
     CommitmentOfTradersObservation,
+    OptionsObservation,
 )
 from apps.market_data.serializers import (
     MarketPriceObservationSerializer,
     FundamentalObservationSerializer,
     CommitmentOfTradersObservationSerializer,
+    OptionsObservationSerializer,
     ObservationSummarySerializer,
 )
 
@@ -178,6 +180,46 @@ class CommitmentOfTradersDetailAPIView(generics.RetrieveAPIView):
     serializer_class = CommitmentOfTradersObservationSerializer
 
 
+class OptionsObservationListAPIView(generics.ListAPIView):
+    """
+    List options implied volatility surfaces and positioning metrics across contracts M1-M24.
+
+    Filters:
+    - `commodity`: Commodity code (e.g. 'CL') or UUID
+    - `delivery_month`: Specific contract delivery month or tenor (e.g. 'M1', 'M2', ..., 'M24')
+    - `start_date`: Earliest observation date (YYYY-MM-DD)
+    - `end_date`: Latest observation date (YYYY-MM-DD)
+    """
+    serializer_class = OptionsObservationSerializer
+
+    def get_queryset(self):
+        qs = OptionsObservation.objects.select_related(
+            "commodity", "contract", "source_endpoint"
+        ).all()
+
+        commodity = self.request.query_params.get("commodity")
+        if commodity:
+            try:
+                c_uuid = UUID(commodity)
+                qs = qs.filter(commodity_id=c_uuid)
+            except ValueError:
+                qs = qs.filter(commodity__code__iexact=commodity)
+
+        delivery_month = self.request.query_params.get("delivery_month")
+        if delivery_month:
+            qs = qs.filter(delivery_month__iexact=delivery_month)
+
+        start_date = self.request.query_params.get("start_date")
+        if start_date:
+            qs = qs.filter(observation_date__gte=start_date)
+
+        end_date = self.request.query_params.get("end_date")
+        if end_date:
+            qs = qs.filter(observation_date__lte=end_date)
+
+        return qs
+
+
 class MarketDataSummaryAPIView(APIView):
     """Statistical overview of market data observation store."""
 
@@ -200,11 +242,17 @@ class MarketDataSummaryAPIView(APIView):
             latest=Max("observation_date"),
         )
 
+        options_stats = OptionsObservation.objects.aggregate(
+            total=Count("id"),
+            latest=Max("observation_date"),
+        )
+
         data = {
             "total_price_observations": price_stats["total"] or 0,
             "total_prompt_observations": prompt_count,
             "total_fundamental_observations": fundamental_stats["total"] or 0,
             "total_cot_observations": cot_stats["total"] or 0,
+            "total_options_observations": options_stats["total"] or 0,
             "covered_commodities_count": distinct_commodities,
             "covered_variables_count": distinct_vars,
             "latest_price_date": price_stats["latest"],
