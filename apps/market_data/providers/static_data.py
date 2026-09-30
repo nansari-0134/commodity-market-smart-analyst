@@ -19,6 +19,7 @@ from .base import (
     BaseFundamentalProvider,
     BaseCOTProvider,
     RawPriceObservation,
+    RawOptionsObservation,
     RawFundamentalObservation,
     RawCOTObservation,
 )
@@ -34,6 +35,24 @@ VARIABLE_ALIASES = {
     "CUSHING_INVENTORIES": "CRUDE_CUSHING_STOCKS",
     "EIA_NG_STORAGE_WEEKLY": "NATGAS_LOWER_48_WORKING_STORAGE",
     "EIA_US_CRUDE_PROD": "CRUDE_US_TOTAL_COMMERCIAL_STOCKS",
+}
+
+BENCHMARK_CONFIGS = {
+    "CL": {"base": 76.50, "amp": 4.50, "vol": 320000, "oi": 1820000},
+    "BRENT": {"base": 80.20, "amp": 4.20, "vol": 260000, "oi": 1250000},
+    "NG": {"base": 2.45, "amp": 0.40, "vol": 150000, "oi": 1410000},
+    "GOLD": {"base": 2580.00, "amp": 60.00, "vol": 210000, "oi": 520000},
+    "CORN": {"base": 420.00, "amp": 25.00, "vol": 140000, "oi": 1480000},
+    "SILVER": {"base": 31.50, "amp": 1.50, "vol": 120000, "oi": 420000},
+    "COPPER": {"base": 4.30, "amp": 0.20, "vol": 95000, "oi": 310000},
+    "RB": {"base": 2.15, "amp": 0.15, "vol": 110000, "oi": 390000},
+    "HO": {"base": 2.30, "amp": 0.18, "vol": 105000, "oi": 380000},
+    "SOYBEANS": {"base": 1020.00, "amp": 40.00, "vol": 160000, "oi": 850000},
+    "SOYOIL": {"base": 43.50, "amp": 2.50, "vol": 85000, "oi": 460000},
+    "WHEAT_SRW": {"base": 580.00, "amp": 30.00, "vol": 115000, "oi": 520000},
+    "SUGAR_11": {"base": 22.50, "amp": 1.20, "vol": 130000, "oi": 720000},
+    "COFFEE_ARABICA": {"base": 255.00, "amp": 15.00, "vol": 65000, "oi": 320000},
+    "LIVE_CATTLE": {"base": 185.00, "amp": 8.00, "vol": 55000, "oi": 310000},
 }
 
 
@@ -62,14 +81,7 @@ class StaticMarketDataProvider(BaseMarketDataProvider):
         if start_date is None:
             start_date = end_date - timedelta(days=90)
 
-        configs = {
-            "CL": {"base": 76.50, "amp": 4.50, "vol": 320000, "oi": 1820000},
-            "BRENT": {"base": 80.20, "amp": 4.20, "vol": 260000, "oi": 1250000},
-            "NG": {"base": 2.45, "amp": 0.40, "vol": 150000, "oi": 1410000},
-            "GOLD": {"base": 2580.00, "amp": 60.00, "vol": 210000, "oi": 520000},
-            "CORN": {"base": 420.00, "amp": 25.00, "vol": 140000, "oi": 1480000},
-        }
-        cfg = configs.get(canonical_symbol, {"base": 50.00, "amp": 5.00, "vol": 100000, "oi": 500000})
+        cfg = BENCHMARK_CONFIGS.get(canonical_symbol, {"base": 50.00, "amp": 5.00, "vol": 100000, "oi": 500000})
 
         observations: list[RawPriceObservation] = []
         cur_date = start_date
@@ -152,6 +164,87 @@ class StaticMarketDataProvider(BaseMarketDataProvider):
             day_idx += 1
 
         return observations
+
+    def fetch_forward_curve(
+        self,
+        symbol: str,
+        as_of_date: Optional[date] = None,
+        num_months: int = 24,
+        **kwargs,
+    ) -> list[RawPriceObservation]:
+        ref_date = as_of_date or date.today()
+        canonical_symbol = COMMODITY_ALIASES.get(symbol.upper(), symbol.upper())
+        cfg = BENCHMARK_CONFIGS.get(canonical_symbol, {"base": 75.0, "amp": 2.5, "vol": 100000, "oi": 500000})
+        base = cfg["base"]
+
+        nodes = []
+        for i in range(num_months):
+            month_idx = i + 1
+            m_label = f"M{month_idx}"
+            decay = math.exp(-0.04 * i)
+            p = round(Decimal(str(base * (0.82 + 0.18 * decay))), 2)
+            vol = int(cfg["vol"] * math.exp(-0.15 * i))
+            oi = int(cfg["oi"] * math.exp(-0.12 * i))
+
+            nodes.append(
+                RawPriceObservation(
+                    symbol=canonical_symbol,
+                    observation_date=ref_date,
+                    contract_month=m_label,
+                    is_prompt=False,
+                    open_price=p,
+                    high_price=p,
+                    low_price=p,
+                    close_price=p,
+                    settlement_price=p,
+                    volume=vol if vol > 0 else None,
+                    open_interest=oi if oi > 0 else None,
+                    publication_time=datetime.combine(ref_date, time(20, 30, tzinfo=timezone.utc)),
+                    is_preliminary=False,
+                    source_endpoint_code="STATIC_BENCHMARK_CURVE",
+                )
+            )
+        return nodes
+
+    def fetch_options_chain(
+        self,
+        symbol: str,
+        as_of_date: Optional[date] = None,
+        num_months: int = 24,
+        **kwargs,
+    ) -> list[RawOptionsObservation]:
+        ref_date = as_of_date or date.today()
+        canonical_symbol = COMMODITY_ALIASES.get(symbol.upper(), symbol.upper())
+        base_iv = Decimal("28.50")
+        rv_30d = Decimal("26.80")
+
+        obs = []
+        for i in range(num_months):
+            month_idx = i + 1
+            m_label = f"M{month_idx}"
+            decay = Decimal(str(round(math.exp(-0.10 * i), 4)))
+            node_iv = Decimal("22.00") + (base_iv - Decimal("22.00")) * decay
+            node_rv = Decimal("21.00") + (rv_30d - Decimal("21.00")) * decay
+            slope = (base_iv - node_iv) if i > 0 else Decimal("0.00")
+
+            obs.append(
+                RawOptionsObservation(
+                    symbol=canonical_symbol,
+                    observation_date=ref_date,
+                    delivery_month=m_label,
+                    atm_implied_volatility=round(node_iv, 4),
+                    realized_volatility_30d=round(node_rv, 4),
+                    iv_rv_spread=round(node_iv - node_rv, 4),
+                    skew_25d=round(Decimal("2.20") * decay, 4),
+                    term_structure_slope=round(slope, 4),
+                    put_call_volume_ratio=Decimal("0.85"),
+                    put_call_oi_ratio=Decimal("0.88"),
+                    total_options_volume=int(250000 * math.exp(-0.18 * i)),
+                    total_options_oi=int(1800000 * math.exp(-0.15 * i)),
+                    source_endpoint_code="STATIC_OPTIONS_BENCHMARK",
+                )
+            )
+        return obs
 
 
 class StaticFundamentalProvider(BaseFundamentalProvider):

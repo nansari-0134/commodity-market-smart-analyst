@@ -16,10 +16,13 @@ from .static_data import (
     StaticFundamentalProvider,
     StaticCOTProvider,
 )
+from .yahoo_finance import YahooMarketDataProvider
+from .cftc_cot import CFTCCOTProvider
 
 # In-memory registries for pluggable providers
 _MARKET_DATA_PROVIDERS: dict[str, Type[BaseMarketDataProvider]] = {
     "static": StaticMarketDataProvider,
+    "yahoo": YahooMarketDataProvider,
 }
 
 _FUNDAMENTAL_PROVIDERS: dict[str, Type[BaseFundamentalProvider]] = {
@@ -28,6 +31,7 @@ _FUNDAMENTAL_PROVIDERS: dict[str, Type[BaseFundamentalProvider]] = {
 
 _COT_PROVIDERS: dict[str, Type[BaseCOTProvider]] = {
     "static": StaticCOTProvider,
+    "cftc": CFTCCOTProvider,
 }
 
 

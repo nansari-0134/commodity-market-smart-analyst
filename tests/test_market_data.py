@@ -23,6 +23,7 @@ from apps.market_data.models import (
     MarketPriceObservation,
     FundamentalObservation,
     CommitmentOfTradersObservation,
+    OptionsObservation,
     COTReportType,
 )
 from apps.market_data.providers.base import (
@@ -166,6 +167,26 @@ class TestMarketDataModels:
                 open_interest=2000,
             )
 
+    def test_options_observation_creation_and_properties(self):
+        obs = OptionsObservation.objects.create(
+            commodity=self.cl,
+            delivery_month="M1",
+            observation_date=date(2026, 9, 23),
+            atm_implied_volatility=Decimal("28.50"),
+            realized_volatility_30d=Decimal("26.80"),
+            iv_rv_spread=Decimal("1.70"),
+            skew_25d=Decimal("2.40"),
+            term_structure_slope=Decimal("1.50"),
+            put_call_volume_ratio=Decimal("0.85"),
+            put_call_oi_ratio=Decimal("0.88"),
+            total_options_volume=340000,
+            total_options_oi=2100000,
+        )
+        assert obs.id is not None
+        assert obs.delivery_month == "M1"
+        assert obs.atm_implied_volatility == Decimal("28.50")
+        assert "Options CL (M1)" in str(obs)
+
 
 @pytest.mark.django_db
 class TestPluggableProviders:
@@ -233,6 +254,15 @@ class TestPluggableProviders:
 
         c_prov = get_cot_provider()
         assert isinstance(c_prov, StaticCOTProvider)
+
+        # Test Yahoo Finance and CFTC live providers in factory
+        yahoo_prov = get_market_data_provider("yahoo")
+        assert yahoo_prov.name == "Yahoo Finance Live Futures Provider"
+        assert yahoo_prov.is_healthy() is True
+
+        cftc_prov = get_cot_provider("cftc")
+        assert cftc_prov.name == "CFTC Official Disaggregated COT Provider"
+        assert cftc_prov.is_healthy() is True
 
         # Test registering a mock provider
         class MockProvider(BaseMarketDataProvider):
@@ -351,3 +381,23 @@ class TestMarketDataAPI:
         assert data["total_fundamental_observations"] > 0
         assert data["total_cot_observations"] > 0
         assert data["covered_commodities_count"] >= 5
+
+    def test_options_list_and_filters(self):
+        # Create test options observation
+        cl = CommodityMaster.objects.get(code="CL")
+        OptionsObservation.objects.create(
+            commodity=cl,
+            delivery_month="M1",
+            observation_date=date(2026, 9, 23),
+            atm_implied_volatility=Decimal("30.25"),
+            skew_25d=Decimal("2.10"),
+            put_call_volume_ratio=Decimal("0.82"),
+        )
+        res = self.client.get("/api/market-data/options/?commodity=CL&delivery_month=M1&start_date=2026-09-23&end_date=2026-09-23")
+        assert res.status_code == 200
+        payload = res.json()
+        data = payload["results"] if isinstance(payload, dict) and "results" in payload else payload
+        assert len(data) > 0
+        assert data[0]["commodity_code"] == "CL"
+        assert data[0]["delivery_month"] == "M1"
+        assert float(data[0]["atm_implied_volatility"]) == pytest.approx(30.25, rel=1e-3)

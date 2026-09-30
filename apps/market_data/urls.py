@@ -11,6 +11,7 @@ from apps.market_data.views import (
     FundamentalObservationDetailAPIView,
     CommitmentOfTradersListAPIView,
     CommitmentOfTradersDetailAPIView,
+    OptionsObservationListAPIView,
     MarketDataSummaryAPIView,
 )
 
@@ -20,6 +21,8 @@ urlpatterns = [
     # Prices
     path("prices/", MarketPriceListAPIView.as_view(), name="price-list"),
     path("prices/<uuid:pk>/", MarketPriceDetailAPIView.as_view(), name="price-detail"),
+    # Forward Curve & Options Surfaces (M1-M24)
+    path("options/", OptionsObservationListAPIView.as_view(), name="options-list"),
     # Fundamentals
     path("fundamentals/", FundamentalObservationListAPIView.as_view(), name="fundamental-list"),
     path("fundamentals/<uuid:pk>/", FundamentalObservationDetailAPIView.as_view(), name="fundamental-detail"),

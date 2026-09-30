@@ -9,6 +9,8 @@ from apps.market_data.models import (
     MarketPriceObservation,
     FundamentalObservation,
     CommitmentOfTradersObservation,
+    MarketEvent,
+    OptionsObservation,
 )
 
 
@@ -90,3 +92,46 @@ class CommitmentOfTradersObservationAdmin(admin.ModelAdmin):
             net,
             obj.commercial_net_pct_oi,
         )
+
+
+@admin.register(MarketEvent)
+class MarketEventAdmin(admin.ModelAdmin):
+    list_display = [
+        "name",
+        "event_type",
+        "commodity",
+        "scheduled_time",
+        "actual_value",
+        "expected_value",
+        "surprise_display",
+        "data_quality",
+    ]
+    list_filter = ["event_type", "commodity", "data_quality"]
+    search_fields = ["name", "commodity__code", "commodity__name"]
+    date_hierarchy = "scheduled_time"
+    readonly_fields = ["created_at", "updated_at", "ingestion_time"]
+
+    @admin.display(description="Surprise")
+    def surprise_display(self, obj):
+        val = obj.computed_surprise
+        if val is None:
+            return "-"
+        color = "green" if val > 0 else "red"
+        return format_html('<span style="color: {}; font-weight: bold;">{:+f}</span>', color, val)
+
+
+@admin.register(OptionsObservation)
+class OptionsObservationAdmin(admin.ModelAdmin):
+    list_display = [
+        "commodity",
+        "observation_date",
+        "atm_implied_volatility",
+        "realized_volatility_30d",
+        "skew_25d",
+        "put_call_volume_ratio",
+        "data_quality",
+    ]
+    list_filter = ["commodity", "data_quality"]
+    search_fields = ["commodity__code", "commodity__name"]
+    date_hierarchy = "observation_date"
+    readonly_fields = ["created_at", "updated_at", "ingestion_time"]

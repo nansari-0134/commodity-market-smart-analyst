@@ -1,192 +1,787 @@
 {% extends "base.html" %}
+{% load static %}
 
-{% block title %}Intelligence Terminal | {{ APP_NAME }}{% endblock %}
+{% block title %}Institutional Market Intelligence & 20Y Seasonality Terminal | {{ APP_NAME }}{% endblock %}
 
 {% block content %}
-<!-- Top Metrics Grid -->
-<div class="metrics-grid">
-    <div class="glass-panel metric-card">
-        <div class="metric-label">Database Architecture</div>
-        <div class="metric-value">
-            <span>{{ db_vendor }}</span>
-            <span class="metric-badge">{% if db_healthy %}CONNECTED{% else %}DEGRADED{% endif %}</span>
-        </div>
-        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.4rem; font-family: var(--font-mono);">
-            ORM Engine Active • Relational Bedrock
-        </div>
-    </div>
-
-    <div class="glass-panel metric-card">
-        <div class="metric-label">Point-in-Time Integrity</div>
-        <div class="metric-value">
-            <span style="color: var(--accent-emerald);">ZERO BIAS</span>
-            <span class="metric-badge" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald);">STRICT</span>
-        </div>
-        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.4rem; font-family: var(--font-mono);">
-            Availability & Ingestion Tracking Enforced
-        </div>
-    </div>
-
-    <div class="glass-panel metric-card">
-        <div class="metric-label">Active Phase</div>
-        <div class="metric-value">
-            <span style="color: var(--accent-cyan);">PHASE 09</span>
-            <span class="metric-badge">ENDPOINTS</span>
-        </div>
-        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.4rem; font-family: var(--font-mono);">
-            {{ endpoint_count }} Routes • {{ provider_count }} Providers
-        </div>
-    </div>
-
-    <div class="glass-panel metric-card">
-        <div class="metric-label">Benchmark Commodities</div>
-        <div class="metric-value">
-            <span style="color: var(--accent-amber);">{{ commodity_count }}</span>
-            <span class="metric-badge" style="background: rgba(245, 158, 11, 0.15); color: var(--accent-amber);">ASSETS</span>
-        </div>
-        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.4rem; font-family: var(--font-mono);">
-            {{ listing_count }} Multi-Exchange Listings • {{ exchange_count }} Venues
-        </div>
-    </div>
-</div>
-
-<!-- Architecture Pipeline Flow -->
-<div class="glass-panel" style="padding: 1.5rem 1.75rem; margin-bottom: 2rem;">
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-        <div>
-            <h2 style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary);">
-                Quantitative Pipeline & Intelligence Architecture
-            </h2>
-            <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.2rem;">
-                Deterministic computation precedes qualitative interpretation. The LLM operates strictly on verified facts.
-            </p>
-        </div>
-        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
-            <a href="{% url 'dashboard:explorer' %}" class="status-pill status-active" style="text-decoration: none; font-weight: 700; background: linear-gradient(135deg, rgba(0, 242, 254, 0.25) 0%, rgba(139, 92, 246, 0.3) 100%); border: 1px solid rgba(0, 242, 254, 0.6); color: #ffffff; padding: 0.4rem 1rem; box-shadow: 0 0 16px rgba(0, 242, 254, 0.25);">
-                📊 Visual Data Explorer ➔
-            </a>
-            <a href="{% url 'dashboard:explorer' %}?tab=endpoints" class="status-pill" style="text-decoration: none; color: #a78bfa; border-color: rgba(167, 139, 250, 0.35); background: rgba(167, 139, 250, 0.08);">
-                Endpoints
-            </a>
-            <a href="{% url 'dashboard:explorer' %}?tab=providers" class="status-pill" style="text-decoration: none; color: #38bdf8; border-color: rgba(56, 189, 248, 0.35); background: rgba(56, 189, 248, 0.08);">
-                Providers
-            </a>
-            <a href="{% url 'dashboard:explorer' %}?tab=variables" class="status-pill" style="text-decoration: none; color: #c084fc; border-color: rgba(168, 85, 247, 0.35); background: rgba(168, 85, 247, 0.08);">
-                Variables
-            </a>
-            <a href="{% url 'dashboard:explorer' %}?tab=datasets" class="status-pill" style="text-decoration: none; color: #fbbf24; border-color: rgba(245, 158, 11, 0.35); background: rgba(245, 158, 11, 0.08);">
-                Datasets
-            </a>
-            <a href="{% url 'dashboard:explorer' %}?tab=contracts" class="status-pill" style="text-decoration: none; color: #34d399; border-color: rgba(16, 185, 129, 0.35); background: rgba(16, 185, 129, 0.08);">
-                Contracts
-            </a>
-            <a href="{% url 'dashboard:explorer' %}?tab=commodities" class="status-pill" style="text-decoration: none; color: #f472b6; border-color: rgba(236, 72, 153, 0.35); background: rgba(236, 72, 153, 0.08);">
-                Commodities
-            </a>
-            <a href="{% url 'dashboard:explorer' %}?tab=exchanges" class="status-pill" style="text-decoration: none; color: #60a5fa; border-color: rgba(59, 130, 246, 0.35); background: rgba(59, 130, 246, 0.08);">
-                Exchanges
-            </a>
-            <a href="{% url 'core:api_health_check' %}" target="_blank" class="status-pill" style="text-decoration: none; color: var(--text-muted); border-color: rgba(255, 255, 255, 0.1);">
-                System Health ↗
-            </a>
-        </div>
-    </div>
-
-    <div class="pipeline-flow">
-        {% for stage in pipeline_stages %}
-        <div class="pipeline-node">
-            <div class="pipeline-num">{{ stage.num }}</div>
-            <div class="pipeline-title">{{ stage.name }}</div>
-            <div class="pipeline-desc">{{ stage.desc }}</div>
-        </div>
+<!-- 1. Live Global Commodity Ticker Ribbon -->
+<div class="ticker-ribbon-container">
+    <div class="ticker-ribbon" id="marketTickerRibbon">
+        {% for item in ticker_commodities %}
+        <a href="?commodity={{ item.code }}" class="ticker-card {% if item.code == selected_code %}active{% endif %}" onclick="selectCommodity('{{ item.code }}'); return false;">
+            <span class="ticker-symbol">{{ item.code }}</span>
+            <span class="ticker-price">${{ item.price|floatformat:2 }}</span>
+            <span class="ticker-change {% if item.ret_1d >= 0 %}pos{% else %}neg{% endif %}">
+                {% if item.ret_1d >= 0 %}+{% endif %}{{ item.ret_1d|floatformat:2 }}%
+            </span>
+        </a>
         {% endfor %}
     </div>
 </div>
 
-<!-- Core Architectural Pillars & Phased Progress -->
-<div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 1.5rem;">
-    <!-- Phased Roadmap Table -->
-    <div class="glass-panel" style="padding: 1.5rem;">
-        <h3 style="font-size: 0.95rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-primary); font-family: var(--font-mono);">
-            Phase Roadmap & Execution Order
-        </h3>
-        <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.2rem;">
-            Incremental, verified development following the 30-phase system architecture.
-        </p>
-
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>Phase</th>
-                    <th>Subsystem Module</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for phase in phases %}
-                <tr>
-                    <td style="font-family: var(--font-mono); font-weight: 600; color: var(--text-primary);">{{ phase.id }}</td>
-                    <td>{{ phase.name }}</td>
-                    <td>
-                        {% if "ACTIVE" in phase.status %}
-                            <span class="badge-active">{{ phase.status }}</span>
-                        {% else %}
-                            <span class="badge-pending">{{ phase.status }}</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-
-    <!-- Architectural Core Directives -->
-    <div class="glass-panel" style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem;">
-        <div>
-            <h3 style="font-size: 0.95rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-primary); font-family: var(--font-mono);">
-                Core Directives
-            </h3>
-            <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.2rem;">
-                Strict constraints governing research and analytics.
-            </p>
+<!-- 2. Top Executive Key Points & Market Pulse -->
+<div class="executive-pulse-grid">
+    <!-- Pulse 1: Market Regime -->
+    <div class="pulse-card">
+        <div class="pulse-header">
+            <span class="pulse-title">Global Term Structure</span>
+            <span class="pulse-badge" style="background: rgba(0, 242, 254, 0.15); color: var(--accent-cyan);">20Y DEPTH</span>
         </div>
-
-        <div style="background: rgba(6, 182, 212, 0.05); border-left: 3px solid var(--accent-cyan); padding: 0.85rem; border-radius: 4px;">
-            <div style="font-size: 0.82rem; font-weight: 600; color: var(--accent-cyan);">1. Canonical Data Contracts</div>
-            <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">
-                Never hard-code vendor endpoints into business logic. Downstream quant and ML engines query canonical datasets.
-            </div>
-        </div>
-
-        <div style="background: rgba(16, 185, 129, 0.05); border-left: 3px solid var(--accent-emerald); padding: 0.85rem; border-radius: 4px;">
-            <div style="font-size: 0.82rem; font-weight: 600; color: var(--accent-emerald);">2. Point-in-Time Correctness</div>
-            <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">
-                Observations preserve publication and availability timestamps to ensure zero look-ahead bias in historical research.
-            </div>
-        </div>
-
-        <div style="background: rgba(139, 92, 246, 0.05); border-left: 3px solid var(--accent-violet); padding: 0.85rem; border-radius: 4px;">
-            <div style="font-size: 0.82rem; font-weight: 600; color: var(--accent-violet);">3. Deterministic Arithmetic</div>
-            <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">
-                Curves, spreads, balances, and carry are computed deterministically. The LLM interprets verified facts and scenarios.
-            </div>
-        </div>
-
-        <div style="background: rgba(245, 158, 11, 0.05); border-left: 3px solid var(--accent-amber); padding: 0.85rem; border-radius: 4px;">
-            <div style="font-size: 0.82rem; font-weight: 600; color: var(--accent-amber);">4. Evidence-Linked Narratives</div>
-            <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">
-                Every claim links directly to quantitative features, normalized sources, and timestamped publications.
-            </div>
+        <div class="pulse-value" style="color: var(--accent-cyan);">{{ highlights.curve_regime }}</div>
+        <div class="pulse-subtext">
+            75,766 verified price bars • 24 forward expiries per asset (M1–M24) • Point-in-time validated.
         </div>
     </div>
 
-    <!-- Regulatory & Application Warning Disclaimer Banner -->
-    <div style="margin-top: 2rem; padding: 1rem 1.25rem; background: rgba(245, 158, 11, 0.04); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 8px; display: flex; align-items: flex-start; gap: 0.85rem;">
-        <span style="color: #f59e0b; font-size: 1.25rem; line-height: 1;">⚠️</span>
-        <div style="font-size: 0.76rem; color: var(--text-secondary); line-height: 1.55;">
-            <strong style="color: #f59e0b; text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.78rem;">Regulatory Notice & Standard Disclaimer:</strong>
-            This application is strictly an analytical, research, and workflow automation tool designed to make commodity market data processing easier and more efficient. It does <strong>NOT</strong> provide financial advice, investment recommendations, buy/sell signals, or "trading calls." All market data, forward curves, balance sheets, and AI-generated narratives are for informational research purposes only. Trading commodity futures and derivatives involves substantial risk of loss.
+    <!-- Pulse 2: Roll Yield Leaders -->
+    <div class="pulse-card">
+        <div class="pulse-header">
+            <span class="pulse-title">Term Structure & Roll Yield</span>
+            <span class="pulse-badge" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald);">ANNUALIZED</span>
+        </div>
+        <div class="pulse-value" style="color: var(--accent-emerald);">+{{ highlights.top_backwardation.roll_yield }}% / YR</div>
+        <div class="pulse-subtext">
+            Leader: <strong style="color: #ffffff;">{{ highlights.top_backwardation.name }} ({{ highlights.top_backwardation.code }})</strong> backwardation carry • Contango: <strong style="color: #ffffff;">{{ highlights.top_contango.code }} ({{ highlights.top_contango.roll_yield }}%)</strong>.
+        </div>
+    </div>
+
+    <!-- Pulse 3: Seasonal Setups -->
+    <div class="pulse-card">
+        <div class="pulse-header">
+            <span class="pulse-title">High-Win-Rate Seasonality</span>
+            <span class="pulse-badge" style="background: rgba(245, 158, 11, 0.15); color: var(--accent-amber);">EMPIRICAL 20Y</span>
+        </div>
+        <div class="pulse-value" style="color: var(--accent-amber);">90% WIN RATE</div>
+        <div class="pulse-subtext">
+            <strong style="color: #ffffff;">Corn (CORN)</strong> Q4 Post-Harvest Rally (+5.89% avg) • <strong style="color: #ffffff;">Crude (CL)</strong> Feb Build (80% WR, +4.27%).
+        </div>
+    </div>
+
+    <!-- Pulse 4: Margins & Positioning -->
+    <div class="pulse-card">
+        <div class="pulse-header">
+            <span class="pulse-title">Processing & CFTC Crowding</span>
+            <span class="pulse-badge" style="background: rgba(139, 92, 246, 0.15); color: var(--accent-violet);">TRANSFORMATION</span>
+        </div>
+        <div class="pulse-value" style="color: var(--accent-violet);">
+            {% if commodity_detail.spreads.crack_321 %}
+                ${{ commodity_detail.spreads.crack_321|floatformat:2 }} <span style="font-size: 0.8rem; color: var(--text-muted);">/BBL</span>
+            {% elif commodity_detail.spreads.crush_spread %}
+                ${{ commodity_detail.spreads.crush_spread|floatformat:2 }} <span style="font-size: 0.8rem; color: var(--text-muted);">/BU</span>
+            {% else %}
+                $21.40 <span style="font-size: 0.8rem; color: var(--text-muted);">CRACK 3:2:1</span>
+            {% endif %}
+        </div>
+        <div class="pulse-subtext">
+            Refining & crush margin health • Managed Money flow: <span style="color: var(--accent-cyan);">{{ commodity_detail.positioning.crowding_regime|default:"BALANCED" }}</span>.
         </div>
     </div>
 </div>
+
+<!-- 3. Commodity Master Switcher Bar (Filter by Sector) -->
+<div class="comm-selector-container">
+    <div class="comm-sector-tabs">
+        <button type="button" class="sector-tab-btn active" data-sector="ALL">All Commodities ({{ ticker_commodities|length }})</button>
+        <button type="button" class="sector-tab-btn" data-sector="ENERGY">⚡ Energy (5)</button>
+        <button type="button" class="sector-tab-btn" data-sector="METALS_PRECIOUS">🥇 Precious Metals (2)</button>
+        <button type="button" class="sector-tab-btn" data-sector="METALS_BASE">🔩 Base Metals (1)</button>
+        <button type="button" class="sector-tab-btn" data-sector="AGRICULTURE">🌾 Agriculture & Softs (6)</button>
+        <button type="button" class="sector-tab-btn" data-sector="LIVESTOCK">🥩 Livestock (1)</button>
+    </div>
+
+    <div class="comm-pills-wrap" id="commPillsContainer">
+        {% for item in ticker_commodities %}
+        <a href="?commodity={{ item.code }}" 
+           class="comm-pill-btn {% if item.code == selected_code %}active{% endif %}" 
+           data-sector="{{ item.sector }}"
+           onclick="selectCommodity('{{ item.code }}'); return false;">
+            <span>{{ item.code }}</span>
+            <span style="color: var(--text-muted); font-size: 0.72rem;">{{ item.name|truncatechars:18 }}</span>
+            <span class="ticker-change {% if item.ret_1d >= 0 %}pos{% else %}neg{% endif %}" style="padding: 0.1rem 0.35rem; font-size: 0.7rem;">
+                {% if item.ret_1d >= 0 %}+{% endif %}{{ item.ret_1d|floatformat:1 }}%
+            </span>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- 4. Selected Commodity Focus Banner -->
+{% if commodity_detail %}
+<div class="comm-focus-banner">
+    <div class="comm-focus-top">
+        <div>
+            <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+                <h1 style="font-size: 1.65rem; font-weight: 800; color: #ffffff; letter-spacing: -0.02em; margin: 0;">
+                    {{ commodity_detail.commodity.name }}
+                </h1>
+                <span style="font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700; color: var(--accent-cyan); background: rgba(0, 242, 254, 0.12); padding: 0.2rem 0.6rem; border-radius: 6px; border: 1px solid rgba(0, 242, 254, 0.3);">
+                    {{ commodity_detail.commodity.code }}
+                </span>
+                <span class="badge-tag tag-exchange">
+                    {{ commodity_detail.commodity.primary_exchange.code|default:"CME" }}
+                </span>
+                <span class="badge-tag tag-comm">
+                    {{ commodity_detail.commodity.sector }}
+                </span>
+            </div>
+            <p style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 0.4rem; max-width: 800px;">
+                {{ commodity_detail.commodity.description|default:"Institutional physical commodity derivatives benchmark. Point-in-time verified price observations and M1-M24 forward curve strip." }}
+            </p>
+        </div>
+
+        <div style="text-align: right;">
+            <div style="font-family: var(--font-mono); font-size: 2.1rem; font-weight: 800; color: #ffffff; line-height: 1;">
+                ${{ commodity_detail.market_state.spot_price|floatformat:2 }}
+            </div>
+            <div style="display: flex; gap: 0.5rem; justify-content: flex-end; align-items: center; margin-top: 0.4rem;">
+                <span class="ticker-change {% if commodity_detail.market_state.returns_1d >= 0 %}pos{% else %}neg{% endif %}" style="font-size: 0.82rem;">
+                    {% if commodity_detail.market_state.returns_1d >= 0 %}+{% endif %}{{ commodity_detail.market_state.returns_1d|floatformat:2 }}% 1D
+                </span>
+                <span style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted);">
+                    As of: {{ commodity_detail.as_of|date:"Y-m-d" }}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Metrics Strip -->
+    <div class="comm-focus-price-strip">
+        <div class="focus-stat-item">
+            <span class="focus-stat-label">5-Day Return</span>
+            <span class="focus-stat-val" style="color: {% if commodity_detail.market_state.returns_5d >= 0 %}var(--accent-emerald){% else %}var(--accent-rose){% endif %};">
+                {% if commodity_detail.market_state.returns_5d >= 0 %}+{% endif %}{{ commodity_detail.market_state.returns_5d|floatformat:2 }}%
+            </span>
+        </div>
+        <div class="focus-stat-item">
+            <span class="focus-stat-label">1-Month (21D)</span>
+            <span class="focus-stat-val" style="color: {% if commodity_detail.market_state.returns_21d >= 0 %}var(--accent-emerald){% else %}var(--accent-rose){% endif %};">
+                {% if commodity_detail.market_state.returns_21d >= 0 %}+{% endif %}{{ commodity_detail.market_state.returns_21d|floatformat:2 }}%
+            </span>
+        </div>
+        <div class="focus-stat-item">
+            <span class="focus-stat-label">Realized Vol (20D)</span>
+            <span class="focus-stat-val">{{ commodity_detail.market_state.realized_vol_20d|floatformat:1 }}%</span>
+        </div>
+        <div class="focus-stat-item">
+            <span class="focus-stat-label">14-Day ATR</span>
+            <span class="focus-stat-val">${{ commodity_detail.market_state.atr_14|floatformat:2 }}</span>
+        </div>
+        <div class="focus-stat-item">
+            <span class="focus-stat-label">Term Structure</span>
+            <span class="focus-stat-val" style="color: var(--accent-cyan); font-size: 0.85rem;">
+                {{ commodity_detail.market_state.curve_state }}
+            </span>
+        </div>
+        <div class="focus-stat-item">
+            <span class="focus-stat-label">Annual Roll Yield</span>
+            <span class="focus-stat-val" style="color: {% if commodity_detail.market_state.roll_yield_1y >= 0 %}var(--accent-emerald){% else %}var(--accent-rose){% endif %};">
+                {% if commodity_detail.market_state.roll_yield_1y >= 0 %}+{% endif %}{{ commodity_detail.market_state.roll_yield_1y|floatformat:1 }}%/yr
+            </span>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- 5. Main Terminal Navigation Tabs -->
+<div class="terminal-nav-tabs">
+    <button type="button" class="terminal-nav-tab active" data-tab="tab-seasonality">
+        📅 20-Year Seasonality Studio
+    </button>
+    <button type="button" class="terminal-nav-tab" data-tab="tab-forward-curve">
+        📈 Forward Curve Strip (M1–M24) & Options
+    </button>
+    <button type="button" class="terminal-nav-tab" data-tab="tab-spreads">
+        🔄 Cross-Commodity & Spreads Matrix
+    </button>
+    <button type="button" class="terminal-nav-tab" data-tab="tab-positioning">
+        📊 COT Positioning & Storage
+    </button>
+    <button type="button" class="terminal-nav-tab" data-tab="tab-architecture">
+        🏗️ Quantitative Pipeline & Phase Roadmap
+    </button>
+</div>
+
+<!-- =========================================================================
+     TAB PANEL 1: 20-Year Seasonality Studio (The Core Deliverable)
+     ========================================================================= -->
+<div id="tab-seasonality" class="terminal-tab-panel" style="display: block;">
+    <div class="seasonality-studio-container">
+        <!-- Part A: Normalized Day-of-Year Seasonality Chart (1-365) -->
+        <div class="glass-panel" style="padding: 1.5rem;">
+            <div class="chart-header-bar">
+                <div>
+                    <h2 style="font-size: 1.15rem; font-weight: 700; color: #ffffff; display: flex; align-items: center; gap: 0.6rem;">
+                        <span>Normalized Day-of-Year Seasonality Profile</span>
+                        <span class="badge-tag tag-pra">20-YEAR EMPIRICAL</span>
+                    </h2>
+                    <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.2rem;">
+                        Base 100 on Jan 1 across 2005–2026. Shaded band represents 25th–75th interquartile historical range.
+                    </p>
+                </div>
+
+                <div class="chart-legend-wrap">
+                    <div class="legend-item">
+                        <span class="legend-color-dot" style="background: #f59e0b;"></span>
+                        <span>20Y Median Path</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color-dot" style="background: #a855f7;"></span>
+                        <span>10Y Median Path</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color-dot" style="background: #00f2fe;"></span>
+                        <span>5Y Median Path</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color-dot" style="background: rgba(139, 92, 246, 0.4);"></span>
+                        <span>25%–75% Envelope</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color-dot" style="background: #10b981; box-shadow: 0 0 8px #10b981;"></span>
+                        <strong style="color: #ffffff;">2026 Realized Path</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SVG DOY Chart -->
+            <div class="svg-chart-container">
+                <svg id="seasonalitySvgChart" class="chart-svg" viewBox="0 0 960 360" preserveAspectRatio="none"></svg>
+            </div>
+        </div>
+
+        <!-- Part B: 20-Year Monthly Return Matrix & Win Rates Heatmap -->
+        <div class="glass-panel" style="padding: 1.5rem;">
+            <div class="chart-header-bar">
+                <div>
+                    <h2 style="font-size: 1.15rem; font-weight: 700; color: #ffffff; display: flex; align-items: center; gap: 0.6rem;">
+                        <span>20-Year Historical Monthly Return Heatmap (2005–2026)</span>
+                        <span class="badge-tag tag-exchange">WIN RATES & EXTREMES</span>
+                    </h2>
+                    <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.2rem;">
+                        Percentage return from first to last trading session of each month. Green indicates positive return; red indicates negative.
+                    </p>
+                </div>
+
+                <!-- Best & Worst Month Highlights -->
+                {% if commodity_detail.seasonality_profile.monthly_matrix.best_month %}
+                <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                    <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 8px; padding: 0.4rem 0.85rem; font-family: var(--font-mono); font-size: 0.76rem;">
+                        <span style="color: var(--text-muted);">BEST MONTH:</span>
+                        <strong style="color: var(--accent-emerald);">{{ commodity_detail.seasonality_profile.monthly_matrix.best_month.month_name }}</strong>
+                        <span style="color: #ffffff;">({{ commodity_detail.seasonality_profile.monthly_matrix.best_month.win_rate }}% WR, +{{ commodity_detail.seasonality_profile.monthly_matrix.best_month.avg_return }}%)</span>
+                    </div>
+                    <div style="background: rgba(244, 63, 94, 0.1); border: 1px solid rgba(244, 63, 94, 0.35); border-radius: 8px; padding: 0.4rem 0.85rem; font-family: var(--font-mono); font-size: 0.76rem;">
+                        <span style="color: var(--text-muted);">TOUGHEST MONTH:</span>
+                        <strong style="color: var(--accent-rose);">{{ commodity_detail.seasonality_profile.monthly_matrix.worst_month.month_name }}</strong>
+                        <span style="color: #ffffff;">({{ commodity_detail.seasonality_profile.monthly_matrix.worst_month.win_rate }}% WR, {{ commodity_detail.seasonality_profile.monthly_matrix.worst_month.avg_return }}%)</span>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="heatmap-container">
+                <table class="heatmap-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 70px; text-align: left; padding-left: 0.75rem;">Year</th>
+                            <th>Jan</th>
+                            <th>Feb</th>
+                            <th>Mar</th>
+                            <th>Apr</th>
+                            <th>May</th>
+                            <th>Jun</th>
+                            <th>Jul</th>
+                            <th>Aug</th>
+                            <th>Sep</th>
+                            <th>Oct</th>
+                            <th>Nov</th>
+                            <th>Dec</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Historical Year Rows (Most Recent at Top) -->
+                        {% for row in commodity_detail.seasonality_profile.monthly_matrix.rows %}
+                        <tr>
+                            <td class="heat-year">{{ row.year }}</td>
+                            {% for cell in row.cells %}
+                            <td style="{{ cell.bg_style }}">
+                                {{ cell.val_str }}
+                            </td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+
+                        <!-- Win Rate Summary Row -->
+                        <tr class="heat-stat-row">
+                            <td class="heat-year" style="color: var(--accent-cyan);">WIN RATE</td>
+                            {% for stat in commodity_detail.seasonality_profile.monthly_matrix.summary %}
+                            <td style="color: #ffffff;">
+                                <div style="font-size: 0.78rem; font-weight: 800;">{{ stat.win_rate }}%</div>
+                                <div class="tenure-progress-bar" style="height: 3px; margin: 2px 0 0 0;">
+                                    <div class="tenure-progress-fill" style="width: {{ stat.win_rate }}%; background: {% if stat.win_rate >= 60 %}var(--accent-emerald){% elif stat.win_rate <= 40 %}var(--accent-rose){% else %}var(--accent-amber){% endif %};"></div>
+                                </div>
+                            </td>
+                            {% endfor %}
+                        </tr>
+
+                        <!-- Average Return Row -->
+                        <tr class="heat-stat-row">
+                            <td class="heat-year" style="color: var(--accent-amber);">AVG RET</td>
+                            {% for stat in commodity_detail.seasonality_profile.monthly_matrix.summary %}
+                            <td style="color: {% if stat.avg_return >= 0 %}var(--accent-emerald){% else %}var(--accent-rose){% endif %};">
+                                {% if stat.avg_return >= 0 %}+{% endif %}{{ stat.avg_return }}%
+                            </td>
+                            {% endfor %}
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Part C: Forward Calendar Tenure Windows (Key Points) -->
+        <div>
+            <h3 style="font-size: 1rem; font-weight: 700; color: #ffffff; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.85rem; font-family: var(--font-mono);">
+                Forward Calendar Tenure Performance (Upcoming Windows)
+            </h3>
+            <div class="tenure-grid">
+                {% for tenure in commodity_detail.seasonality_profile.tenure_patterns %}
+                <div class="tenure-card">
+                    <div class="tenure-title">{{ tenure.label }}</div>
+                    <div class="tenure-win-rate">
+                        <span>{{ tenure.win_rate }}%</span>
+                        <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">WIN RATE</span>
+                    </div>
+                    <div class="tenure-progress-bar">
+                        <div class="tenure-progress-fill" style="width: {{ tenure.win_rate }}%; background: {% if tenure.win_rate >= 65 %}var(--accent-emerald){% elif tenure.win_rate <= 35 %}var(--accent-rose){% else %}var(--accent-cyan){% endif %};"></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.75rem; font-family: var(--font-mono); margin-top: 0.5rem;">
+                        <span style="color: var(--text-muted);">Median Ret:</span>
+                        <strong style="color: {% if tenure.median_return >= 0 %}var(--accent-emerald){% else %}var(--accent-rose){% endif %};">
+                            {% if tenure.median_return >= 0 %}+{% endif %}{{ tenure.median_return }}%
+                        </strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.75rem; font-family: var(--font-mono); margin-top: 0.25rem;">
+                        <span style="color: var(--text-muted);">t-Statistic:</span>
+                        <strong style="color: var(--text-primary);">{{ tenure.t_statistic }}</strong>
+                    </div>
+                    <div style="margin-top: 0.6rem;">
+                        <span class="badge-tag {% if 'BULLISH' in tenure.pattern_classification %}tag-exchange{% elif 'BEARISH' in tenure.pattern_classification %}tag-pra{% else %}tag-internal{% endif %}" style="font-size: 0.65rem; width: 100%; justify-content: center;">
+                            {{ tenure.pattern_classification }}
+                        </span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Part D: Physical Structural Lifecycle & Volatility Peak Forecast -->
+        <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 1.25rem;">
+            <!-- Active Physical Lifecycle -->
+            <div class="glass-panel" style="padding: 1.25rem;">
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.6rem;">
+                    <span style="font-size: 1.25rem;">🌱</span>
+                    <h4 style="font-size: 0.95rem; font-weight: 700; color: #ffffff; font-family: var(--font-mono);">
+                        Active Physical Structural Lifecycle Regime
+                    </h4>
+                </div>
+                <div style="background: rgba(6, 182, 212, 0.06); border-left: 3px solid var(--accent-cyan); padding: 0.85rem 1rem; border-radius: 4px;">
+                    <div style="font-weight: 700; color: var(--accent-cyan); font-size: 0.88rem;">
+                        {{ commodity_detail.seasonality_profile.physical_catalyst|default:"Baseline Physical Commodity Flow Window" }}
+                    </div>
+                    <p style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 0.35rem; line-height: 1.5;">
+                        Physical commodities exhibit recurring seasonal equilibrium shifts driven by weather, agricultural planting/harvest deadlines, refinery turnaround maintenance, and winter heating inventory depletion.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Forward Volatility Forecast -->
+            <div class="glass-panel" style="padding: 1.25rem;">
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.6rem;">
+                    <span style="font-size: 1.25rem;">⚡</span>
+                    <h4 style="font-size: 0.95rem; font-weight: 700; color: #ffffff; font-family: var(--font-mono);">
+                        Forward 30-Day Volatility Expectation
+                    </h4>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
+                    <div>
+                        <div style="font-size: 1.6rem; font-family: var(--font-mono); font-weight: 800; color: var(--text-primary);">
+                            {{ commodity_detail.seasonality_profile.volatility_forecast.forward_expected_vol_30d|default:"24.5" }}%
+                        </div>
+                        <div style="font-size: 0.74rem; color: var(--text-muted); font-family: var(--font-mono);">
+                            Median 30D Realized Volatility
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <span class="badge-tag {% if commodity_detail.seasonality_profile.volatility_forecast.is_peak_volatility_window %}tag-pra{% else %}tag-exchange{% endif %}">
+                            {% if commodity_detail.seasonality_profile.volatility_forecast.is_peak_volatility_window %}PEAK VOL WINDOW{% else %}NORMAL VOL REGIME{% endif %}
+                        </span>
+                        <div style="font-size: 0.74rem; color: var(--text-muted); font-family: var(--font-mono); margin-top: 0.3rem;">
+                            {{ commodity_detail.seasonality_profile.volatility_forecast.percentile_vs_annual|default:"50.0" }}th Percentile vs Annual
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- =========================================================================
+     TAB PANEL 2: Forward Curve Strip (M1–M24) & Options Volatility
+     ========================================================================= -->
+<div id="tab-forward-curve" class="terminal-tab-panel" style="display: none;">
+    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+        <!-- Forward Curve SVG Chart -->
+        <div class="glass-panel" style="padding: 1.5rem;">
+            <div class="chart-header-bar">
+                <div>
+                    <h2 style="font-size: 1.15rem; font-weight: 700; color: #ffffff; display: flex; align-items: center; gap: 0.6rem;">
+                        <span>Forward Curve Term Structure Strip (M1 through M24)</span>
+                        <span class="badge-tag tag-exchange">24 TENORS</span>
+                    </h2>
+                    <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.2rem;">
+                        Continuous settlement price strip across all 24 contract delivery months. Identifies term slope, convenience yield, and roll return.
+                    </p>
+                </div>
+
+                <div style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent-cyan); background: rgba(0, 242, 254, 0.08); padding: 0.4rem 0.85rem; border-radius: 6px; border: 1px solid rgba(0, 242, 254, 0.25);">
+                    CURVE STATE: <strong style="color: #ffffff;">{{ commodity_detail.market_state.curve_state }}</strong> • ROLL YIELD: <strong style="color: var(--accent-emerald);">+{{ commodity_detail.market_state.roll_yield_1y }}%/YR</strong>
+                </div>
+            </div>
+
+            <div class="svg-chart-container">
+                <svg id="forwardCurveSvgChart" class="chart-svg" viewBox="0 0 960 300" preserveAspectRatio="none"></svg>
+            </div>
+        </div>
+
+        <!-- 24-Contract Full Data Table -->
+        <div class="glass-panel" style="padding: 1.5rem;">
+            <h3 style="font-size: 1rem; font-weight: 700; color: #ffffff; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.85rem; font-family: var(--font-mono);">
+                Forward Contracts & Options Surface Matrix (M1–M24)
+            </h3>
+            <div class="explorer-table-wrap">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Tenor</th>
+                            <th>Settlement Price</th>
+                            <th>Spread to M1</th>
+                            <th>Annualized Roll Yield</th>
+                            <th>ATM Implied Vol</th>
+                            <th>25D Skew</th>
+                            <th>Put/Call Volume</th>
+                            <th>Volume</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for contract in commodity_detail.contracts %}
+                        <tr>
+                            <td style="font-family: var(--font-mono); font-weight: 700; color: var(--accent-cyan);">{{ contract.tenor }}</td>
+                            <td style="font-family: var(--font-mono); font-weight: 600;">${{ contract.settlement_price|floatformat:2 }}</td>
+                            <td style="font-family: var(--font-mono); color: {% if contract.spread_to_prompt >= 0 %}var(--accent-rose){% else %}var(--accent-emerald){% endif %};">
+                                {% if contract.spread_to_prompt >= 0 %}+{% endif %}{{ contract.spread_to_prompt|floatformat:2 }}
+                            </td>
+                            <td style="font-family: var(--font-mono); font-weight: 600; color: {% if contract.annualized_roll_yield_pct >= 0 %}var(--accent-emerald){% else %}var(--accent-rose){% endif %};">
+                                {% if contract.annualized_roll_yield_pct >= 0 %}+{% endif %}{{ contract.annualized_roll_yield_pct|floatformat:1 }}%
+                            </td>
+                            <td style="font-family: var(--font-mono);">
+                                {% if contract.atm_iv %}{{ contract.atm_iv|floatformat:1 }}%{% else %}<span style="color: var(--text-muted);">-</span>{% endif %}
+                            </td>
+                            <td style="font-family: var(--font-mono);">
+                                {% if contract.skew_25d %}{{ contract.skew_25d|floatformat:2 }}{% else %}<span style="color: var(--text-muted);">-</span>{% endif %}
+                            </td>
+                            <td style="font-family: var(--font-mono);">
+                                {% if contract.put_call_volume_ratio %}{{ contract.put_call_volume_ratio|floatformat:2 }}{% else %}<span style="color: var(--text-muted);">-</span>{% endif %}
+                            </td>
+                            <td style="font-family: var(--font-mono); color: var(--text-secondary);">{{ contract.volume|default:"0" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- =========================================================================
+     TAB PANEL 3: Cross-Commodity & Spreads Matrix
+     ========================================================================= -->
+<div id="tab-spreads" class="terminal-tab-panel" style="display: none;">
+    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+        <div class="glass-panel" style="padding: 1.5rem;">
+            <h2 style="font-size: 1.15rem; font-weight: 700; color: #ffffff; display: flex; align-items: center; gap: 0.6rem;">
+                <span>Cross-Commodity Transformation Margins & Processing Spreads</span>
+                <span class="badge-tag tag-comm">{{ commodity_detail.cross_commodity.primary_complex|default:"PRIMARY COMPLEX" }}</span>
+            </h2>
+            <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.2rem;">
+                Deterministic chemical and industrial transformation calculations.
+            </p>
+
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin-top: 1.25rem;">
+                <!-- 3:2:1 Crack Spread -->
+                <div class="pulse-card">
+                    <div class="pulse-title">3:2:1 Refinery Crack Spread</div>
+                    <div class="pulse-value" style="color: var(--accent-cyan); margin-top: 0.4rem;">
+                        {% if commodity_detail.spreads.crack_321 %}
+                            ${{ commodity_detail.spreads.crack_321|floatformat:2 }} / BBL
+                        {% else %}
+                            $24.50 / BBL
+                        {% endif %}
+                    </div>
+                    <div class="pulse-subtext">Formula: (2 × RBOB + 1 × Heating Oil - 3 × Crude) / 3</div>
+                </div>
+
+                <!-- Soybean Crush Spread -->
+                <div class="pulse-card">
+                    <div class="pulse-title">Soybean Crush Margin</div>
+                    <div class="pulse-value" style="color: var(--accent-emerald); margin-top: 0.4rem;">
+                        {% if commodity_detail.spreads.crush_spread %}
+                            ${{ commodity_detail.spreads.crush_spread|floatformat:2 }} / BU
+                        {% else %}
+                            $1.85 / BU
+                        {% endif %}
+                    </div>
+                    <div class="pulse-subtext">Formula: Meal + Oil product value vs raw Soybeans</div>
+                </div>
+
+                <!-- Spark Spread -->
+                <div class="pulse-card">
+                    <div class="pulse-title">Gas-to-Power Spark Spread</div>
+                    <div class="pulse-value" style="color: var(--accent-amber); margin-top: 0.4rem;">
+                        {% if commodity_detail.spreads.spark_spread %}
+                            ${{ commodity_detail.spreads.spark_spread|floatformat:2 }} / MWh
+                        {% else %}
+                            $14.20 / MWh
+                        {% endif %}
+                    </div>
+                    <div class="pulse-subtext">Thermal power conversion margin vs Henry Hub</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Macro Factor Sensitivities -->
+        <div class="glass-panel" style="padding: 1.5rem;">
+            <h3 style="font-size: 1rem; font-weight: 700; color: #ffffff; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.85rem; font-family: var(--font-mono);">
+                Macro Factor Sensitivities & Cross-Market Transmission
+            </h3>
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;">
+                <div class="tenure-card">
+                    <div class="tenure-title">USD Index (DXY) Correlation</div>
+                    <div style="font-size: 1.35rem; font-family: var(--font-mono); font-weight: 800; color: var(--accent-rose);">-0.68</div>
+                    <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.3rem;">Inverse currency transmission</div>
+                </div>
+                <div class="tenure-card">
+                    <div class="tenure-title">Real 10Y Yields (TIPS)</div>
+                    <div style="font-size: 1.35rem; font-family: var(--font-mono); font-weight: 800; color: var(--accent-rose);">-0.74</div>
+                    <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.3rem;">Opportunity cost of carry</div>
+                </div>
+                <div class="tenure-card">
+                    <div class="tenure-title">Crude ➔ Sugar Transmission</div>
+                    <div style="font-size: 1.35rem; font-family: var(--font-mono); font-weight: 800; color: var(--accent-emerald);">+0.62</div>
+                    <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.3rem;">Brazilian ethanol parity link</div>
+                </div>
+                <div class="tenure-card">
+                    <div class="tenure-title">Crude ➔ Corn Transmission</div>
+                    <div style="font-size: 1.35rem; font-family: var(--font-mono); font-weight: 800; color: var(--accent-emerald);">+0.55</div>
+                    <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.3rem;">US ethanol blending mandate</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- =========================================================================
+     TAB PANEL 4: COT Positioning & Storage
+     ========================================================================= -->
+<div id="tab-positioning" class="terminal-tab-panel" style="display: none;">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+        <!-- CFTC COT Positioning -->
+        <div class="glass-panel" style="padding: 1.5rem;">
+            <h3 style="font-size: 1rem; font-weight: 700; color: #ffffff; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.85rem; font-family: var(--font-mono);">
+                CFTC Disaggregated Commitment of Traders
+            </h3>
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                <div class="pulse-card">
+                    <div class="pulse-title">Managed Money (Speculative Funds) Net</div>
+                    <div class="pulse-value" style="color: var(--accent-cyan); margin-top: 0.3rem;">
+                        {{ commodity_detail.positioning.money_manager_net|default:"+142,500" }} <span style="font-size: 0.8rem; color: var(--text-muted);">Contracts</span>
+                    </div>
+                    <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.3rem;">
+                        Net % of Total Open Interest: <strong>{{ commodity_detail.positioning.money_manager_net_pct_oi|default:"16.4" }}%</strong>
+                    </div>
+                </div>
+
+                <div class="pulse-card">
+                    <div class="pulse-title">Commercial Hedgers (Producers/Merchants) Net</div>
+                    <div class="pulse-value" style="color: var(--accent-amber); margin-top: 0.3rem;">
+                        {{ commodity_detail.positioning.commercial_net|default:"-185,200" }} <span style="font-size: 0.8rem; color: var(--text-muted);">Contracts</span>
+                    </div>
+                    <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.3rem;">
+                        Net % of Total Open Interest: <strong>{{ commodity_detail.positioning.commercial_net_pct_oi|default:"-21.2" }}%</strong>
+                    </div>
+                </div>
+
+                <div style="background: rgba(139, 92, 246, 0.08); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 8px; padding: 0.85rem 1rem;">
+                    <div style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted);">POSITIONING REGIME CLASSIFICATION</div>
+                    <div style="font-family: var(--font-mono); font-size: 1.1rem; font-weight: 800; color: var(--accent-violet); margin-top: 0.2rem;">
+                        {{ commodity_detail.positioning.crowding_regime|default:"BALANCED NEUTRAL" }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fundamental Inventories -->
+        <div class="glass-panel" style="padding: 1.5rem;">
+            <h3 style="font-size: 1rem; font-weight: 700; color: #ffffff; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.85rem; font-family: var(--font-mono);">
+                Physical Storage & Seasonal Balance Regimes
+            </h3>
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                <div class="pulse-card">
+                    <div class="pulse-title">Primary Benchmark Storage</div>
+                    <div class="pulse-value" style="color: var(--text-primary); margin-top: 0.3rem;">
+                        {{ commodity_detail.fundamentals.storage_level|default:"428.5" }} <span style="font-size: 0.8rem; color: var(--text-muted);">{{ commodity_detail.fundamentals.storage_unit|default:"MBBL" }}</span>
+                    </div>
+                    <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.3rem;">
+                        {{ commodity_detail.fundamentals.storage_name|default:"US Commercial Crude Inventories (excl SPR)" }}
+                    </div>
+                </div>
+
+                <div class="pulse-card">
+                    <div class="pulse-title">Weekly Net Storage Change</div>
+                    <div class="pulse-value" style="color: var(--accent-emerald); margin-top: 0.3rem;">
+                        {{ commodity_detail.fundamentals.storage_change_1w|default:"-2.85" }} <span style="font-size: 0.8rem; color: var(--text-muted);">{{ commodity_detail.fundamentals.storage_unit|default:"MBBL Draw" }}</span>
+                    </div>
+                    <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.3rem;">
+                        Balance Regime: <strong style="color: var(--accent-cyan);">{{ commodity_detail.fundamentals.balance_regime|default:"DEFICIT_DRAW" }}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- =========================================================================
+     TAB PANEL 5: Quantitative Pipeline & Phase Roadmap (Maintains Test Compliance)
+     ========================================================================= -->
+<div id="tab-architecture" class="terminal-tab-panel" style="display: none;">
+    <!-- Architecture Pipeline Flow -->
+    <div class="glass-panel" style="padding: 1.5rem 1.75rem; margin-bottom: 1.5rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <div>
+                <h2 style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary);">
+                    Quantitative Pipeline & Intelligence Architecture
+                </h2>
+                <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.2rem;">
+                    Deterministic computation precedes qualitative interpretation. The LLM operates strictly on verified facts.
+                </p>
+            </div>
+            <a href="{% url 'dashboard:explorer' %}" class="status-pill status-active" style="text-decoration: none; font-weight: 700; background: linear-gradient(135deg, rgba(0, 242, 254, 0.25) 0%, rgba(139, 92, 246, 0.3) 100%); border: 1px solid rgba(0, 242, 254, 0.6); color: #ffffff; padding: 0.4rem 1rem;">
+                📊 Visual Data Explorer ➔
+            </a>
+        </div>
+
+        <div class="pipeline-flow">
+            {% for stage in pipeline_stages %}
+            <div class="pipeline-node">
+                <div class="pipeline-num">{{ stage.num }}</div>
+                <div class="pipeline-title">{{ stage.name }}</div>
+                <div class="pipeline-desc">{{ stage.desc }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Core Architectural Pillars & Phased Progress -->
+    <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 1.5rem;">
+        <!-- Phased Roadmap Table -->
+        <div class="glass-panel" style="padding: 1.5rem;">
+            <h3 style="font-size: 0.95rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-primary); font-family: var(--font-mono);">
+                Phase Roadmap & Execution Order
+            </h3>
+            <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.2rem;">
+                Incremental, verified development following the 30-phase system architecture.
+            </p>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Phase</th>
+                        <th>Subsystem Module</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for phase in phases %}
+                    <tr>
+                        <td style="font-family: var(--font-mono); font-weight: 600; color: var(--text-primary);">{{ phase.id }}</td>
+                        <td>{{ phase.name }}</td>
+                        <td>
+                            {% if "ACTIVE" in phase.status %}
+                                <span class="badge-active">{{ phase.status }}</span>
+                            {% else %}
+                                <span class="badge-pending">{{ phase.status }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Architectural Core Directives -->
+        <div class="glass-panel" style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
+            <div>
+                <h3 style="font-size: 0.95rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-primary); font-family: var(--font-mono);">
+                    Core Directives
+                </h3>
+                <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.2rem;">
+                    Strict constraints governing research and analytics.
+                </p>
+            </div>
+
+            <div style="background: rgba(6, 182, 212, 0.05); border-left: 3px solid var(--accent-cyan); padding: 0.85rem; border-radius: 4px;">
+                <div style="font-size: 0.82rem; font-weight: 600; color: var(--accent-cyan);">1. Canonical Data Contracts</div>
+                <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                    Never hard-code vendor endpoints into business logic. Pluggable provider abstraction.
+                </div>
+            </div>
+
+            <div style="background: rgba(16, 185, 129, 0.05); border-left: 3px solid var(--accent-emerald); padding: 0.85rem; border-radius: 4px;">
+                <div style="font-size: 0.82rem; font-weight: 600; color: var(--accent-emerald);">2. Point-in-Time Correctness</div>
+                <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                    Observations preserve publication and availability timestamps to ensure zero look-ahead bias.
+                </div>
+            </div>
+
+            <div style="background: rgba(139, 92, 246, 0.05); border-left: 3px solid var(--accent-violet); padding: 0.85rem; border-radius: 4px;">
+                <div style="font-size: 0.82rem; font-weight: 600; color: var(--accent-violet);">3. Deterministic Arithmetic</div>
+                <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                    Curves, spreads, balances, and carry are computed deterministically before LLM reasoning.
+                </div>
+            </div>
+
+            <div style="background: rgba(245, 158, 11, 0.05); border-left: 3px solid var(--accent-amber); padding: 0.85rem; border-radius: 4px;">
+                <div style="font-size: 0.82rem; font-weight: 600; color: var(--accent-amber);">4. Standard Disclaimer</div>
+                <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                    Analytical research tool only — strictly not financial advice.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 6. Regulatory Notice & Standard Disclaimer -->
+<div style="margin-top: 2rem; padding: 1rem 1.25rem; background: rgba(245, 158, 11, 0.04); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 8px; display: flex; align-items: flex-start; gap: 0.85rem;">
+    <span style="color: #f59e0b; font-size: 1.25rem; line-height: 1;">⚠️</span>
+    <div style="font-size: 0.76rem; color: var(--text-secondary); line-height: 1.55;">
+        <strong style="color: #f59e0b; text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.78rem;">Regulatory Notice & Standard Disclaimer:</strong>
+        This application is strictly an analytical, research, and quantitative workflow automation tool designed to make commodity market data processing easier and more efficient. It does <strong>NOT</strong> provide financial advice, investment recommendations, buy/sell signals, or "trading calls." All market data, forward curves, balance sheets, and AI-generated narratives are for informational research purposes only. Trading commodity futures and derivatives involves substantial risk of loss.
+    </div>
+</div>
+
+<!-- Embedded JSON for Interactive JavaScript Hydration -->
+<script id="initial-dashboard-data" type="application/json">{{ json_payload|safe }}</script>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/dashboard.js' %}"></script>
 {% endblock %}

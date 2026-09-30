@@ -404,3 +404,253 @@ class CommitmentOfTradersObservation(UUIDModel, PointInTimeModel, TimeStampedMod
         if not self.open_interest:
             return 0.0
         return round((self.commercial_net / self.open_interest) * 100, 2)
+
+
+class EventType(models.TextChoices):
+    """Categorical classification of material commodity catalyst events."""
+    INVENTORY_RELEASE = "INVENTORY_RELEASE", "Inventory & Storage Release"
+    CROP_REPORT = "CROP_REPORT", "Crop & Agricultural Balance Report"
+    POLICY_DECISION = "POLICY_DECISION", "Policy / Quota / Central Bank Decision"
+    OUTAGE_INCIDENT = "OUTAGE_INCIDENT", "Refinery / Pipeline / Port Outage"
+    WEATHER_ANOMALY = "WEATHER_ANOMALY", "Weather / Freeze / Drought Anomaly"
+    GEOPOLITICAL = "GEOPOLITICAL", "Geopolitical / Sanction / Shipping Escalation"
+
+
+class MarketEvent(UUIDModel, PointInTimeModel, TimeStampedModel):
+    """
+    Timestamped material market catalyst event for Event Study analysis.
+    Stores scheduled vs actual release times, consensus expectations, and measured surprises.
+    """
+    event_type = models.CharField(
+        max_length=32,
+        choices=EventType.choices,
+        default=EventType.INVENTORY_RELEASE,
+        db_index=True,
+        help_text="Classification of market catalyst event",
+    )
+    name = models.CharField(
+        max_length=255,
+        help_text="Canonical event name (e.g. 'EIA WPSR Cushing Crude Stocks')",
+    )
+    commodity = models.ForeignKey(
+        "commodities.CommodityMaster",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="events",
+        help_text="Primary affected commodity (optional for macro events)",
+    )
+    dataset = models.ForeignKey(
+        "datasets.DatasetMaster",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="events",
+        help_text="Associated benchmark dataset from catalog",
+    )
+    source = models.ForeignKey(
+        "providers.ProviderMaster",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="events",
+        help_text="Originating data vendor / government agency",
+    )
+    scheduled_time = models.DateTimeField(
+        db_index=True,
+        help_text="Official scheduled UTC release timestamp",
+    )
+    actual_value = models.DecimalField(
+        max_digits=18,
+        decimal_places=6,
+        null=True,
+        blank=True,
+        help_text="Reported actual observation metric (NULL if unobserved)",
+    )
+    expected_value = models.DecimalField(
+        max_digits=18,
+        decimal_places=6,
+        null=True,
+        blank=True,
+        help_text="Market consensus / survey forecast (NULL if unobserved)",
+    )
+    prior_value = models.DecimalField(
+        max_digits=18,
+        decimal_places=6,
+        null=True,
+        blank=True,
+        help_text="Previous period observation value",
+    )
+    surprise = models.DecimalField(
+        max_digits=18,
+        decimal_places=6,
+        null=True,
+        blank=True,
+        help_text="Measured surprise: actual minus expected (NULL if unobserved)",
+    )
+    standardized_surprise = models.DecimalField(
+        max_digits=12,
+        decimal_places=4,
+        null=True,
+        blank=True,
+        help_text="Standardized surprise (z-score against historical consensus errors)",
+    )
+    unit = models.ForeignKey(
+        "metadata.UnitMaster",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        help_text="Unit of measure for reported values",
+    )
+    data_quality = models.CharField(
+        max_length=16,
+        choices=DataQualityStatus.choices,
+        default=DataQualityStatus.VALID,
+        help_text="Data quality audit flag",
+    )
+    notes = models.TextField(
+        blank=True,
+        default="",
+        help_text="Qualitative commentary, revised release notes, or analyst remarks",
+    )
+
+    class Meta:
+        ordering = ["-scheduled_time", "event_type"]
+        indexes = [
+            models.Index(fields=["event_type", "scheduled_time"]),
+            models.Index(fields=["commodity", "scheduled_time"]),
+        ]
+
+    def __str__(self) -> str:
+        actual_str = f"{self.actual_value:.2f}" if self.actual_value is not None else "PENDING"
+        return f"{self.name} @ {self.scheduled_time.strftime('%Y-%m-%d %H:%M')}: {actual_str}"
+
+    @property
+    def computed_surprise(self) -> float | None:
+        """Calculate actual - expected dynamically if not stored."""
+        if self.actual_value is not None and self.expected_value is not None:
+            return float(self.actual_value - self.expected_value)
+        return float(self.surprise) if self.surprise is not None else None
+
+
+class OptionsObservation(UUIDModel, PointInTimeModel, TimeStampedModel):
+    """
+    Daily options-implied volatility surface and positioning metrics.
+    Enforces Rule 5 native SQL NULL for unobserved metrics.
+    """
+    commodity = models.ForeignKey(
+        "commodities.CommodityMaster",
+        on_delete=models.CASCADE,
+        related_name="options_observations",
+        help_text="Canonical underlying physical commodity",
+    )
+    contract = models.ForeignKey(
+        "contracts.ContractSpecification",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="options_observations",
+        help_text="Derivative contract specification (optional)",
+    )
+    delivery_month = models.CharField(
+        max_length=16,
+        blank=True,
+        default="M1",
+        db_index=True,
+        help_text="Delivery contract month or tenor (e.g. 'M1', 'M2', ..., 'M24')",
+    )
+    observation_date = models.DateField(
+        db_index=True,
+        help_text="Market trading / pricing date",
+    )
+    atm_implied_volatility = models.DecimalField(
+        max_digits=8,
+        decimal_places=4,
+        null=True,
+        blank=True,
+        help_text="At-The-Money (ATM) implied volatility in percent (e.g. 28.50%)",
+    )
+    realized_volatility_30d = models.DecimalField(
+        max_digits=8,
+        decimal_places=4,
+        null=True,
+        blank=True,
+        help_text="30-day historical realized volatility in percent",
+    )
+    iv_rv_spread = models.DecimalField(
+        max_digits=8,
+        decimal_places=4,
+        null=True,
+        blank=True,
+        help_text="Volatility risk premium: IV minus 30d Realized Volatility",
+    )
+    skew_25d = models.DecimalField(
+        max_digits=8,
+        decimal_places=4,
+        null=True,
+        blank=True,
+        help_text="25-Delta Risk Reversal skew: 25d Call IV minus 25d Put IV",
+    )
+    term_structure_slope = models.DecimalField(
+        max_digits=8,
+        decimal_places=4,
+        null=True,
+        blank=True,
+        help_text="Options term structure slope: Prompt IV minus 3M IV",
+    )
+    put_call_volume_ratio = models.DecimalField(
+        max_digits=8,
+        decimal_places=4,
+        null=True,
+        blank=True,
+        help_text="Total Put volume divided by Total Call volume",
+    )
+    put_call_oi_ratio = models.DecimalField(
+        max_digits=8,
+        decimal_places=4,
+        null=True,
+        blank=True,
+        help_text="Total Put Open Interest divided by Total Call Open Interest",
+    )
+    total_options_volume = models.BigIntegerField(
+        null=True,
+        blank=True,
+        help_text="Total daily options contract volume across all strikes",
+    )
+    total_options_oi = models.BigIntegerField(
+        null=True,
+        blank=True,
+        help_text="Total options Open Interest across all strikes",
+    )
+    data_quality = models.CharField(
+        max_length=16,
+        choices=DataQualityStatus.choices,
+        default=DataQualityStatus.VALID,
+        help_text="Data quality audit flag",
+    )
+    source_endpoint = models.ForeignKey(
+        "endpoints.EndpointMaster",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="options_observations",
+        help_text="Originating ingestion endpoint",
+    )
+
+    class Meta:
+        ordering = ["-observation_date", "commodity", "delivery_month"]
+        indexes = [
+            models.Index(fields=["commodity", "observation_date"]),
+            models.Index(fields=["commodity", "delivery_month", "observation_date"]),
+            models.Index(fields=["observation_date"]),
+        ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["commodity", "observation_date", "contract", "delivery_month"],
+                name="unique_options_obs",
+            )
+        ]
+
+    def __str__(self) -> str:
+        iv_str = f"{self.atm_implied_volatility:.1f}%" if self.atm_implied_volatility is not None else "NULL"
+        return f"Options {self.commodity.code} ({self.delivery_month or 'M1'}) @ {self.observation_date}: ATM IV {iv_str}"

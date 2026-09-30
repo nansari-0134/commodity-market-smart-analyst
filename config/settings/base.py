@@ -63,6 +63,7 @@ LOCAL_APPS = [
     "apps.providers.apps.ProvidersConfig",
     "apps.endpoints.apps.EndpointsConfig",
     "apps.market_data.apps.MarketDataConfig",
+    "apps.quant_engine.apps.QuantEngineConfig",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS

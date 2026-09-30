@@ -227,14 +227,76 @@ Get a high-level statistical overview of the observation store coverage and fres
 === "JSON Response (200 OK)"
     ```json
     {
-      "total_price_observations": 455,
-      "total_prompt_observations": 325,
+      "total_price_observations": 75766,
+      "total_prompt_observations": 75276,
       "total_fundamental_observations": 52,
-      "total_cot_observations": 65,
-      "covered_commodities_count": 5,
+      "total_cot_observations": 1439,
+      "total_options_observations": 360,
+      "covered_commodities_count": 15,
       "covered_variables_count": 4,
-      "latest_price_date": "2026-09-24",
+      "latest_price_date": "2026-09-30",
       "latest_fundamental_date": "2026-09-18",
       "latest_cot_date": "2026-09-22"
     }
+    ```
+
+---
+
+## 5. Options Volatility Surface & Positioning (M1-M24)
+
+Query implied volatility, skew, and put/call metrics across individual futures contracts from prompt $M1$ through $M24$.
+
+* **Endpoint**: `GET /api/market-data/options/`
+* **Query Parameters**:
+  - `commodity`: Filter by canonical commodity code (e.g. `CL`, `BRENT`, `NG`, `GOLD`) or UUID.
+  - `delivery_month`: Specific contract delivery month or tenor (e.g. `M1`, `M2`, ..., `M24`).
+  - `start_date`: Earliest trade date (`YYYY-MM-DD`).
+  - `end_date`: Latest trade date (`YYYY-MM-DD`).
+
+=== "cURL"
+    ```bash
+    # Query front-month (M1) options surface for WTI Crude
+    curl -X GET "http://127.0.0.1:8000/api/market-data/options/?commodity=CL&delivery_month=M1" \
+         -H "Accept: application/json"
+    ```
+
+=== "Python (requests)"
+    ```python
+    import requests
+
+    response = requests.get(
+        "http://127.0.0.1:8000/api/market-data/options/",
+        params={"commodity": "CL", "delivery_month": "M1"}
+    )
+    options = response.json()
+    for opt in options:
+        print(f"Contract {opt['delivery_month']} @ {opt['observation_date']} | ATM IV: {opt['atm_implied_volatility']}% | Skew 25D: {opt['skew_25d']}% | PCR: {opt['put_call_volume_ratio']}")
+    ```
+
+=== "JSON Response (200 OK)"
+    ```json
+    [
+      {
+        "id": "fc74cd10-eee6-40b4-825a-f505e9e0b599",
+        "commodity_code": "CL",
+        "commodity_name": "Light Sweet Crude Oil (WTI)",
+        "contract_symbol": "CL",
+        "delivery_month": "M1",
+        "observation_date": "2026-09-30",
+        "atm_implied_volatility": "32.5000",
+        "realized_volatility_30d": "30.5500",
+        "iv_rv_spread": "1.9500",
+        "skew_25d": "2.8000",
+        "term_structure_slope": "0.0000",
+        "put_call_volume_ratio": "0.8500",
+        "put_call_oi_ratio": "0.9000",
+        "total_options_volume": 450000,
+        "total_options_oi": 2800000,
+        "data_quality": "VALID",
+        "endpoint_code": "YAHOO_OPTIONS_SURFACE",
+        "publication_time": null,
+        "availability_time": "2026-09-30T12:36:48.090497Z",
+        "created_at": "2026-09-30T12:36:48.092064Z"
+      }
+    ]
     ```

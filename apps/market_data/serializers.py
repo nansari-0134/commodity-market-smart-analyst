@@ -8,6 +8,7 @@ from apps.market_data.models import (
     MarketPriceObservation,
     FundamentalObservation,
     CommitmentOfTradersObservation,
+    OptionsObservation,
 )
 
 
@@ -125,6 +126,40 @@ class CommitmentOfTradersObservationSerializer(serializers.ModelSerializer):
         ]
 
 
+class OptionsObservationSerializer(serializers.ModelSerializer):
+    """Serializer for options implied volatility surface and positioning across M1-M24 contracts."""
+
+    commodity_code = serializers.CharField(source="commodity.code", read_only=True)
+    commodity_name = serializers.CharField(source="commodity.name", read_only=True)
+    contract_symbol = serializers.CharField(source="contract.symbol_root", read_only=True, default=None)
+    endpoint_code = serializers.CharField(source="source_endpoint.code", read_only=True, default=None)
+
+    class Meta:
+        model = OptionsObservation
+        fields = [
+            "id",
+            "commodity_code",
+            "commodity_name",
+            "contract_symbol",
+            "delivery_month",
+            "observation_date",
+            "atm_implied_volatility",
+            "realized_volatility_30d",
+            "iv_rv_spread",
+            "skew_25d",
+            "term_structure_slope",
+            "put_call_volume_ratio",
+            "put_call_oi_ratio",
+            "total_options_volume",
+            "total_options_oi",
+            "data_quality",
+            "endpoint_code",
+            "publication_time",
+            "availability_time",
+            "created_at",
+        ]
+
+
 class ObservationSummarySerializer(serializers.Serializer):
     """Statistical overview of market data observation store."""
 
@@ -132,6 +167,7 @@ class ObservationSummarySerializer(serializers.Serializer):
     total_prompt_observations = serializers.IntegerField()
     total_fundamental_observations = serializers.IntegerField()
     total_cot_observations = serializers.IntegerField()
+    total_options_observations = serializers.IntegerField(default=0)
     covered_commodities_count = serializers.IntegerField()
     covered_variables_count = serializers.IntegerField()
     latest_price_date = serializers.DateField(allow_null=True)

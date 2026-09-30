@@ -74,6 +74,24 @@ class RawCOTObservation:
     source_endpoint_code: Optional[str] = None
 
 
+@dataclass(frozen=True)
+class RawOptionsObservation:
+    """Normalized DTO for options contract observations."""
+    symbol: str
+    observation_date: date
+    delivery_month: str = "M1"  # "M1", "M2", ..., "M24"
+    atm_implied_volatility: Optional[Decimal] = None
+    realized_volatility_30d: Optional[Decimal] = None
+    iv_rv_spread: Optional[Decimal] = None
+    skew_25d: Optional[Decimal] = None
+    term_structure_slope: Optional[Decimal] = None
+    put_call_volume_ratio: Optional[Decimal] = None
+    put_call_oi_ratio: Optional[Decimal] = None
+    total_options_volume: Optional[int] = None
+    total_options_oi: Optional[int] = None
+    source_endpoint_code: Optional[str] = None
+
+
 class BaseMarketDataProvider(ABC):
     """Abstract interface for all market pricing adapters."""
 
@@ -93,6 +111,26 @@ class BaseMarketDataProvider(ABC):
     ) -> list[RawPriceObservation]:
         """Fetch historical or daily price observations for a given commodity symbol."""
         pass
+
+    def fetch_forward_curve(
+        self,
+        symbol: str,
+        as_of_date: Optional[date] = None,
+        num_months: int = 24,
+        **kwargs,
+    ) -> list[RawPriceObservation]:
+        """Fetch active forward curve contracts (M1 to M24) for a given commodity symbol."""
+        return []
+
+    def fetch_options_chain(
+        self,
+        symbol: str,
+        as_of_date: Optional[date] = None,
+        num_months: int = 24,
+        **kwargs,
+    ) -> list[RawOptionsObservation]:
+        """Fetch options metrics across contracts (M1 to M24) for a given commodity symbol."""
+        return []
 
     def is_healthy(self) -> bool:
         """Check provider connectivity and health status."""
