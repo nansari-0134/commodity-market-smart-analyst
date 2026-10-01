@@ -551,3 +551,110 @@ Query the systematic catalog of statistically validated anomalies, cointegration
       }
     ]
     ```
+
+---
+
+## 8. 40-Method Institutional Seasonality Matrix
+
+Retrieve the complete 40-method institutional seasonality taxonomy and live quantitative evaluations across 14 analytical lenses for a target commodity.
+
+* **Endpoint**: `GET /api/quant/seasonality/methods/`
+* **Query Parameters**:
+  - `commodity`: Canonical commodity code (e.g. `CL`, `BRENT`, `NG`, `ZC`, `ZS`). Default: `CL`.
+
+=== "cURL"
+    ```bash
+    curl -X GET "http://127.0.0.1:8000/api/quant/seasonality/methods/?commodity=CL" \
+         -H "Accept: application/json"
+    ```
+
+=== "Python (requests)"
+    ```python
+    import requests
+
+    response = requests.get(
+        "http://127.0.0.1:8000/api/quant/seasonality/methods/",
+        params={"commodity": "CL"}
+    )
+    data = response.json()
+    print(f"Total Evaluated Methods: {data['total_methods']} across {len(data['sections'])} lenses")
+    for method in data["methods"][:5]:
+        print(f"#{method['number']} [{method['section']}] {method['name']}: {method['headline_metric']} ({method['status']})")
+    ```
+
+=== "JSON Response (200 OK)"
+    ```json
+    {
+      "commodity": "CL",
+      "as_of": "2026-09-24",
+      "total_methods": 40,
+      "sections": [
+        {"section": "Calendar", "count": 3, "icon": "📅"},
+        {"section": "Price/Return", "count": 3, "icon": "📈"},
+        {"section": "Volatility", "count": 2, "icon": "⚡"},
+        {"section": "Intraday", "count": 2, "icon": "⏱️"},
+        {"section": "Volume/Liquidity", "count": 2, "icon": "💧"},
+        {"section": "Futures Curve", "count": 3, "icon": "🔄"},
+        {"section": "Fundamentals", "count": 4, "icon": "🏭"},
+        {"section": "Events", "count": 2, "icon": "📢"},
+        {"section": "Statistical", "count": 4, "icon": "📐"},
+        {"section": "Dynamic", "count": 2, "icon": "🔁"},
+        {"section": "Regime", "count": 3, "icon": "🎛️"},
+        {"section": "Cross-market", "count": 2, "icon": "🔀"},
+        {"section": "Trading", "count": 4, "icon": "🎯"},
+        {"section": "Visualization", "count": 4, "icon": "📊"}
+      ],
+      "methods": [
+        {
+          "id": "method_01",
+          "number": 1,
+          "section": "Calendar",
+          "icon": "📅",
+          "name": "Month-of-year seasonality",
+          "why_it_matters": "Captures annual seasonal cycles across the 12 calendar months.",
+          "formula_summary": "R_m = (P_last(m) - P_first(m)) / P_first(m) across historical years 2005–2026.",
+          "metric_type": "CALENDAR_TABLE",
+          "headline_metric": "Best: Oct (+5.9% | 90% WR)",
+          "headline_label": "Current Month: 65% Win Rate (+1.8% avg return)",
+          "status": "ACTIVE / HIGH CONVICTION",
+          "parameters": {
+            "best_month": {"month_name": "Oct", "win_rate": 90, "avg_return": 5.9}
+          }
+        },
+        {
+          "id": "method_02",
+          "number": 2,
+          "section": "Calendar",
+          "icon": "📆",
+          "name": "Day-of-week seasonality",
+          "why_it_matters": "Captures weekly effects, weekend inventory risk adjustments, and Monday/Friday positioning.",
+          "formula_summary": "R_dow = mean(ln(P_t / P_t-1)) for DOW in [Mon, Tue, Wed, Thu, Fri].",
+          "metric_type": "DOW_PROFILE",
+          "headline_metric": "Top: Wednesday (68.4% WR, +0.42%)",
+          "headline_label": "Toughest session: Monday (41.2% WR, -0.28%). Weekly inventory positioning bias.",
+          "status": "VALIDATED",
+          "parameters": {
+            "dow_stats": [
+              {"dow_idx": 0, "name": "Mon", "win_rate": 41.2, "avg_return": -0.28},
+              {"dow_idx": 2, "name": "Wed", "win_rate": 68.4, "avg_return": 0.42}
+            ]
+          }
+        }
+      ],
+      "analytical_payloads": {
+        "stability_score": 0.84,
+        "range_ratio": 1.18,
+        "autocorrelations": {
+          "lag_5": 0.082,
+          "lag_21": 0.145,
+          "lag_252": 0.228
+        },
+        "backtest": {
+          "win_rate": 78.9,
+          "profit_factor": 2.34,
+          "expectancy_pct": 4.12,
+          "max_drawdown_pct": -6.45
+        }
+      }
+    }
+    ```

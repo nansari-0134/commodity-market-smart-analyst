@@ -35,6 +35,10 @@ from apps.quant_engine.core.seasonality import (
     compute_comprehensive_seasonality_profile,
     COMMODITY_CALENDAR_CYCLES,
 )
+from apps.quant_engine.core.seasonality_methods import (
+    SEASONALITY_40_CATALOG,
+    evaluate_40_seasonality_methods,
+)
 from apps.quant_engine.core.divergence import (
     compute_mad_zscore,
     detect_price_oi_divergence,
@@ -65,6 +69,8 @@ __all__ = [
     "compute_forward_volatility_expectation",
     "compute_comprehensive_seasonality_profile",
     "COMMODITY_CALENDAR_CYCLES",
+    "SEASONALITY_40_CATALOG",
+    "evaluate_40_seasonality_methods",
     "compute_mad_zscore",
     "detect_price_oi_divergence",
     "detect_price_cot_divergence",

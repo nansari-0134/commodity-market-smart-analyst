@@ -1,11 +1,15 @@
 """
 REST API Views for Quantitative Research & Forward Curves Engine.
 """
+import numpy as np
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.commodities.models import CommodityMaster
+from apps.market_data.models import MarketPriceObservation, OptionsObservation
+from apps.quant_engine.core import compute_comprehensive_seasonality_profile
+from apps.quant_engine.core.seasonality_methods import evaluate_40_seasonality_methods
 from apps.quant_engine.models import DiscoveryRegistry, EvidencePackageSnapshot
 from apps.quant_engine.serializers import DiscoveryRegistrySerializer, EvidencePackageSnapshotSerializer
 from apps.quant_engine.services.evidence_builder import EvidencePackageBuilder
@@ -233,3 +237,56 @@ class DiscoveryRegistryListView(generics.ListAPIView):
             qs = qs.filter(is_active=True)
             
         return qs
+
+
+class SeasonalityMethodsCatalogView(APIView):
+    """
+    Evaluates and returns the complete 40-Method Seasonality Matrix for a commodity.
+    Includes calendar, volatility, curve, fundamental, statistical, and regime methods.
+    """
+
+    def get(self, request):
+        from apps.quant_engine.core.seasonality_methods import evaluate_40_seasonality_methods
+        commodity_code = request.query_params.get("commodity", "CL").upper()
+        try:
+            builder = EvidencePackageBuilder(commodity_code=commodity_code)
+            package = builder.build(persist_snapshot=False)
+
+            obs = list(
+                MarketPriceObservation.objects.filter(
+                    commodity=builder.commodity,
+                    is_prompt=True,
+                    observation_date__lte=package.as_of.date(),
+                )
+                .order_by("observation_date")
+                .values_list("observation_date", "close_price")
+            )
+            dates = [r[0] for r in obs]
+            prices = np.array([float(r[1]) for r in obs])
+
+            profile_20y = compute_comprehensive_seasonality_profile(
+                dates=dates,
+                prices=prices,
+                current_date=package.as_of.date(),
+                commodity_code=commodity_code,
+            )
+
+            evaluated = evaluate_40_seasonality_methods(
+                dates=dates,
+                prices=prices,
+                current_date=package.as_of.date(),
+                commodity_code=commodity_code,
+                base_seasonality_profile=profile_20y,
+            )
+
+            return Response({
+                "commodity": commodity_code,
+                "as_of": package.as_of,
+                "total_methods": len(evaluated["methods"]),
+                "sections": evaluated["sections"],
+                "methods": evaluated["methods"],
+                "analytical_payloads": evaluated["analytical_payloads"],
+            })
+        except ValueError as e:
+            return Response({"error": str(e)}, status=status.HTTP_404_NOT_FOUND)
+
