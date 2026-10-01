@@ -727,10 +727,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#6-regulatory-analytical-disclaimers" class="md-nav__link">
+  <a href="#6-40-method-institutional-seasonality-taxonomy-matrix" class="md-nav__link">
     <span class="md-ellipsis">
       
-        6. Regulatory &amp; Analytical Disclaimers
+        6. 40-Method Institutional Seasonality Taxonomy &amp; Matrix
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-regulatory-analytical-disclaimers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Regulatory &amp; Analytical Disclaimers
       
     </span>
   </a>
@@ -1891,10 +1902,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#6-regulatory-analytical-disclaimers" class="md-nav__link">
+  <a href="#6-40-method-institutional-seasonality-taxonomy-matrix" class="md-nav__link">
     <span class="md-ellipsis">
       
-        6. Regulatory &amp; Analytical Disclaimers
+        6. 40-Method Institutional Seasonality Taxonomy &amp; Matrix
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-regulatory-analytical-disclaimers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Regulatory &amp; Analytical Disclaimers
       
     </span>
   </a>
@@ -2248,7 +2270,303 @@
 <h3 id="evidencepackagesnapshot"><code>EvidencePackageSnapshot</code></h3>
 <p>Immutable point-in-time snapshot of the generated <code>QuantitativeEvidencePackage</code>. Ensures historical research queries, audit trails, and narrative briefings can be reproduced verbatim.</p>
 <hr />
-<h2 id="6-regulatory-analytical-disclaimers">6. Regulatory &amp; Analytical Disclaimers</h2>
+<h2 id="6-40-method-institutional-seasonality-taxonomy-matrix">6. 40-Method Institutional Seasonality Taxonomy &amp; Matrix</h2>
+<p>The Commodity Market Intelligence platform features an institutional 40-method seasonality evaluation matrix covering 14 analytical lenses, calculated deterministically via <code>evaluate_40_seasonality_methods()</code> without external black-box libraries.</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Section</th>
+<th>Method Name</th>
+<th>Why It Matters</th>
+<th>Formula / Metric Summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>Calendar</strong></td>
+<td>Month-of-year seasonality</td>
+<td>Captures annual seasonal cycles across the 12 calendar months</td>
+<td>$R_m = \frac{P_{last,m} - P_{first,m}}{P_{first,m}}$ across 2005–2026</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>Calendar</strong></td>
+<td>Day-of-week seasonality</td>
+<td>Captures weekly inventory effects &amp; Monday/Friday positioning</td>
+<td>$R_{dow} = \text{mean}(\ln(P_t / P_{t-1}))$ by weekday</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>Calendar</strong></td>
+<td>Day-of-year seasonality</td>
+<td>Granular daily path benchmark normalized to Jan 1</td>
+<td>Continuous 365-day trajectory indexed to 100</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>Price/Return</strong></td>
+<td>Seasonal average + median return</td>
+<td>Directional tendency robust against historical outliers</td>
+<td>Median vs Mean monthly returns</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>Price/Return</strong></td>
+<td>Seasonal return distribution / percentiles</td>
+<td>Captures both typical drift and tail-risk dispersion</td>
+<td>10th, 25th, 50th, 75th, 90th empirical percentiles</td>
+</tr>
+<tr>
+<td>6</td>
+<td><strong>Price/Return</strong></td>
+<td>Positive-return probability</td>
+<td>Measures historical consistency of seasonal direction</td>
+<td>$\text{Win Rate} = \frac{\text{Years with } R_m &gt; 0}{\text{Total Years}} \times 100\%$</td>
+</tr>
+<tr>
+<td>7</td>
+<td><strong>Volatility</strong></td>
+<td>Realized-volatility seasonality</td>
+<td>Identifies periods of volatility expansion and contraction</td>
+<td>Forward 30-day annualized realized volatility baseline</td>
+</tr>
+<tr>
+<td>8</td>
+<td><strong>Volatility</strong></td>
+<td>Range / ATR seasonality</td>
+<td>Forecasts expected trading range relative to annual norm</td>
+<td>$\text{Range Ratio} = \frac{\text{Current 21D Median Range}}{\text{Annual ATR}}$</td>
+</tr>
+<tr>
+<td>9</td>
+<td><strong>Intraday</strong></td>
+<td>Hour-of-day seasonality</td>
+<td>Identifies recurring intraday volume and volatility clusters</td>
+<td>European/US open volume distribution</td>
+</tr>
+<tr>
+<td>10</td>
+<td><strong>Intraday</strong></td>
+<td>Session seasonality</td>
+<td>Separates Asian, European, and US contribution to daily moves</td>
+<td>Session percentage return contribution</td>
+</tr>
+<tr>
+<td>11</td>
+<td><strong>Volume/Liquidity</strong></td>
+<td>Volume seasonality</td>
+<td>Detects seasonal participation and contract roll surges</td>
+<td>Quarterly average daily volume vs annual baseline</td>
+</tr>
+<tr>
+<td>12</td>
+<td><strong>Volume/Liquidity</strong></td>
+<td>Relative-volume seasonality</td>
+<td>Normalizes volume against historical seasonal benchmarks</td>
+<td>$\text{RVOL} = \frac{\text{Volume}_t}{\text{Seasonal Benchmark}}$</td>
+</tr>
+<tr>
+<td>13</td>
+<td><strong>Futures Curve</strong></td>
+<td>Calendar-spread seasonality</td>
+<td>Tracks prompt-to-deferred spread changes into delivery</td>
+<td>$S_{1,2} = P_{M1} - P_{M2}$ delivery month behavior</td>
+</tr>
+<tr>
+<td>14</td>
+<td><strong>Futures Curve</strong></td>
+<td>Curve-shape / contango-backwardation</td>
+<td>Identifies structural convenience yield shifts</td>
+<td>Annualized term structure slope: $\frac{P_{M12} - P_{M1}}{P_{M1}}$</td>
+</tr>
+<tr>
+<td>15</td>
+<td><strong>Futures Curve</strong></td>
+<td>Roll-yield seasonality</td>
+<td>Measures predictable carry from rolling futures contracts</td>
+<td>$\text{Roll Yield} = \frac{P_{spot} - P_F}{P_{spot}} \times \frac{12}{T}$</td>
+</tr>
+<tr>
+<td>16</td>
+<td><strong>Fundamentals</strong></td>
+<td>Inventory seasonality</td>
+<td>Benchmarks physical storage cycles against 5-year averages</td>
+<td>Deviation from 5Y average inventory injection/draw</td>
+</tr>
+<tr>
+<td>17</td>
+<td><strong>Fundamentals</strong></td>
+<td>Production/consumption seasonality</td>
+<td>Reflects physical planting, harvest, and refining throughput</td>
+<td>Balance sheet quarterly flow equilibrium</td>
+</tr>
+<tr>
+<td>18</td>
+<td><strong>Fundamentals</strong></td>
+<td>Import/export seasonality</td>
+<td>Captures recurring global trade flows and port terminal peaks</td>
+<td>Seasonal trade balance flow indices</td>
+</tr>
+<tr>
+<td>19</td>
+<td><strong>Fundamentals</strong></td>
+<td>Weather seasonality</td>
+<td>Quantifies weather anomalies (cooling/heating degree days)</td>
+<td>CDD/HDD seasonal deviations vs climatological normals</td>
+</tr>
+<tr>
+<td>20</td>
+<td><strong>Events</strong></td>
+<td>Scheduled-report seasonality</td>
+<td>Measures price shocks around EIA, WASDE, and USDA releases</td>
+<td>1-day absolute return multiplier on report days</td>
+</tr>
+<tr>
+<td>21</td>
+<td><strong>Events</strong></td>
+<td>Expiration/roll seasonality</td>
+<td>Captures index roll windows (e.g. Goldman Roll 5th-9th BD)</td>
+<td>Liquidity compression around monthly contract expiry</td>
+</tr>
+<tr>
+<td>22</td>
+<td><strong>Statistical</strong></td>
+<td>Seasonal z-score</td>
+<td>Quantifies how unusual current prices are vs seasonal norm</td>
+<td>$Z = \frac{P_t - \mu_{\text{seasonal}}}{\sigma_{\text{seasonal}}}$</td>
+</tr>
+<tr>
+<td>23</td>
+<td><strong>Statistical</strong></td>
+<td>Seasonal percentile</td>
+<td>Non-parametric rank of current price vs historical dates</td>
+<td>Empirical percentile rank [0–100]</td>
+</tr>
+<tr>
+<td>24</td>
+<td><strong>Statistical</strong></td>
+<td>Seasonal decomposition</td>
+<td>Isolates seasonal cyclicity from secular macro trend</td>
+<td>Additive STL decomposition: $Y_t = T_t + S_t + I_t$</td>
+</tr>
+<tr>
+<td>25</td>
+<td><strong>Statistical</strong></td>
+<td>Autocorrelation-based seasonality</td>
+<td>Detects recurring periodic memory and cyclicity</td>
+<td>$\rho_k = \text{Corr}(R_t, R_{t-k})$ at lags 5, 21, 63, 126, 252</td>
+</tr>
+<tr>
+<td>26</td>
+<td><strong>Dynamic</strong></td>
+<td>Rolling seasonality</td>
+<td>Detects structural drift in seasonal timing over decades</td>
+<td>5Y rolling path vs 20Y secular benchmark</td>
+</tr>
+<tr>
+<td>27</td>
+<td><strong>Dynamic</strong></td>
+<td>Seasonal stability/strength</td>
+<td>Quantifies whether seasonal pattern is durable or decaying</td>
+<td>Pearson $r$ correlation between 5Y and 20Y path</td>
+</tr>
+<tr>
+<td>28</td>
+<td><strong>Regime</strong></td>
+<td>Volatility-regime conditioned</td>
+<td>Tests if seasonal drift alters under high vs low volatility</td>
+<td>Conditional win rate: $P(R &gt; 0 \mid \sigma &gt; \text{median})$</td>
+</tr>
+<tr>
+<td>29</td>
+<td><strong>Regime</strong></td>
+<td>Trend-regime conditioned</td>
+<td>Tests performance when market is above/below 200-day MA</td>
+<td>Trend-aligned seasonal win rate &amp; expectancy</td>
+</tr>
+<tr>
+<td>30</td>
+<td><strong>Regime</strong></td>
+<td>Fundamental-regime conditioned</td>
+<td>Tests seasonal efficacy during inventory deficit regimes</td>
+<td>Deficit-conditioned holding returns</td>
+</tr>
+<tr>
+<td>31</td>
+<td><strong>Cross-market</strong></td>
+<td>Inter-commodity spread seasonality</td>
+<td>Captures refinery margins (Crack, Crush, Spark)</td>
+<td>Seasonal cointegrated transformation margins</td>
+</tr>
+<tr>
+<td>32</td>
+<td><strong>Cross-market</strong></td>
+<td>Cross-asset seasonality</td>
+<td>Captures macro transmission with DXY, rates, and equities</td>
+<td>Rolling 60-day cross-asset correlation sensitivities</td>
+</tr>
+<tr>
+<td>33</td>
+<td><strong>Trading</strong></td>
+<td>Seasonal strategy backtest</td>
+<td>Converts seasonal hypothesis into systematic entry/exit</td>
+<td>In-sample mechanical simulation across 2005–2026</td>
+</tr>
+<tr>
+<td>34</td>
+<td><strong>Trading</strong></td>
+<td>Seasonal expectancy / profit factor</td>
+<td>Evaluates economic viability of seasonal holding windows</td>
+<td>$\text{Profit Factor} = \frac{\sum \text{Wins}}{\lvert \sum \text{Losses} \rvert}$</td>
+</tr>
+<tr>
+<td>35</td>
+<td><strong>Trading</strong></td>
+<td>Seasonal drawdown analysis</td>
+<td>Evaluates adverse excursion risk during seasonal trades</td>
+<td>Maximum peak-to-trough drop inside holding window</td>
+</tr>
+<tr>
+<td>36</td>
+<td><strong>Trading</strong></td>
+<td>Walk-forward / out-of-sample</td>
+<td>Tests survival of seasonal edge outside training period</td>
+<td>In-sample (2005–2018) vs Out-of-Sample (2019–2026)</td>
+</tr>
+<tr>
+<td>37</td>
+<td><strong>Visualization</strong></td>
+<td>Seasonal heatmap</td>
+<td>Two-dimensional matrix of Year $\times$ Month returns</td>
+<td>Interactive color-coded grid with win-rate statistics</td>
+</tr>
+<tr>
+<td>38</td>
+<td><strong>Visualization</strong></td>
+<td>Normalized-price/return chart</td>
+<td>Continuous multi-year trajectory benchmarked to Jan 1</td>
+<td>Vectorized SVG multi-line overlay</td>
+</tr>
+<tr>
+<td>39</td>
+<td><strong>Visualization</strong></td>
+<td>Percentile-band chart</td>
+<td>Empirical confidence envelope around median path</td>
+<td>25th–75th interquartile &amp; 10th–90th extreme bands</td>
+</tr>
+<tr>
+<td>40</td>
+<td><strong>Visualization</strong></td>
+<td>Current-vs-seasonal comparison</td>
+<td>Direct visual comparison of current year against history</td>
+<td>Glowing neon real-time trajectory vs amber benchmark</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="7-regulatory-analytical-disclaimers">7. Regulatory &amp; Analytical Disclaimers</h2>
 <p>All outputs of the Quantitative Research Engine are computed strictly for analytical and research workflow automation. They do not constitute financial advice, trading signals, or investment recommendations under SEC, CFTC, or FCA regulations.</p>
 
 
