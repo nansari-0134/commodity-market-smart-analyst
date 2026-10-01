@@ -58,6 +58,7 @@ nav:
   - Architecture & Modules:
       - Market Data & Observations: modules/market-data.md
       - Quantitative Engine: modules/quant-engine.md
+      - News, Sentiment & Catalysts: modules/news-intel.md
       - Physical Commodities: modules/commodity-master.md
       - Exchanges & Calendars: modules/exchanges-and-calendars.md
       - Futures & Derivatives: modules/contracts-and-derivatives.md
@@ -75,6 +76,7 @@ nav:
       - Development & Operations: guides/development.md
   - REST API Reference:
       - API Overview: api/overview.md
+      - News & Catalysts API: api/news-intel.md
       - Market Data API: api/market-data.md
       - Quantitative Engine API: api/quant-engine.md
       - Physical Commodities API: api/commodities.md

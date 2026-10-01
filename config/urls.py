@@ -30,6 +30,8 @@ urlpatterns = [
     path("api/market-data/", include("apps.market_data.urls")),
     # Quantitative Research & Forward Curves Engine
     path("api/quant/", include("apps.quant_engine.urls")),
+    # News & Macroeconomic Catalyst Intelligence
+    path("api/news/", include("apps.news_intel.urls")),
     # Main terminal / intelligence dashboard
     path("", include("apps.dashboard.urls")),
 ]

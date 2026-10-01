@@ -64,6 +64,7 @@ LOCAL_APPS = [
     "apps.endpoints.apps.EndpointsConfig",
     "apps.market_data.apps.MarketDataConfig",
     "apps.quant_engine.apps.QuantEngineConfig",
+    "apps.news_intel.apps.NewsIntelConfig",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -210,4 +211,5 @@ ENDPOINT_CATALOG_PROVIDER = env("ENDPOINT_CATALOG_PROVIDER", default="static")
 MARKET_DATA_PROVIDER = env("MARKET_DATA_PROVIDER", default="static")
 FUNDAMENTAL_DATA_PROVIDER = env("FUNDAMENTAL_DATA_PROVIDER", default="static")
 COT_DATA_PROVIDER = env("COT_DATA_PROVIDER", default="static")
+NEWS_PROVIDER = env("NEWS_PROVIDER", default="static")
 

@@ -228,48 +228,56 @@ python manage.py ingest_market_data --type=fundamentals --days=60
 
 ---
 
-## 5. How to Swap News and Sentiment Providers (Step-by-Step)
+## 5. How to Swap News and Catalyst Providers (Step-by-Step)
 
-Suppose you want to switch news ingestion from static headlines to **NewsAPI**, **Bloomberg Terminal RSS**, or **AlphaVantage News**.
+The news intelligence and catalyst module (`apps/news_intel`) ships with `StaticNewsProvider` (offline benchmark data) and `RSSNewsProvider` (live governmental feeds). You can swap in custom providers (such as NewsAPI, Bloomberg Terminal RSS, or AlphaVantage) in 3 steps:
 
-### Step 5.1: Create the Provider Class
+### Step 5.1: Implement `BaseNewsProvider`
+Create a provider class inheriting from `apps.news_intel.providers.base.BaseNewsProvider`:
+
 ```python
-# apps/news_intel/providers/newsapi_provider.py
-from datetime import datetime
+# apps/news_intel/providers/custom_news_provider.py
+from datetime import datetime, timezone
+from typing import List, Optional
 import httpx
-from .base import BaseNewsProvider, RawNewsArticle
+from .base import (
+    BaseNewsProvider,
+    RawCatalystEventDTO,
+    RawNewsArticleDTO,
+    RawNewsCommodityTagDTO,
+)
 
-class NewsApiProvider(BaseNewsProvider):
-    """Fetches real-time commodity news articles via NewsAPI."""
+class CustomNewsApiProvider(BaseNewsProvider):
+    """Fetches real-time commodity wire dispatches via external REST API."""
 
-    @property
-    def name(self) -> str:
-        return "NewsAPI Commercial Feed"
+    def get_catalyst_events(
+        self,
+        start_datetime: Optional[datetime] = None,
+        end_datetime: Optional[datetime] = None,
+        commodity_code: Optional[str] = None,
+    ) -> List[RawCatalystEventDTO]:
+        # Return official scheduled release calendar
+        return []
 
-    def fetch_articles(self, query: str, api_key: str) -> list[RawNewsArticle]:
-        url = f"https://newsapi.org/v2/everything?q={query}&apiKey={api_key}&language=en&sortBy=publishedAt"
-        with httpx.Client(timeout=10.0) as client:
-            resp = client.get(url)
-            articles = resp.json().get("articles", [])
-
-        records = []
-        for item in articles:
-            records.append(
-                RawNewsArticle(
-                    headline=item["title"],
-                    summary=item.get("description", ""),
-                    source_name=item["source"]["name"],
-                    published_at=datetime.fromisoformat(item["publishedAt"].replace("Z", "+00:00")),
-                    url=item["url"],
-                )
-            )
-        return records
+    def get_news_articles(
+        self,
+        limit: int = 50,
+        commodity_code: Optional[str] = None,
+    ) -> List[RawNewsArticleDTO]:
+        url = "https://api.example.com/v1/commodity-news"
+        # Fetch articles, construct RawNewsArticleDTO with RawNewsCommodityTagDTOs
+        return []
 ```
 
-### Step 5.2: Set in `.env`
+### Step 5.2: Set in `.env` or Django Settings
+Set the provider in `.env` using its registered keyword or full Python class path:
 ```bash
-NEWS_PROVIDER=newsapi
-NEWSAPI_KEY=your_key_here
+NEWS_PROVIDER=apps.news_intel.providers.custom_news_provider.CustomNewsApiProvider
+```
+
+### Step 5.3: Ingest and Verify
+```powershell
+.\.venv\Scripts\python.exe manage.py ingest_news_intel --clear
 ```
 
 ---

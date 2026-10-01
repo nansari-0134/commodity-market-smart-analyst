@@ -52,6 +52,7 @@ def index(request):
         {"id": "Phase 9", "name": "Endpoint & API Metadata", "status": "ACTIVE / VERIFIED"},
         {"id": "Phase 10", "name": "Market Data & 20Y Observation Store", "status": "ACTIVE / VERIFIED"},
         {"id": "Phase 11", "name": "Quant Engine & Forward Curves (M1-M24)", "status": "ACTIVE / VERIFIED"},
+        {"id": "Phase 12", "name": "News, Sentiment & Catalyst Calendar", "status": "ACTIVE / VERIFIED"},
     ]
 
     pipeline_stages = [
@@ -132,6 +133,7 @@ def index(request):
 
     # 4. Build Evidence & 20Y Seasonality for Selected Commodity
     commodity_detail = None
+    selected_commodity = None
     json_payload = {}
     try:
         builder = EvidencePackageBuilder(selected_code)
@@ -250,6 +252,40 @@ def index(request):
         ],
     }
 
+    # 6. Macro Catalysts & Multi-Product News Feed
+    from apps.news_intel.models import MarketCatalystEvent, NewsArticle, NewsCommodityTag
+    from django.db.models import Q, Avg
+
+    cat_qs = MarketCatalystEvent.objects.select_related("primary_commodity", "unit").prefetch_related("affected_commodities").all()
+    art_qs = NewsArticle.objects.select_related("primary_commodity", "catalyst_event").prefetch_related("commodity_tags__commodity").all()
+
+    if selected_commodity:
+        cat_qs_filtered = cat_qs.filter(
+            Q(primary_commodity=selected_commodity) | Q(affected_commodities=selected_commodity)
+        ).distinct()
+        art_qs_filtered = art_qs.filter(
+            Q(primary_commodity=selected_commodity) | Q(commodities=selected_commodity)
+        ).distinct()
+    else:
+        cat_qs_filtered = cat_qs
+        art_qs_filtered = art_qs
+
+    # Cross-Commodity Sentiment Barometer
+    sentiment_barometer = []
+    for c in ticker_commodities[:10]:
+        c_tags = NewsCommodityTag.objects.filter(commodity__code=c["code"])
+        if c_tags.exists():
+            c_avg = c_tags.aggregate(avg=Avg("commodity_sentiment_score"))["avg"] or 0.0
+            c_avg_f = float(c_avg)
+            stance = "STRONG BULLISH" if c_avg_f >= 0.45 else ("MODERATE BULLISH" if c_avg_f >= 0.15 else ("STRONG BEARISH" if c_avg_f <= -0.45 else ("MODERATE BEARISH" if c_avg_f <= -0.15 else "NEUTRAL")))
+            sentiment_barometer.append({
+                "code": c["code"],
+                "name": c["name"],
+                "tag_count": c_tags.count(),
+                "avg_score": round(c_avg_f, 3),
+                "stance": stance,
+            })
+
     context = {
         "page_title": "Institutional Terminal | " + getattr(settings, "APP_NAME", "Commodity Market Intelligence"),
         "db_healthy": db_healthy,
@@ -280,6 +316,11 @@ def index(request):
         "commodity_detail": commodity_detail,
         "json_payload": json.dumps(json_payload),
         "highlights": highlights,
+        "catalyst_events": cat_qs_filtered[:12],
+        "all_catalyst_events_count": cat_qs.count(),
+        "news_articles": art_qs_filtered[:15],
+        "all_news_articles_count": art_qs.count(),
+        "sentiment_barometer": sentiment_barometer,
     }
     return render(request, "dashboard/index.html", context)
 
