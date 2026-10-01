@@ -159,9 +159,10 @@ The platform executes across **7 coordinated lifecycle phases**. Below is the ex
 * **Documentation**: See [Quantitative Engine Module Architecture](modules/quant-engine.md) and [Quantitative Engine REST API](api/quant-engine.md).
 
 ### Phase F: News, Sentiment & Macro Catalysts (`apps/news_intel`)
-* Ingests macroeconomic catalyst events (OPEC meetings, USDA WASDE releases, Fed interest rate decisions) and real-time news headlines, automatically linking entities to canonical commodities.
-  > **Need to switch your News or Sentiment Feed?**  
-  > See: [How to Swap News and Sentiment Providers](guides/data-sources.md#5-how-to-swap-news-and-sentiment-providers-step-by-step).
+* Ingests macroeconomic catalyst events (OPEC meetings, USDA WASDE releases, Fed interest rate decisions, EIA storage prints) and real-time news headlines, automatically linking entities to multiple canonical commodities with per-asset relevance and sentiment scores.
+* **Documentation**: See [News & Macro Catalyst Module Architecture](modules/news-intel.md) and [News & Macro Catalyst REST API](api/news-intel.md).
+  > **Need to switch your News or Catalyst Provider?**  
+  > See: [How to Swap News and Catalyst Providers](guides/data-sources.md#5-how-to-swap-news-and-catalyst-providers-step-by-step).
 
 ### Phase G: Evidence-Linked AI Market Narratives (`apps/narratives`)
 * Generates executive morning market briefs, supply/demand balance commentary, and risk surveillance summaries.

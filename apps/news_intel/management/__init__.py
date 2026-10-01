@@ -1,0 +1,1 @@
+"""News intel management package."""

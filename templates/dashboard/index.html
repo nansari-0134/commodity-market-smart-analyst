@@ -196,6 +196,9 @@
     <button type="button" class="terminal-nav-tab" data-tab="tab-positioning">
         📊 COT Positioning & Storage
     </button>
+    <button type="button" class="terminal-nav-tab" data-tab="tab-news-intel">
+        📰 News & Catalyst Calendar
+    </button>
     <button type="button" class="terminal-nav-tab" data-tab="tab-architecture">
         🏗️ Quantitative Pipeline & Phase Roadmap
     </button>
@@ -654,6 +657,224 @@
                         Balance Regime: <strong style="color: var(--accent-cyan);">{{ commodity_detail.fundamentals.balance_regime|default:"DEFICIT_DRAW" }}</strong>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- =========================================================================
+     TAB PANEL: News & Macroeconomic Catalyst Intelligence (Phase 12)
+     ========================================================================= -->
+<div id="tab-news-intel" class="terminal-tab-panel" style="display: none;">
+    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+        
+        <!-- Header Banner -->
+        <div class="glass-panel" style="padding: 1.25rem 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            <div>
+                <h2 style="font-size: 1.15rem; font-weight: 700; color: #ffffff; display: flex; align-items: center; gap: 0.6rem;">
+                    <span>Macroeconomic Catalyst Calendar & Multi-Product News Wire</span>
+                    <span class="badge-tag tag-pra">PHASE 12 INTELLIGENCE</span>
+                </h2>
+                <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.2rem;">
+                    Point-in-time consensus tracking, economic surprise engine, and multi-commodity tagged headlines with directional sentiment polarity.
+                </p>
+            </div>
+            <div style="display: flex; gap: 0.75rem; align-items: center;">
+                <span class="pulse-badge" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald);">
+                    {{ all_news_articles_count }} WIRE HEADLINES
+                </span>
+                <span class="pulse-badge" style="background: rgba(0, 242, 254, 0.15); color: var(--accent-cyan);">
+                    {{ all_catalyst_events_count }} MACRO CATALYSTS
+                </span>
+            </div>
+        </div>
+
+        <!-- 2-Column Grid: Left = Scheduled Catalyst Releases, Right = Multi-Product Wire Feed -->
+        <div style="display: grid; grid-template-columns: 1fr 1.15fr; gap: 1.5rem;">
+            
+            <!-- Left Column: Macroeconomic Catalyst Calendar -->
+            <div class="glass-panel" style="padding: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+                    <div>
+                        <h3 style="font-size: 1rem; font-weight: 700; color: #ffffff; text-transform: uppercase; letter-spacing: 0.04em; font-family: var(--font-mono);">
+                            📅 Catalyst Release Schedule & Surprises
+                        </h3>
+                        <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.15rem;">
+                            OPEC+, WASDE, FOMC & EIA storage prints with consensus deltas.
+                        </p>
+                    </div>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 1rem; max-height: 680px; overflow-y: auto; padding-right: 0.25rem;">
+                    {% for cat in catalyst_events %}
+                    <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.07); border-radius: 8px; padding: 1rem; transition: border-color 0.2s;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; margin-bottom: 0.5rem;">
+                            <span style="font-size: 0.72rem; font-family: var(--font-mono); color: var(--accent-cyan); background: rgba(0, 242, 254, 0.08); padding: 0.15rem 0.45rem; border-radius: 4px; border: 1px solid rgba(0, 242, 254, 0.2);">
+                                {{ cat.scheduled_datetime_utc|date:"M d, Y H:i" }} UTC
+                            </span>
+                            <span class="badge-tag {% if cat.impact_level == 'HIGH' %}tag-exchange{% else %}tag-pra{% endif %}" style="font-size: 0.68rem;">
+                                {{ cat.get_impact_level_display }}
+                            </span>
+                        </div>
+
+                        <div style="font-weight: 700; color: #ffffff; font-size: 0.92rem; line-height: 1.35; margin-bottom: 0.35rem;">
+                            {{ cat.name }}
+                        </div>
+
+                        <div style="font-size: 0.74rem; color: var(--text-muted); margin-bottom: 0.6rem;">
+                            Agency: <strong style="color: var(--text-secondary);">{{ cat.source_agency }}</strong> • Period: {{ cat.period_covered }}
+                        </div>
+
+                        <!-- Affected Commodity Badges -->
+                        <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.75rem;">
+                            {% if cat.primary_commodity %}
+                            <span style="background: rgba(0, 242, 254, 0.15); border: 1px solid rgba(0, 242, 254, 0.35); color: var(--accent-cyan); font-size: 0.68rem; font-weight: 700; padding: 0.1rem 0.4rem; border-radius: 4px; font-family: var(--font-mono);">
+                                ★ PRIMARY: {{ cat.primary_commodity.code }}
+                            </span>
+                            {% endif %}
+                            {% for aff in cat.affected_commodities.all %}
+                                {% if aff != cat.primary_commodity %}
+                                <span style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.12); color: var(--text-secondary); font-size: 0.68rem; padding: 0.1rem 0.4rem; border-radius: 4px; font-family: var(--font-mono);">
+                                    {{ aff.code }}
+                                </span>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+
+                        <!-- Consensus vs Actual vs Surprise -->
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; background: rgba(0, 0, 0, 0.25); border-radius: 6px; padding: 0.5rem 0.75rem; margin-bottom: 0.5rem; font-family: var(--font-mono); font-size: 0.75rem;">
+                            <div>
+                                <span style="color: var(--text-muted); font-size: 0.68rem; display: block;">CONSENSUS</span>
+                                <strong style="color: #ffffff;">{% if cat.consensus_expectation is not None %}{{ cat.consensus_expectation }} {{ cat.unit.symbol|default:"" }}{% else %}N/A{% endif %}</strong>
+                            </div>
+                            <div>
+                                <span style="color: var(--text-muted); font-size: 0.68rem; display: block;">ACTUAL</span>
+                                <strong style="color: {% if cat.actual_value is not None %}var(--accent-cyan){% else %}var(--text-muted){% endif %};">
+                                    {% if cat.actual_value is not None %}{{ cat.actual_value }} {{ cat.unit.symbol|default:"" }}{% else %}PENDING{% endif %}
+                                </strong>
+                            </div>
+                            <div>
+                                <span style="color: var(--text-muted); font-size: 0.68rem; display: block;">SURPRISE DELTA</span>
+                                <strong style="color: {% if 'BULLISH' in cat.surprise_direction %}var(--accent-emerald){% elif 'BEARISH' in cat.surprise_direction %}var(--accent-rose){% else %}var(--text-muted){% endif %};">
+                                    {% if cat.surprise_magnitude is not None %}{{ cat.surprise_magnitude }}{% else %}--{% endif %}
+                                </strong>
+                            </div>
+                        </div>
+
+                        {% if cat.surprise_direction != 'UNAVAILABLE' %}
+                        <div style="margin-top: 0.4rem; font-size: 0.7rem; font-family: var(--font-mono); font-weight: 700; color: {% if 'BULLISH' in cat.surprise_direction %}var(--accent-emerald){% elif 'BEARISH' in cat.surprise_direction %}var(--accent-rose){% else %}var(--text-muted){% endif %};">
+                            {% if 'BULLISH' in cat.surprise_direction %}▲ BULLISH SURPRISE{% elif 'BEARISH' in cat.surprise_direction %}▼ BEARISH SURPRISE{% else %}● IN-LINE WITH CONSENSUS{% endif %}
+                        </div>
+                        {% endif %}
+
+                        {% if cat.notes %}
+                        <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.5rem; line-height: 1.4; border-top: 1px dashed rgba(255, 255, 255, 0.08); padding-top: 0.4rem;">
+                            {{ cat.notes }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% empty %}
+                    <div style="text-align: center; color: var(--text-muted); padding: 2rem;">No scheduled catalysts found for this asset.</div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Right Column: Multi-Product News Wire & Sentiment Analysis -->
+            <div class="glass-panel" style="padding: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+                    <div>
+                        <h3 style="font-size: 1rem; font-weight: 700; color: #ffffff; text-transform: uppercase; letter-spacing: 0.04em; font-family: var(--font-mono);">
+                            ⚡ Multi-Product News Wire & Sentiment
+                        </h3>
+                        <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.15rem;">
+                            Headlines linked to multiple physical assets with per-commodity relevance & polarity.
+                        </p>
+                    </div>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 1rem; max-height: 680px; overflow-y: auto; padding-right: 0.25rem;">
+                    {% for art in news_articles %}
+                    <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.07); border-radius: 8px; padding: 1.15rem; transition: border-color 0.2s;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; flex-wrap: wrap;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                {% if art.is_breaking %}
+                                <span style="background: rgba(244, 63, 94, 0.2); border: 1px solid rgba(244, 63, 94, 0.5); color: #f43f5e; font-size: 0.68rem; font-weight: 800; padding: 0.15rem 0.5rem; border-radius: 4px; font-family: var(--font-mono);">
+                                    ⚡ BREAKING
+                                </span>
+                                {% endif %}
+                                <span style="font-size: 0.74rem; font-weight: 600; color: var(--text-secondary);">
+                                    {{ art.source_name }}
+                                </span>
+                                <span style="color: var(--text-muted); font-size: 0.7rem;">• {{ art.published_at_utc|timesince }} ago</span>
+                            </div>
+
+                            <!-- Overall Sentiment Badge -->
+                            <span style="font-size: 0.7rem; font-family: var(--font-mono); font-weight: 700; padding: 0.2rem 0.55rem; border-radius: 4px; {% if 'BULLISH' in art.overall_sentiment_label %}background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: var(--accent-emerald);{% elif 'BEARISH' in art.overall_sentiment_label %}background: rgba(244, 63, 94, 0.15); border: 1px solid rgba(244, 63, 94, 0.4); color: var(--accent-rose);{% else %}background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2); color: var(--text-secondary);{% endif %}">
+                                {% if 'BULLISH' in art.overall_sentiment_label %}▲{% elif 'BEARISH' in art.overall_sentiment_label %}▼{% else %}●{% endif %}
+                                {{ art.get_overall_sentiment_label_display }} ({{ art.overall_sentiment_score }})
+                            </span>
+                        </div>
+
+                        <div style="font-weight: 700; color: #ffffff; font-size: 0.96rem; line-height: 1.4; margin-bottom: 0.45rem;">
+                            {{ art.title }}
+                        </div>
+
+                        <div style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 0.85rem;">
+                            {{ art.summary }}
+                        </div>
+
+                        <!-- Multi-Commodity Impact Matrix -->
+                        <div style="background: rgba(0, 0, 0, 0.35); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 6px; padding: 0.6rem 0.85rem; margin-bottom: 0.4rem;">
+                            <div style="font-size: 0.68rem; font-family: var(--font-mono); color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.4rem; letter-spacing: 0.04em;">
+                                Multi-Commodity Impact & Relevance Matrix:
+                            </div>
+                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                {% for tag in art.commodity_tags.all %}
+                                <div style="display: inline-flex; align-items: center; gap: 0.35rem; background: rgba(255, 255, 255, 0.04); border: 1px solid {% if tag.is_primary %}rgba(0, 242, 254, 0.4){% else %}rgba(255, 255, 255, 0.08){% endif %}; border-radius: 4px; padding: 0.2rem 0.5rem; font-family: var(--font-mono); font-size: 0.7rem;">
+                                    <strong style="color: {% if tag.is_primary %}var(--accent-cyan){% else %}#ffffff{% endif %};">
+                                        {% if tag.is_primary %}★ {% endif %}{{ tag.commodity.code }}
+                                    </strong>
+                                    <span style="color: var(--text-muted); font-size: 0.65rem;">w={{ tag.relevance_score }}</span>
+                                    <span style="font-weight: 700; color: {% if 'BULLISH' in tag.commodity_sentiment %}var(--accent-emerald){% elif 'BEARISH' in tag.commodity_sentiment %}var(--accent-rose){% else %}var(--text-muted){% endif %};">
+                                        {% if 'BULLISH' in tag.commodity_sentiment %}+{% elif 'BEARISH' in tag.commodity_sentiment %}-{% endif %}{{ tag.commodity_sentiment_score }}
+                                    </span>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        {% if art.catalyst_event %}
+                        <div style="font-size: 0.7rem; color: var(--accent-cyan); margin-top: 0.4rem;">
+                            Associated Catalyst: <strong>{{ art.catalyst_event.name }}</strong>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% empty %}
+                    <div style="text-align: center; color: var(--text-muted); padding: 2rem;">No news articles found for this asset.</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 3: Cross-Commodity Sentiment Barometer -->
+        <div class="glass-panel" style="padding: 1.5rem;">
+            <h3 style="font-size: 1rem; font-weight: 700; color: #ffffff; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.85rem; font-family: var(--font-mono);">
+                📊 Cross-Commodity Net Sentiment Barometer
+            </h3>
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;">
+                {% for item in sentiment_barometer %}
+                <div class="tenure-card">
+                    <div class="tenure-title">{{ item.code }} • {{ item.name|truncatechars:18 }}</div>
+                    <div style="font-size: 1.35rem; font-family: var(--font-mono); font-weight: 800; color: {% if 'BULLISH' in item.stance %}var(--accent-emerald){% elif 'BEARISH' in item.stance %}var(--accent-rose){% else %}var(--text-muted){% endif %};">
+                        {% if item.avg_score >= 0 %}+{% endif %}{{ item.avg_score|floatformat:3 }}
+                    </div>
+                    <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.3rem;">
+                        {{ item.stance }} ({{ item.tag_count }} tagged wires)
+                    </div>
+                </div>
+                {% empty %}
+                <div style="color: var(--text-muted); font-size: 0.8rem;">Run `python manage.py ingest_news_intel` to hydrate sentiment indicators.</div>
+                {% endfor %}
             </div>
         </div>
     </div>
