@@ -1394,3 +1394,394 @@ body {
   border-radius: 3px;
 }
 
+/* ==============================================================================
+   40-Method Institutional Seasonality Matrix & Inspector Styles
+   ============================================================================== */
+
+.s40-matrix-wrap {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.s40-header-card {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.85) 0%, rgba(30, 41, 59, 0.7) 100%);
+  border: 1px solid rgba(0, 242, 254, 0.25);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+  position: relative;
+  overflow: hidden;
+}
+
+.s40-header-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--grad-brand);
+}
+
+.s40-controls-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+.s40-pills-row {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.s40-pill {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.35rem 0.75rem;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  user-select: none;
+}
+
+.s40-pill:hover {
+  background: rgba(0, 242, 254, 0.08);
+  border-color: rgba(0, 242, 254, 0.35);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.s40-pill.active {
+  background: linear-gradient(135deg, rgba(0, 242, 254, 0.2), rgba(59, 130, 246, 0.25));
+  border-color: var(--accent-cyan);
+  color: #ffffff;
+  box-shadow: 0 0 12px rgba(0, 242, 254, 0.3);
+}
+
+.s40-search-container {
+  position: relative;
+  min-width: 260px;
+  flex-shrink: 0;
+}
+
+.s40-search-input {
+  width: 100%;
+  background: rgba(10, 15, 30, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 0.45rem 0.85rem 0.45rem 2.2rem;
+  color: #ffffff;
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.s40-search-input:focus {
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 10px rgba(0, 242, 254, 0.25);
+  background: rgba(14, 21, 42, 0.95);
+}
+
+.s40-search-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  pointer-events: none;
+}
+
+/* 40-Method Cards Grid */
+.s40-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+  gap: 1rem;
+}
+
+@media (min-width: 1600px) {
+  .s40-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 1100px) {
+  .s40-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 700px) {
+  .s40-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.s40-card {
+  background: rgba(13, 18, 36, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 10px;
+  padding: 1.15rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.85rem;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.s40-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3px;
+  height: 100%;
+  opacity: 0.6;
+  transition: opacity 0.2s ease, width 0.2s ease;
+}
+
+.s40-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(0, 242, 254, 0.35);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.4), 0 0 15px rgba(0, 242, 254, 0.1);
+  background: rgba(18, 25, 50, 0.85);
+}
+
+.s40-card:hover::before {
+  opacity: 1;
+  width: 5px;
+}
+
+/* Section Colors for Cards & Badges */
+.s40-card[data-section="Calendar"]::before,
+.s40-badge-Calendar { background: #00f2fe; color: #00f2fe; }
+.s40-card[data-section="Price/Return"]::before,
+.s40-badge-Price-Return { background: #10b981; color: #10b981; }
+.s40-card[data-section="Volatility"]::before,
+.s40-badge-Volatility { background: #f59e0b; color: #f59e0b; }
+.s40-card[data-section="Intraday"]::before,
+.s40-badge-Intraday { background: #a855f7; color: #a855f7; }
+.s40-card[data-section="Volume/Liquidity"]::before,
+.s40-badge-Volume-Liquidity { background: #3b82f6; color: #3b82f6; }
+.s40-card[data-section="Futures Curve"]::before,
+.s40-badge-Futures-Curve { background: #ec4899; color: #ec4899; }
+.s40-card[data-section="Fundamentals"]::before,
+.s40-badge-Fundamentals { background: #14b8a6; color: #14b8a6; }
+.s40-card[data-section="Events"]::before,
+.s40-badge-Events { background: #f43f5e; color: #f43f5e; }
+.s40-card[data-section="Statistical"]::before,
+.s40-badge-Statistical { background: #8b5cf6; color: #8b5cf6; }
+.s40-card[data-section="Dynamic"]::before,
+.s40-badge-Dynamic { background: #0ea5e9; color: #0ea5e9; }
+.s40-card[data-section="Regime"]::before,
+.s40-badge-Regime { background: #fb923c; color: #fb923c; }
+.s40-card[data-section="Cross-market"]::before,
+.s40-badge-Cross-market { background: #84cc16; color: #84cc16; }
+.s40-card[data-section="Trading"]::before,
+.s40-badge-Trading { background: #22c55e; color: #22c55e; }
+.s40-card[data-section="Visualization"]::before,
+.s40-badge-Visualization { background: #eab308; color: #eab308; }
+
+.s40-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.s40-card-num-box {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.s40-num-tag {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  padding: 0.15rem 0.45rem;
+}
+
+.s40-section-tag {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid currentColor;
+}
+
+.s40-status-pill {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: 12px;
+  text-transform: uppercase;
+}
+
+.s40-card-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.2rem;
+  line-height: 1.35;
+}
+
+.s40-why-box {
+  background: rgba(255, 255, 255, 0.025);
+  border-left: 2px solid rgba(255, 255, 255, 0.15);
+  padding: 0.45rem 0.65rem;
+  border-radius: 0 4px 4px 0;
+  font-size: 0.76rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+
+.s40-metric-strip {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  padding: 0.6rem 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.s40-metric-val {
+  font-family: var(--font-mono);
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.s40-metric-lbl {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+}
+
+.s40-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.s40-formula-hint {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 200px;
+}
+
+.s40-inspect-btn {
+  background: rgba(0, 242, 254, 0.08);
+  border: 1px solid rgba(0, 242, 254, 0.25);
+  color: var(--accent-cyan);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.3rem 0.65rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.s40-inspect-btn:hover {
+  background: var(--accent-cyan);
+  color: #070913;
+  box-shadow: 0 0 10px rgba(0, 242, 254, 0.4);
+}
+
+/* ==============================================================================
+   40-Method Inspector Modal Drawer
+   ============================================================================== */
+
+.s40-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(3, 7, 18, 0.8);
+  backdrop-filter: blur(8px);
+  z-index: 9999;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  animation: fadeIn 0.2s ease forwards;
+}
+
+.s40-modal-content {
+  background: #0c1022;
+  border: 1px solid rgba(0, 242, 254, 0.3);
+  border-radius: 12px;
+  width: 100%;
+  max-width: 760px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 1.75rem;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(0, 242, 254, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  position: relative;
+}
+
+.s40-modal-close-btn {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1.2rem;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.s40-modal-close-btn:hover {
+  background: rgba(244, 63, 94, 0.2);
+  color: var(--accent-rose);
+}
+

@@ -425,6 +425,111 @@
                 </div>
             </div>
         </div>
+
+        <!-- Part E: 40-Method Institutional Seasonality Matrix & Quantitative Inspector -->
+        <div class="s40-matrix-wrap">
+            <div class="s40-header-card">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap;">
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 0.65rem;">
+                            <span style="font-size: 1.4rem;">🌟</span>
+                            <h3 style="font-size: 1.25rem; font-weight: 800; color: #ffffff; letter-spacing: -0.01em;">
+                                40-Method Institutional Seasonality Matrix & Inspector
+                            </h3>
+                            <span class="badge-tag tag-exchange" style="font-size: 0.72rem; padding: 0.2rem 0.6rem;">
+                                40 QUANT METHODS • 14 LENSES
+                            </span>
+                        </div>
+                        <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.4rem; max-width: 900px; line-height: 1.5;">
+                            Exhaustive algorithmic evaluation across calendar anomalies, return distributions, volatility clustering, curve term-structure, physical flows, report events, statistical tests, regimes, and walk-forward trading models for <strong>{{ commodity_detail.commodity.name|default:"Crude Oil" }} ({{ selected_code }})</strong>.
+                        </p>
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <a href="/api/quant/seasonality/methods/?commodity={{ selected_code }}" target="_blank" class="s40-inspect-btn" style="text-decoration: none; padding: 0.45rem 0.9rem; font-size: 0.76rem;">
+                            <span>⚡</span> REST API JSON
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Lens Filter Bar & Instant Filter Search -->
+                <div class="s40-controls-bar">
+                    <div class="s40-pills-row" id="s40SectionFilters">
+                        <button type="button" class="s40-pill active" data-section="ALL">
+                            <span>ALL</span> <span style="opacity: 0.7;">(40)</span>
+                        </button>
+                        {% for sec in seasonality_40.sections %}
+                        <button type="button" class="s40-pill" data-section="{{ sec.section }}">
+                            <span>{{ sec.icon }} {{ sec.section }}</span> <span style="opacity: 0.7;">({{ sec.count }})</span>
+                        </button>
+                        {% endfor %}
+                    </div>
+
+                    <div class="s40-search-container">
+                        <span class="s40-search-icon">🔍</span>
+                        <input type="text" id="s40SearchInput" class="s40-search-input" placeholder="Filter 40 methods (e.g. curve, ATR, roll, z-score)..." autocomplete="off" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- 40 Cards Grid -->
+            <div class="s40-grid" id="s40CardsGrid">
+                {% for m in seasonality_40.methods %}
+                <div class="s40-card" 
+                     data-num="{{ m.number }}" 
+                     data-section="{{ m.section }}" 
+                     data-name="{{ m.name|lower }}" 
+                     data-why="{{ m.why_it_matters|lower }}" 
+                     data-status="{{ m.status|lower }}"
+                     data-formula="{{ m.formula_summary }}"
+                     data-metric="{{ m.headline_metric }}"
+                     data-label="{{ m.headline_label }}"
+                     onclick="openSeasonalityInspector({{ m.number }})">
+                    
+                    <div>
+                        <div class="s40-card-header">
+                            <div class="s40-card-num-box">
+                                <span class="s40-num-tag">#{{ m.number }}</span>
+                                <span class="s40-section-tag s40-badge-{{ m.section|slugify }}">{{ m.section }}</span>
+                            </div>
+                            <span class="s40-status-pill {% if 'HIGH' in m.status or 'BULLISH' in m.status or 'VALIDATED' in m.status or 'EXPANDED' in m.status or 'PERSISTENT' in m.status %}tag-exchange{% elif 'BEARISH' in m.status or 'CONTANGO' in m.status or 'OVERBOUGHT' in m.status or 'DECAY' in m.status %}tag-pra{% else %}tag-internal{% endif %}">
+                                {{ m.status }}
+                            </span>
+                        </div>
+
+                        <div class="s40-card-title">
+                            <span>{{ m.icon }}</span>
+                            <span>{{ m.name }}</span>
+                        </div>
+
+                        <div class="s40-why-box" style="margin-top: 0.65rem;">
+                            <strong style="color: #ffffff; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.03em;">Why it matters:</strong>
+                            <div style="margin-top: 0.15rem;">{{ m.why_it_matters }}</div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="s40-metric-strip">
+                            <div>
+                                <div class="s40-metric-lbl">{{ m.headline_label }}</div>
+                                <div class="s40-metric-val">{{ m.headline_metric }}</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <span class="badge-tag tag-internal" style="font-size: 0.65rem;">{{ m.metric_type }}</span>
+                            </div>
+                        </div>
+
+                        <div class="s40-footer">
+                            <span class="s40-formula-hint" title="{{ m.formula_summary }}">{{ m.formula_summary }}</span>
+                            <button type="button" class="s40-inspect-btn" onclick="event.stopPropagation(); openSeasonalityInspector({{ m.number }});">
+                                <span>🔍</span> Inspect
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
     </div>
 </div>
 
@@ -996,6 +1101,64 @@
     <div style="font-size: 0.76rem; color: var(--text-secondary); line-height: 1.55;">
         <strong style="color: #f59e0b; text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.78rem;">Regulatory Notice & Standard Disclaimer:</strong>
         This application is strictly an analytical, research, and quantitative workflow automation tool designed to make commodity market data processing easier and more efficient. It does <strong>NOT</strong> provide financial advice, investment recommendations, buy/sell signals, or "trading calls." All market data, forward curves, balance sheets, and AI-generated narratives are for informational research purposes only. Trading commodity futures and derivatives involves substantial risk of loss.
+    </div>
+<!-- 40-Method Seasonality Modal Inspector Drawer -->
+<div id="s40ModalBackdrop" class="s40-modal-backdrop" onclick="closeSeasonalityInspector(event)">
+    <div class="s40-modal-content" onclick="event.stopPropagation();">
+        <button type="button" class="s40-modal-close-btn" onclick="closeSeasonalityInspector()">&times;</button>
+        
+        <div style="display: flex; align-items: center; gap: 0.65rem; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.85rem;">
+            <span id="s40ModalNum" class="s40-num-tag" style="font-size: 0.9rem; padding: 0.25rem 0.6rem;">#1</span>
+            <span id="s40ModalSection" class="s40-section-tag" style="font-size: 0.75rem;">Calendar</span>
+            <h3 id="s40ModalTitle" style="font-size: 1.15rem; font-weight: 800; color: #ffffff; margin-left: 0.3rem;">Method Title</h3>
+            <span id="s40ModalStatus" class="s40-status-pill tag-exchange" style="margin-left: auto;">ACTIVE</span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 1rem;">
+            <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 1rem;">
+                <div style="font-size: 0.72rem; font-family: var(--font-mono); color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.35rem;">
+                    Institutional Why It Matters
+                </div>
+                <p id="s40ModalWhy" style="font-size: 0.82rem; color: var(--text-secondary); line-height: 1.5;"></p>
+            </div>
+
+            <div style="background: rgba(0, 242, 254, 0.05); border: 1px solid rgba(0, 242, 254, 0.2); border-radius: 8px; padding: 1rem; display: flex; flex-direction: column; justify-content: center;">
+                <div id="s40ModalMetricLbl" style="font-size: 0.72rem; font-family: var(--font-mono); color: var(--text-muted); text-transform: uppercase;">
+                    Current Active Signal
+                </div>
+                <div id="s40ModalMetricVal" style="font-size: 1.6rem; font-family: var(--font-mono); font-weight: 800; color: var(--accent-cyan); margin: 0.3rem 0;">
+                    --
+                </div>
+                <div id="s40ModalMetricType" style="font-size: 0.72rem; font-family: var(--font-mono); color: var(--text-secondary);">
+                    Metric Type: --
+                </div>
+            </div>
+        </div>
+
+        <!-- Formula Definition -->
+        <div style="background: rgba(10, 15, 30, 0.95); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 1rem;">
+            <div style="font-size: 0.72rem; font-family: var(--font-mono); color: var(--accent-amber); text-transform: uppercase; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.4rem;">
+                <span>📐</span> Mathematical Formula & Algorithmic Definition
+            </div>
+            <code id="s40ModalFormula" style="font-family: var(--font-mono); font-size: 0.85rem; color: #ffffff; display: block; background: rgba(0,0,0,0.4); padding: 0.6rem 0.85rem; border-radius: 6px; word-break: break-all;">
+                --
+            </code>
+        </div>
+
+        <!-- Evaluated Quantitative Breakdown & JSON Payload -->
+        <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 1rem;">
+            <div style="font-size: 0.72rem; font-family: var(--font-mono); color: var(--accent-cyan); text-transform: uppercase; margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: space-between;">
+                <span>🔬 Quantitative Parameters & Observation Breakdown</span>
+                <span id="s40ModalParamCount" style="color: var(--text-muted); font-size: 0.7rem;">0 parameters</span>
+            </div>
+            <pre id="s40ModalParams" style="background: rgba(4, 6, 14, 0.85); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 6px; padding: 0.85rem; font-family: var(--font-mono); font-size: 0.76rem; color: var(--accent-emerald); max-height: 200px; overflow-y: auto; white-space: pre-wrap; word-break: break-all;"></pre>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+            <button type="button" class="s40-inspect-btn" onclick="closeSeasonalityInspector()" style="padding: 0.5rem 1.25rem;">
+                Close Inspector
+            </button>
+        </div>
     </div>
 </div>
 

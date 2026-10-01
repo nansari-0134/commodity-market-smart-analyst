@@ -10,6 +10,7 @@ from apps.quant_engine.views import (
     CrossCommodityView,
     SeasonalityView,
     DiscoveryRegistryListView,
+    SeasonalityMethodsCatalogView,
 )
 
 app_name = "quant_engine"
@@ -21,5 +22,6 @@ urlpatterns = [
     path("spreads/", SpreadsView.as_view(), name="spreads"),
     path("cross-commodity/", CrossCommodityView.as_view(), name="cross-commodity"),
     path("seasonality/", SeasonalityView.as_view(), name="seasonality"),
+    path("seasonality/methods/", SeasonalityMethodsCatalogView.as_view(), name="seasonality-methods"),
     path("discoveries/", DiscoveryRegistryListView.as_view(), name="discoveries-list"),
 ]

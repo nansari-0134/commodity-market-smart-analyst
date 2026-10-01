@@ -33,6 +33,9 @@ document.addEventListener("DOMContentLoaded", () => {
     if (dashboardData.contracts && dashboardData.contracts.length > 0) {
         renderForwardCurveSvgChart(dashboardData.contracts);
     }
+
+    // Initialize 40-Method Institutional Seasonality Matrix
+    initSeasonality40Matrix();
 });
 
 /**
@@ -286,4 +289,110 @@ function renderForwardCurveSvgChart(contracts) {
     });
 
     svg.innerHTML = svgHtml;
+}
+
+/**
+ * 40-Method Institutional Seasonality Matrix & Inspector Controller
+ */
+function initSeasonality40Matrix() {
+    const filterPills = document.querySelectorAll("#s40SectionFilters .s40-pill");
+    const cards = document.querySelectorAll("#s40CardsGrid .s40-card");
+    const searchInput = document.getElementById("s40SearchInput");
+
+    let currentSection = "ALL";
+    let searchQuery = "";
+
+    function filterCards() {
+        const query = searchQuery.trim().toLowerCase();
+
+        cards.forEach(card => {
+            const section = card.getAttribute("data-section") || "";
+            const name = card.getAttribute("data-name") || "";
+            const why = card.getAttribute("data-why") || "";
+            const status = card.getAttribute("data-status") || "";
+            const formula = (card.getAttribute("data-formula") || "").toLowerCase();
+            const num = card.getAttribute("data-num") || "";
+
+            const matchesSection = (currentSection === "ALL" || section === currentSection);
+            const matchesQuery = !query || 
+                name.includes(query) || 
+                why.includes(query) || 
+                status.includes(query) || 
+                formula.includes(query) || 
+                section.toLowerCase().includes(query) ||
+                num === query ||
+                `#${num}` === query;
+
+            if (matchesSection && matchesQuery) {
+                card.style.display = "flex";
+            } else {
+                card.style.display = "none";
+            }
+        });
+    }
+
+    filterPills.forEach(pill => {
+        pill.addEventListener("click", () => {
+            filterPills.forEach(p => p.classList.remove("active"));
+            pill.classList.add("active");
+            currentSection = pill.getAttribute("data-section") || "ALL";
+            filterCards();
+        });
+    });
+
+    if (searchInput) {
+        searchInput.addEventListener("input", (e) => {
+            searchQuery = e.target.value;
+            filterCards();
+        });
+    }
+
+    // Escape key closes modal
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+            closeSeasonalityInspector();
+        }
+    });
+}
+
+function openSeasonalityInspector(methodNumber) {
+    const modal = document.getElementById("s40ModalBackdrop");
+    if (!modal) return;
+
+    const methods = (dashboardData.seasonality_40 && dashboardData.seasonality_40.methods) || [];
+    const method = methods.find(m => m.number === methodNumber);
+    if (!method) return;
+
+    document.getElementById("s40ModalNum").textContent = `#${method.number}`;
+    document.getElementById("s40ModalSection").textContent = method.section;
+    document.getElementById("s40ModalSection").className = `s40-section-tag s40-badge-${method.section.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
+    document.getElementById("s40ModalTitle").textContent = `${method.icon} ${method.name}`;
+    
+    const statusEl = document.getElementById("s40ModalStatus");
+    statusEl.textContent = method.status;
+    const isBull = /high|bullish|validated|expanded|persistent/i.test(method.status);
+    const isBear = /bearish|contango|overbought|decay/i.test(method.status);
+    statusEl.className = `s40-status-pill ${isBull ? "tag-exchange" : isBear ? "tag-pra" : "tag-internal"}`;
+
+    document.getElementById("s40ModalWhy").textContent = method.why_it_matters;
+    document.getElementById("s40ModalMetricLbl").textContent = method.headline_label;
+    document.getElementById("s40ModalMetricVal").textContent = method.headline_metric;
+    document.getElementById("s40ModalMetricType").textContent = `Metric Type: ${method.metric_type}`;
+    document.getElementById("s40ModalFormula").textContent = method.formula_summary;
+
+    const paramsPre = document.getElementById("s40ModalParams");
+    const paramCount = Object.keys(method.parameters || {}).length;
+    document.getElementById("s40ModalParamCount").textContent = `${paramCount} parameters`;
+    paramsPre.textContent = JSON.stringify(method.parameters || {}, null, 2);
+
+    modal.style.display = "flex";
+    document.body.style.overflow = "hidden";
+}
+
+function closeSeasonalityInspector(event) {
+    const modal = document.getElementById("s40ModalBackdrop");
+    if (modal) {
+        modal.style.display = "none";
+        document.body.style.overflow = "";
+    }
 }

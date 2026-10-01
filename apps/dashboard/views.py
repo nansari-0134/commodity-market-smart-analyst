@@ -12,6 +12,7 @@ from apps.commodities.models import CommodityMaster
 from apps.market_data.models import MarketPriceObservation, OptionsObservation
 from apps.quant_engine.services.evidence_builder import EvidencePackageBuilder
 from apps.quant_engine.core import compute_comprehensive_seasonality_profile
+from apps.quant_engine.core.seasonality_methods import evaluate_40_seasonality_methods
 
 
 def index(request):
@@ -159,6 +160,14 @@ def index(request):
             commodity_code=selected_code,
         )
 
+        seasonality_40 = evaluate_40_seasonality_methods(
+            dates=dates,
+            prices=prices,
+            current_date=pkg.as_of.date(),
+            commodity_code=selected_code,
+            base_seasonality_profile=seasonality_profile,
+        )
+
         # 24 Forward Curve Contracts & Options
         def parse_tenor(m_str):
             digits = "".join(ch for ch in m_str if ch.isdigit())
@@ -208,6 +217,7 @@ def index(request):
             "market_state": pkg.market_state,
             "seasonality_evidence": pkg.seasonality,
             "seasonality_profile": seasonality_profile,
+            "seasonality_40": seasonality_40,
             "contracts": contracts_data,
             "contract_count": len(contracts_data),
             "positioning": pkg.positioning_state,
@@ -231,6 +241,7 @@ def index(request):
             "tenure_patterns": seasonality_profile.get("tenure_patterns", []),
             "physical_catalyst": seasonality_profile.get("physical_catalyst", ""),
             "volatility_forecast": seasonality_profile.get("volatility_forecast", {}),
+            "seasonality_40": seasonality_40,
             "contracts": contracts_data,
         }
 
@@ -314,7 +325,8 @@ def index(request):
         "ticker_commodities": ticker_commodities,
         "selected_code": selected_code,
         "commodity_detail": commodity_detail,
-        "json_payload": json.dumps(json_payload),
+        "seasonality_40": commodity_detail.get("seasonality_40") if commodity_detail else None,
+        "json_payload": json.dumps(json_payload, default=str),
         "highlights": highlights,
         "catalyst_events": cat_qs_filtered[:12],
         "all_catalyst_events_count": cat_qs.count(),

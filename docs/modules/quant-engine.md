@@ -289,5 +289,54 @@ Immutable point-in-time snapshot of the generated `QuantitativeEvidencePackage`.
 
 ---
 
-## 6. Regulatory & Analytical Disclaimers
+## 6. 40-Method Institutional Seasonality Taxonomy & Matrix
+
+The Commodity Market Intelligence platform features an institutional 40-method seasonality evaluation matrix covering 14 analytical lenses, calculated deterministically via `evaluate_40_seasonality_methods()` without external black-box libraries.
+
+| # | Section | Method Name | Why It Matters | Formula / Metric Summary |
+|---|---------|-------------|----------------|--------------------------|
+| 1 | **Calendar** | Month-of-year seasonality | Captures annual seasonal cycles across the 12 calendar months | $R_m = \frac{P_{last,m} - P_{first,m}}{P_{first,m}}$ across 2005–2026 |
+| 2 | **Calendar** | Day-of-week seasonality | Captures weekly inventory effects & Monday/Friday positioning | $R_{dow} = \text{mean}(\ln(P_t / P_{t-1}))$ by weekday |
+| 3 | **Calendar** | Day-of-year seasonality | Granular daily path benchmark normalized to Jan 1 | Continuous 365-day trajectory indexed to 100 |
+| 4 | **Price/Return** | Seasonal average + median return | Directional tendency robust against historical outliers | Median vs Mean monthly returns |
+| 5 | **Price/Return** | Seasonal return distribution / percentiles | Captures both typical drift and tail-risk dispersion | 10th, 25th, 50th, 75th, 90th empirical percentiles |
+| 6 | **Price/Return** | Positive-return probability | Measures historical consistency of seasonal direction | $\text{Win Rate} = \frac{\text{Years with } R_m > 0}{\text{Total Years}} \times 100\%$ |
+| 7 | **Volatility** | Realized-volatility seasonality | Identifies periods of volatility expansion and contraction | Forward 30-day annualized realized volatility baseline |
+| 8 | **Volatility** | Range / ATR seasonality | Forecasts expected trading range relative to annual norm | $\text{Range Ratio} = \frac{\text{Current 21D Median Range}}{\text{Annual ATR}}$ |
+| 9 | **Intraday** | Hour-of-day seasonality | Identifies recurring intraday volume and volatility clusters | European/US open volume distribution |
+| 10 | **Intraday** | Session seasonality | Separates Asian, European, and US contribution to daily moves | Session percentage return contribution |
+| 11 | **Volume/Liquidity** | Volume seasonality | Detects seasonal participation and contract roll surges | Quarterly average daily volume vs annual baseline |
+| 12 | **Volume/Liquidity** | Relative-volume seasonality | Normalizes volume against historical seasonal benchmarks | $\text{RVOL} = \frac{\text{Volume}_t}{\text{Seasonal Benchmark}}$ |
+| 13 | **Futures Curve** | Calendar-spread seasonality | Tracks prompt-to-deferred spread changes into delivery | $S_{1,2} = P_{M1} - P_{M2}$ delivery month behavior |
+| 14 | **Futures Curve** | Curve-shape / contango-backwardation | Identifies structural convenience yield shifts | Annualized term structure slope: $\frac{P_{M12} - P_{M1}}{P_{M1}}$ |
+| 15 | **Futures Curve** | Roll-yield seasonality | Measures predictable carry from rolling futures contracts | $\text{Roll Yield} = \frac{P_{spot} - P_F}{P_{spot}} \times \frac{12}{T}$ |
+| 16 | **Fundamentals** | Inventory seasonality | Benchmarks physical storage cycles against 5-year averages | Deviation from 5Y average inventory injection/draw |
+| 17 | **Fundamentals** | Production/consumption seasonality | Reflects physical planting, harvest, and refining throughput | Balance sheet quarterly flow equilibrium |
+| 18 | **Fundamentals** | Import/export seasonality | Captures recurring global trade flows and port terminal peaks | Seasonal trade balance flow indices |
+| 19 | **Fundamentals** | Weather seasonality | Quantifies weather anomalies (cooling/heating degree days) | CDD/HDD seasonal deviations vs climatological normals |
+| 20 | **Events** | Scheduled-report seasonality | Measures price shocks around EIA, WASDE, and USDA releases | 1-day absolute return multiplier on report days |
+| 21 | **Events** | Expiration/roll seasonality | Captures index roll windows (e.g. Goldman Roll 5th-9th BD) | Liquidity compression around monthly contract expiry |
+| 22 | **Statistical** | Seasonal z-score | Quantifies how unusual current prices are vs seasonal norm | $Z = \frac{P_t - \mu_{\text{seasonal}}}{\sigma_{\text{seasonal}}}$ |
+| 23 | **Statistical** | Seasonal percentile | Non-parametric rank of current price vs historical dates | Empirical percentile rank [0–100] |
+| 24 | **Statistical** | Seasonal decomposition | Isolates seasonal cyclicity from secular macro trend | Additive STL decomposition: $Y_t = T_t + S_t + I_t$ |
+| 25 | **Statistical** | Autocorrelation-based seasonality | Detects recurring periodic memory and cyclicity | $\rho_k = \text{Corr}(R_t, R_{t-k})$ at lags 5, 21, 63, 126, 252 |
+| 26 | **Dynamic** | Rolling seasonality | Detects structural drift in seasonal timing over decades | 5Y rolling path vs 20Y secular benchmark |
+| 27 | **Dynamic** | Seasonal stability/strength | Quantifies whether seasonal pattern is durable or decaying | Pearson $r$ correlation between 5Y and 20Y path |
+| 28 | **Regime** | Volatility-regime conditioned | Tests if seasonal drift alters under high vs low volatility | Conditional win rate: $P(R > 0 \mid \sigma > \text{median})$ |
+| 29 | **Regime** | Trend-regime conditioned | Tests performance when market is above/below 200-day MA | Trend-aligned seasonal win rate & expectancy |
+| 30 | **Regime** | Fundamental-regime conditioned | Tests seasonal efficacy during inventory deficit regimes | Deficit-conditioned holding returns |
+| 31 | **Cross-market** | Inter-commodity spread seasonality | Captures refinery margins (Crack, Crush, Spark) | Seasonal cointegrated transformation margins |
+| 32 | **Cross-market** | Cross-asset seasonality | Captures macro transmission with DXY, rates, and equities | Rolling 60-day cross-asset correlation sensitivities |
+| 33 | **Trading** | Seasonal strategy backtest | Converts seasonal hypothesis into systematic entry/exit | In-sample mechanical simulation across 2005–2026 |
+| 34 | **Trading** | Seasonal expectancy / profit factor | Evaluates economic viability of seasonal holding windows | $\text{Profit Factor} = \frac{\sum \text{Wins}}{\lvert \sum \text{Losses} \rvert}$ |
+| 35 | **Trading** | Seasonal drawdown analysis | Evaluates adverse excursion risk during seasonal trades | Maximum peak-to-trough drop inside holding window |
+| 36 | **Trading** | Walk-forward / out-of-sample | Tests survival of seasonal edge outside training period | In-sample (2005–2018) vs Out-of-Sample (2019–2026) |
+| 37 | **Visualization** | Seasonal heatmap | Two-dimensional matrix of Year $\times$ Month returns | Interactive color-coded grid with win-rate statistics |
+| 38 | **Visualization** | Normalized-price/return chart | Continuous multi-year trajectory benchmarked to Jan 1 | Vectorized SVG multi-line overlay |
+| 39 | **Visualization** | Percentile-band chart | Empirical confidence envelope around median path | 25th–75th interquartile & 10th–90th extreme bands |
+| 40 | **Visualization** | Current-vs-seasonal comparison | Direct visual comparison of current year against history | Glowing neon real-time trajectory vs amber benchmark |
+
+---
+
+## 7. Regulatory & Analytical Disclaimers
 All outputs of the Quantitative Research Engine are computed strictly for analytical and research workflow automation. They do not constitute financial advice, trading signals, or investment recommendations under SEC, CFTC, or FCA regulations.
