@@ -604,6 +604,45 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#6-real-time-quotes-point-in-time-open-interest-resolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Real-Time Quotes &amp; Point-in-Time Open Interest Resolution
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Real-Time Quotes &amp; Point-in-Time Open Interest Resolution">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#live-quote-endpoint-livemarketquoteapiview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Live Quote Endpoint (LiveMarketQuoteAPIView)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-tier-institutional-open-interest-resolver" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3-Tier Institutional Open Interest Resolver
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1691,6 +1730,45 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#6-real-time-quotes-point-in-time-open-interest-resolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Real-Time Quotes &amp; Point-in-Time Open Interest Resolution
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Real-Time Quotes &amp; Point-in-Time Open Interest Resolution">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#live-quote-endpoint-livemarketquoteapiview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Live Quote Endpoint (LiveMarketQuoteAPIView)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-tier-institutional-open-interest-resolver" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3-Tier Institutional Open Interest Resolver
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2051,6 +2129,29 @@
 </span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="c"># Reset and re-seed observations cleanly</span>
 </span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="n">python</span> <span class="n">manage</span><span class="p">.</span><span class="n">py</span> <span class="n">ingest_market_data</span> <span class="p">-</span><span class="n">-clear</span>
 </span></code></pre></div>
+<hr />
+<h2 id="6-real-time-quotes-point-in-time-open-interest-resolution">6. Real-Time Quotes &amp; Point-in-Time Open Interest Resolution</h2>
+<h3 id="live-quote-endpoint-livemarketquoteapiview">Live Quote Endpoint (<code>LiveMarketQuoteAPIView</code>)</h3>
+<p>The platform exposes <code>/api/market-data/live-quote/</code> designed for high-frequency dashboard telemetry and execution workstations:
+1. <strong>Intraday Metrics</strong>: Returns real-time prompt futures quote with Open, High, Low, Close, Settlement, Volume, 1D Return %, and 52-Week Price Envelope (<code>low_52w</code> to <code>high_52w</code>).
+2. <strong>On-Demand Vendor Refresh</strong>: Passing <code>?refresh=true</code> triggers an asynchronous sync through the configured <code>BaseMarketDataProvider</code> (e.g., <code>YahooMarketDataProvider</code>), creating or updating point-in-time observation records idempotently.</p>
+<h3 id="3-tier-institutional-open-interest-resolver">3-Tier Institutional Open Interest Resolver</h3>
+<p>In physical futures markets, official open interest is finalized by the exchange clearing house post-settlement (often T+1 morning or late evening), meaning real-time intraday tick feeds often stream <code>open_interest = NULL</code> or <code>0</code>.</p>
+<p>To prevent missing analytics across dashboard HUDs and charting systems without compromising point-in-time integrity, the platform implements a deterministic 3-tier resolution hierarchy:</p>
+<pre class="mermaid"><code>graph TD
+    A["Query Prompt Observation (latest_obs)"] --&gt; B{"Has Valid Open Interest?&lt;br/&gt;(oi &gt; 0)"}
+    B -- Yes --&gt; C["Use latest_obs.open_interest"]
+    B -- No / NULL --&gt; D["Query Point-in-Time CFTC COT Report&lt;br/&gt;(observation_date &amp;le; latest_obs.date)"]
+    D --&gt; E{"COT Record Found &amp;amp; OI &gt; 0?"}
+    E -- Yes --&gt; F["Use latest_cot.open_interest"]
+    E -- No --&gt; G["Query CommodityExchangeListing&lt;br/&gt;(is_primary_benchmark = True)"]
+    G --&gt; H["Use typical_open_interest baseline"]</code></pre>
+<ol>
+<li><strong>Tier 1 (Exchange Settlement)</strong>: Uses <code>latest_obs.open_interest</code> if populated by the clearing feed.</li>
+<li><strong>Tier 2 (Point-in-Time CFTC COT)</strong>: Queries the most recent CFTC Disaggregated/Legacy commitment record on or before the trade date (<code>observation_date &lt;= latest_obs.observation_date</code>).</li>
+<li><strong>Tier 3 (Exchange Listing Master Baseline)</strong>: Resolves the certified contract baseline from <code>CommodityExchangeListing.typical_open_interest</code> for the primary benchmark venue.</li>
+</ol>
+<p>This guarantees that quantitative models, TradingView charting overlays, and divergence algorithms always receive verified institutional positioning depth.</p>
 
 
 
