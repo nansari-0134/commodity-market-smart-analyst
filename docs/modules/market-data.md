@@ -154,3 +154,35 @@ python manage.py ingest_market_data --type=cot --days=120
 # Reset and re-seed observations cleanly
 python manage.py ingest_market_data --clear
 ```
+
+---
+
+## 6. Real-Time Quotes & Point-in-Time Open Interest Resolution
+
+### Live Quote Endpoint (`LiveMarketQuoteAPIView`)
+The platform exposes `/api/market-data/live-quote/` designed for high-frequency dashboard telemetry and execution workstations:
+1. **Intraday Metrics**: Returns real-time prompt futures quote with Open, High, Low, Close, Settlement, Volume, 1D Return %, and 52-Week Price Envelope (`low_52w` to `high_52w`).
+2. **On-Demand Vendor Refresh**: Passing `?refresh=true` triggers an asynchronous sync through the configured `BaseMarketDataProvider` (e.g., `YahooMarketDataProvider`), creating or updating point-in-time observation records idempotently.
+
+### 3-Tier Institutional Open Interest Resolver
+In physical futures markets, official open interest is finalized by the exchange clearing house post-settlement (often T+1 morning or late evening), meaning real-time intraday tick feeds often stream `open_interest = NULL` or `0`.
+
+To prevent missing analytics across dashboard HUDs and charting systems without compromising point-in-time integrity, the platform implements a deterministic 3-tier resolution hierarchy:
+
+```mermaid
+graph TD
+    A["Query Prompt Observation (latest_obs)"] --> B{"Has Valid Open Interest?<br/>(oi > 0)"}
+    B -- Yes --> C["Use latest_obs.open_interest"]
+    B -- No / NULL --> D["Query Point-in-Time CFTC COT Report<br/>(observation_date &le; latest_obs.date)"]
+    D --> E{"COT Record Found &amp; OI > 0?"}
+    E -- Yes --> F["Use latest_cot.open_interest"]
+    E -- No --> G["Query CommodityExchangeListing<br/>(is_primary_benchmark = True)"]
+    G --> H["Use typical_open_interest baseline"]
+```
+
+1. **Tier 1 (Exchange Settlement)**: Uses `latest_obs.open_interest` if populated by the clearing feed.
+2. **Tier 2 (Point-in-Time CFTC COT)**: Queries the most recent CFTC Disaggregated/Legacy commitment record on or before the trade date (`observation_date <= latest_obs.observation_date`).
+3. **Tier 3 (Exchange Listing Master Baseline)**: Resolves the certified contract baseline from `CommodityExchangeListing.typical_open_interest` for the primary benchmark venue.
+
+This guarantees that quantitative models, TradingView charting overlays, and divergence algorithms always receive verified institutional positioning depth.
+

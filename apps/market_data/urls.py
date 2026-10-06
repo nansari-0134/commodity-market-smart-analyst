@@ -13,11 +13,14 @@ from apps.market_data.views import (
     CommitmentOfTradersDetailAPIView,
     OptionsObservationListAPIView,
     MarketDataSummaryAPIView,
+    LiveMarketQuoteAPIView,
 )
 
 app_name = "market_data"
 
 urlpatterns = [
+    # Live Real-Time & Streaming Intraday Quotes
+    path("live-quote/", LiveMarketQuoteAPIView.as_view(), name="live-quote"),
     # Prices
     path("prices/", MarketPriceListAPIView.as_view(), name="price-list"),
     path("prices/<uuid:pk>/", MarketPriceDetailAPIView.as_view(), name="price-detail"),

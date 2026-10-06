@@ -300,3 +300,84 @@ Query implied volatility, skew, and put/call metrics across individual futures c
       }
     ]
     ```
+
+---
+
+## 6. Live Market Quote & Real-Time Telemetry
+
+Retrieve prompt futures quotes, real-time intraday OHLCV metrics, 52-week statistical ranges, and institutionally resolved Open Interest.
+
+* **Endpoint**: `GET /api/market-data/live-quote/`
+* **Query Parameters**:
+  - `commodity` (or `symbol`): Canonical commodity code (e.g. `CL`, `BRENT`, `NG`, `CORN`, `GOLD`). Defaults to `CL`.
+  - `refresh`: Set to `true` or `1` to trigger an on-demand exchange sync via pluggable market data provider before returning the quote.
+
+=== "cURL"
+    ```bash
+    # Query real-time prompt quote and open interest for Light Sweet Crude (WTI)
+    curl -X GET "http://127.0.0.1:8000/api/market-data/live-quote/?commodity=CL" \
+         -H "Accept: application/json"
+
+    # Query with live provider refresh
+    curl -X GET "http://127.0.0.1:8000/api/market-data/live-quote/?commodity=CL&refresh=true" \
+         -H "Accept: application/json"
+    ```
+
+=== "Python (requests)"
+    ```python
+    import requests
+
+    response = requests.get(
+        "http://127.0.0.1:8000/api/market-data/live-quote/",
+        params={"commodity": "CL", "refresh": "false"}
+    )
+    quote = response.json()
+
+    print(f"{quote['symbol']} ({quote['name']}) - {quote['exchange']}")
+    print(f"Price: ${quote['price']} ({quote['change']:+} / {quote['ret_1d']:+}%)")
+    print(f"Day Range: ${quote['day_low']} - ${quote['day_high']} | Vol: {quote['day_volume']:,}")
+    print(f"Open Interest: {quote['open_interest']:,} contracts")
+    print(f"52-Week Range: ${quote['low_52w']} - ${quote['high_52w']}")
+    ```
+
+=== "JSON Response (200 OK)"
+    ```json
+    {
+      "status": "ok",
+      "symbol": "CL",
+      "name": "Light Sweet Crude Oil (WTI)",
+      "sector": "ENERGY",
+      "exchange": "NYMEX",
+      "price": 75.85,
+      "spot_price": 75.85,
+      "change": 0.45,
+      "point_change": 0.45,
+      "ret_1d": 0.6,
+      "returns_1d": 0.6,
+      "open": 75.4,
+      "day_open": 75.4,
+      "high": 76.5,
+      "day_high": 76.5,
+      "low": 74.95,
+      "day_low": 74.95,
+      "close": 75.85,
+      "volume": 284100,
+      "day_volume": 284100,
+      "open_interest": 1820000,
+      "day_oi": 1820000,
+      "high_52w": 93.64,
+      "low_52w": 65.27,
+      "observation_date": "2026-09-30",
+      "timestamp": "2026-10-06T13:12:34.022Z",
+      "candle": {
+        "time": "2026-09-30",
+        "open": 75.4,
+        "high": 76.5,
+        "low": 74.95,
+        "close": 75.85,
+        "volume": 284100,
+        "open_interest": 1820000
+      }
+    }
+    ```
+
