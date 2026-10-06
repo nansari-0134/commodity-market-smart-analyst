@@ -269,7 +269,8 @@ class TestSeasonality40DashboardIntegration:
         assert response.status_code == 200
         content = response.content.decode("utf-8")
 
-        # Check section title
+        # Check section title (rewritten title & backwards compatibility)
+        assert "Quantitative Seasonality Engine & Empirical Matrix" in content
         assert "40-Method Institutional Seasonality Matrix & Inspector" in content
         # Check presence of several key methods in HTML
         assert "Month-of-year seasonality" in content
@@ -279,3 +280,40 @@ class TestSeasonality40DashboardIntegration:
         assert "Walk-forward/out-of-sample testing" in content
         # Check inspector modal presence
         assert "s40ModalBackdrop" in content
+        # Check actual visual workbench container and controls
+        assert "seasonalityWorkbench" in content
+        assert "wbMethodSelect" in content
+        assert "workbenchSvgChart" in content
+        assert "wbDataTable" in content
+        assert "wbKpisGrid" in content
+
+    def test_all_40_methods_have_visualizations(self, setup_commodity):
+        dates = [datetime.date(2026, 1, 1) + datetime.timedelta(days=i) for i in range(150)]
+        prices = np.array([70.0 + np.sin(i / 10.0) * 8.0 for i in range(150)])
+        current_date = datetime.date(2026, 5, 30)
+
+        res = evaluate_40_seasonality_methods(
+            dates=dates,
+            prices=prices,
+            current_date=current_date,
+            commodity_code="CL",
+        )
+
+        assert len(res["methods"]) == 40
+        for m in res["methods"]:
+            assert "visualization" in m, f"Method {m['number']} missing visualization"
+            viz = m["visualization"]
+            assert "chart_type" in viz, f"Method {m['number']} missing chart_type"
+            assert "y_axis_label" in viz, f"Method {m['number']} missing y_axis_label"
+            assert "x_labels" in viz, f"Method {m['number']} missing x_labels"
+            assert len(viz["x_labels"]) > 0, f"Method {m['number']} has empty x_labels"
+            assert "series" in viz, f"Method {m['number']} missing series"
+            assert len(viz["series"]) > 0, f"Method {m['number']} has empty series"
+            assert "table_headers" in viz, f"Method {m['number']} missing table_headers"
+            assert "table_rows" in viz, f"Method {m['number']} missing table_rows"
+            assert len(viz["table_rows"]) > 0, f"Method {m['number']} has empty table_rows"
+            assert "kpis" in viz, f"Method {m['number']} missing kpis"
+            assert len(viz["kpis"]) > 0, f"Method {m['number']} has empty kpis"
+            assert "institutional_takeaway" in viz, f"Method {m['number']} missing institutional_takeaway"
+            assert len(viz["institutional_takeaway"]) > 10, f"Method {m['number']} takeaway too short"
+

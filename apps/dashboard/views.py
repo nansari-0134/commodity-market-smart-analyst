@@ -2,6 +2,7 @@
 Views for the Intelligence Terminal Dashboard.
 """
 import json
+from datetime import timedelta
 from django.shortcuts import render
 from django.db import connection
 from django.conf import settings
@@ -9,7 +10,7 @@ from django.utils import timezone
 import numpy as np
 
 from apps.commodities.models import CommodityMaster
-from apps.market_data.models import MarketPriceObservation, OptionsObservation
+from apps.market_data.models import MarketPriceObservation, OptionsObservation, CommitmentOfTradersObservation
 from apps.quant_engine.services.evidence_builder import EvidencePackageBuilder
 from apps.quant_engine.core import compute_comprehensive_seasonality_profile
 from apps.quant_engine.core.seasonality_methods import evaluate_40_seasonality_methods
@@ -141,18 +142,94 @@ def index(request):
         pkg = builder.build(persist_snapshot=False)
         selected_commodity = builder.commodity
 
-        # Price history for 20Y Seasonality
-        obs = list(
+        # Prompt price and candle history for Lightweight Charts & 20Y Seasonality
+        candle_obs = list(
             MarketPriceObservation.objects.filter(
                 commodity=selected_commodity,
                 is_prompt=True,
                 observation_date__lte=pkg.as_of.date(),
             )
             .order_by("observation_date")
-            .values_list("observation_date", "close_price")
+            .values(
+                "observation_date",
+                "open_price",
+                "high_price",
+                "low_price",
+                "close_price",
+                "volume",
+                "open_interest",
+            )
         )
-        dates = [r[0] for r in obs]
-        prices = np.array([float(r[1]) for r in obs])
+        dates = [r["observation_date"] for r in candle_obs]
+        prices = np.array([float(r["close_price"]) for r in candle_obs])
+
+        # Resolve Point-in-Time Open Interest: COT report sequence and listing benchmarks
+        import bisect
+        cot_records = list(
+            CommitmentOfTradersObservation.objects.filter(
+                commodity=selected_commodity,
+                observation_date__lte=pkg.as_of.date(),
+            )
+            .order_by("observation_date")
+            .values("observation_date", "open_interest")
+        )
+        cot_dates = [c["observation_date"] for c in cot_records]
+
+        primary_listing = (
+            selected_commodity.exchange_listings.filter(is_primary_benchmark=True).first()
+            or selected_commodity.exchange_listings.first()
+        )
+        listing_typical_oi = (
+            primary_listing.typical_open_interest
+            if primary_listing and primary_listing.typical_open_interest
+            else 0
+        )
+
+        ohlcv_candles = []
+        for r in candle_obs:
+            oi_val = r["open_interest"]
+            if not oi_val or oi_val <= 0:
+                if cot_dates:
+                    idx = bisect.bisect_right(cot_dates, r["observation_date"]) - 1
+                    if idx >= 0 and cot_records[idx]["open_interest"]:
+                        oi_val = cot_records[idx]["open_interest"]
+            if not oi_val or oi_val <= 0:
+                oi_val = listing_typical_oi
+
+            ohlcv_candles.append(
+                {
+                    "time": r["observation_date"].isoformat(),
+                    "open": float(r["open_price"] or r["close_price"]),
+                    "high": float(r["high_price"] or r["close_price"]),
+                    "low": float(r["low_price"] or r["close_price"]),
+                    "close": float(r["close_price"]),
+                    "volume": int(r["volume"] or 0),
+                    "open_interest": int(oi_val or 0),
+                }
+            )
+
+        spot = pkg.market_state.spot_price
+        latest_candle = ohlcv_candles[-1] if ohlcv_candles else None
+        prev_candle = ohlcv_candles[-2] if len(ohlcv_candles) >= 2 else None
+
+        one_year_ago = pkg.as_of.date() - timedelta(days=365)
+        candles_1y = [c for c in ohlcv_candles if c["time"] >= one_year_ago.isoformat()]
+        high_52w = max([c["high"] for c in candles_1y], default=spot)
+        low_52w = min([c["low"] for c in candles_1y], default=spot)
+        day_open = latest_candle["open"] if latest_candle else spot
+        day_high = latest_candle["high"] if latest_candle else spot
+        day_low = latest_candle["low"] if latest_candle else spot
+        day_volume = latest_candle["volume"] if latest_candle else 0
+
+        # Day OI with complete fallback
+        day_oi = latest_candle["open_interest"] if latest_candle and latest_candle["open_interest"] > 0 else 0
+        if day_oi == 0:
+            if cot_records and cot_records[-1]["open_interest"]:
+                day_oi = cot_records[-1]["open_interest"]
+            else:
+                day_oi = listing_typical_oi
+        point_change = round(spot - (prev_candle["close"] if prev_candle else spot), 4)
+
         seasonality_profile = compute_comprehensive_seasonality_profile(
             dates=dates,
             prices=prices,
@@ -190,7 +267,6 @@ def index(request):
             )
         }
 
-        spot = pkg.market_state.spot_price
         contracts_data = []
         for c_obs in curve_obs:
             p_val = float(c_obs.settlement_price or c_obs.close_price or spot)
@@ -225,6 +301,17 @@ def index(request):
             "spreads": pkg.spreads,
             "cross_commodity": pkg.cross_commodity,
             "divergences": pkg.divergences,
+            "candles": ohlcv_candles,
+            "day_open": day_open,
+            "day_high": day_high,
+            "day_low": day_low,
+            "day_volume": day_volume,
+            "day_volume_formatted": f"{day_volume:,}" if day_volume else "0",
+            "day_oi": day_oi,
+            "day_oi_formatted": f"{day_oi:,}" if day_oi else "0",
+            "point_change": point_change,
+            "high_52w": high_52w,
+            "low_52w": low_52w,
         }
 
         # Serializable bundle for immediate client-side JS bootstrapping
@@ -233,9 +320,18 @@ def index(request):
             "name": selected_commodity.name,
             "sector": selected_commodity.sector,
             "spot_price": spot,
+            "point_change": point_change,
+            "day_open": day_open,
+            "day_high": day_high,
+            "day_low": day_low,
+            "day_volume": day_volume,
+            "day_oi": day_oi,
+            "high_52w": high_52w,
+            "low_52w": low_52w,
             "returns_1d": pkg.market_state.returns_1d,
             "curve_state": pkg.market_state.curve_state,
             "roll_yield_1y": pkg.market_state.roll_yield_1y,
+            "candles": ohlcv_candles,
             "doy_points": seasonality_profile.get("doy_points", []),
             "monthly_matrix": seasonality_profile.get("monthly_matrix", {}),
             "tenure_patterns": seasonality_profile.get("tenure_patterns", []),

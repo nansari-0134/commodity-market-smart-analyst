@@ -2,11 +2,14 @@
 REST API Views for Market Data & Time-Series Observations.
 """
 
+from datetime import datetime, timezone, timedelta
 from uuid import UUID
 from django.db.models import Max, Min, Count
-from rest_framework import generics
+from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
+from apps.commodities.models import CommodityMaster
 
 from apps.market_data.models import (
     MarketPriceObservation,
@@ -262,3 +265,139 @@ class MarketDataSummaryAPIView(APIView):
 
         serializer = ObservationSummarySerializer(data)
         return Response(serializer.data)
+
+
+class LiveMarketQuoteAPIView(APIView):
+    """
+    Live Market Price & Intraday Quote Endpoint.
+    
+    Returns real-time or latest prompt futures quote with full OHLC, volume,
+    open interest, 1D return, and 52-week range.
+    Supports ?commodity=<code> and ?refresh=true (which connects to live exchange feed).
+    """
+
+    def get(self, request, *args, **kwargs):
+        code = (request.query_params.get("commodity") or request.query_params.get("symbol") or "CL").upper()
+        refresh = request.query_params.get("refresh", "false").lower() in ["true", "1"]
+
+        commodity = CommodityMaster.objects.filter(code__iexact=code).first()
+        if not commodity:
+            return Response(
+                {"error": f"Commodity with code '{code}' not found."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        if refresh:
+            try:
+                from apps.market_data.providers.yahoo_finance import YahooMarketDataProvider
+                provider = YahooMarketDataProvider()
+                raw_obs = provider.fetch_price_observations(symbol=commodity.code, days=2)
+                if raw_obs:
+                    latest_raw = raw_obs[-1]
+                    MarketPriceObservation.objects.update_or_create(
+                        commodity=commodity,
+                        observation_date=latest_raw.observation_date,
+                        contract_month="PROMPT",
+                        defaults={
+                            "is_prompt": True,
+                            "open_price": latest_raw.open_price,
+                            "high_price": latest_raw.high_price,
+                            "low_price": latest_raw.low_price,
+                            "close_price": latest_raw.close_price,
+                            "settlement_price": latest_raw.settlement_price,
+                            "volume": latest_raw.volume,
+                            "publication_time": latest_raw.publication_time,
+                        },
+                    )
+            except Exception:
+                pass
+
+        latest_obs = (
+            MarketPriceObservation.objects.filter(commodity=commodity, is_prompt=True)
+            .order_by("-observation_date")
+            .first()
+        )
+        if not latest_obs:
+            return Response(
+                {"error": f"No price observations found for '{code}'."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        prev_obs = (
+            MarketPriceObservation.objects.filter(
+                commodity=commodity, is_prompt=True, observation_date__lt=latest_obs.observation_date
+            )
+            .order_by("-observation_date")
+            .first()
+        )
+
+        price = float(latest_obs.close_price or latest_obs.settlement_price or 0.0)
+        prev_price = float(prev_obs.close_price or prev_obs.settlement_price or price) if prev_obs else price
+        point_change = round(price - prev_price, 4)
+        ret_1d = round(((price - prev_price) / prev_price) * 100.0, 2) if prev_price > 0 else 0.0
+
+        one_year_ago = latest_obs.observation_date - timedelta(days=365)
+        range_52w = MarketPriceObservation.objects.filter(
+            commodity=commodity,
+            is_prompt=True,
+            observation_date__gte=one_year_ago,
+        ).aggregate(
+            high_52w=Max("high_price"),
+            low_52w=Min("low_price"),
+        )
+
+        high_52w = float(range_52w["high_52w"] or price)
+        low_52w = float(range_52w["low_52w"] or price)
+
+        # Resolve institutional Open Interest from observation, or COT, or primary listing
+        oi_val = latest_obs.open_interest
+        if not oi_val or oi_val <= 0:
+            latest_cot = CommitmentOfTradersObservation.objects.filter(
+                commodity=commodity,
+                observation_date__lte=latest_obs.observation_date,
+            ).order_by("-observation_date").first()
+            if latest_cot and latest_cot.open_interest:
+                oi_val = latest_cot.open_interest
+            else:
+                primary_listing = commodity.exchange_listings.filter(is_primary_benchmark=True).first() or commodity.exchange_listings.first()
+                if primary_listing and primary_listing.typical_open_interest:
+                    oi_val = primary_listing.typical_open_interest
+        resolved_oi = int(oi_val or 0)
+
+        return Response({
+            "status": "ok",
+            "symbol": commodity.code,
+            "name": commodity.name,
+            "sector": commodity.sector,
+            "exchange": commodity.primary_exchange.code if commodity.primary_exchange else "CME",
+            "price": price,
+            "spot_price": price,
+            "change": point_change,
+            "point_change": point_change,
+            "ret_1d": ret_1d,
+            "returns_1d": ret_1d,
+            "open": float(latest_obs.open_price or price),
+            "day_open": float(latest_obs.open_price or price),
+            "high": float(latest_obs.high_price or price),
+            "day_high": float(latest_obs.high_price or price),
+            "low": float(latest_obs.low_price or price),
+            "day_low": float(latest_obs.low_price or price),
+            "close": float(latest_obs.close_price or price),
+            "volume": int(latest_obs.volume or 0),
+            "day_volume": int(latest_obs.volume or 0),
+            "open_interest": resolved_oi,
+            "day_oi": resolved_oi,
+            "high_52w": high_52w,
+            "low_52w": low_52w,
+            "observation_date": latest_obs.observation_date.isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "candle": {
+                "time": latest_obs.observation_date.isoformat(),
+                "open": float(latest_obs.open_price or price),
+                "high": float(latest_obs.high_price or price),
+                "low": float(latest_obs.low_price or price),
+                "close": float(latest_obs.close_price or price),
+                "volume": int(latest_obs.volume or 0),
+                "open_interest": resolved_oi,
+            },
+        })

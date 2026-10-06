@@ -26,6 +26,9 @@ from decimal import Decimal
 from typing import Any, Dict, List, Optional
 import numpy as np
 
+from apps.quant_engine.core.seasonality_visualizations import generate_all_40_visualizations
+
+
 
 # -----------------------------------------------------------------------------
 # Canonical Specification of All 40 Seasonality Methods
@@ -535,15 +538,16 @@ def evaluate_40_seasonality_methods(
             acf_results[f"lag_{lag}"] = 0.000
 
     # 4. Seasonal Stability (Method 27): Pearson correlation between 5Y and 20Y path
+    doy_points = base_seasonality_profile.get("doy_points", []) if base_seasonality_profile else []
     stability_score = 0.84  # Persistent benchmark
-    if base_seasonality_profile and "doy_points" in base_seasonality_profile:
-        pts = base_seasonality_profile["doy_points"]
-        m20 = [p["med20"] for p in pts]
-        m5 = [p["med5"] for p in pts]
-        if len(m20) > 5:
+    if doy_points:
+        m20 = [p["med20"] for p in doy_points if "med20" in p]
+        m5 = [p["med5"] for p in doy_points if "med5" in p]
+        if len(m20) > 5 and len(m20) == len(m5):
             corr = np.corrcoef(m20, m5)[0, 1]
             if not np.isnan(corr):
                 stability_score = round(float(corr), 2)
+
 
     # 5. Seasonal Trading Backtest & Expectancy (Methods 33-36)
     # Q4 / Fall post-harvest or seasonal build metrics
@@ -852,6 +856,23 @@ def evaluate_40_seasonality_methods(
         40: {"benchmark": "20-Year Median", "realized_year": 2026},
     }
 
+    # Generate chart datasets for all 40 methods
+    visualizations = generate_all_40_visualizations(
+        commodity_code=commodity_code,
+        monthly_summary=monthly_summary,
+        dow_stats=dow_stats,
+        doy_points=doy_points,
+        base_seasonality_profile=base_seasonality_profile or {},
+        acf_results=acf_results,
+        stability_score=stability_score,
+        backtest_metrics=backtest_metrics,
+        range_ratio=range_ratio,
+        current_range_pct=current_range_pct,
+        annual_range_pct=annual_range_pct,
+        current_month=current_month,
+        current_doy=current_doy,
+    )
+
     # Populate final methods array
     evaluated_methods = []
     for item in SEASONALITY_40_CATALOG:
@@ -863,6 +884,14 @@ def evaluate_40_seasonality_methods(
             "status_color": "slate",
         })
         params = method_params.get(num, {})
+        viz = visualizations.get(num, {})
+        if "y_axis_label" not in viz:
+            viz["y_axis_label"] = viz.get("unit", "Value")
+        if "chart_title" not in viz:
+            viz["chart_title"] = viz.get("title", item["method_name"])
+        params["visualization"] = viz
+
+
         evaluated_methods.append({
             **item,
             "name": item["method_name"],
@@ -874,7 +903,9 @@ def evaluate_40_seasonality_methods(
             "status": res["status"],
             "status_color": res["status_color"],
             "parameters": params,
+            "visualization": viz,
         })
+
 
     # Group by Section
     sections_map = defaultdict(list)

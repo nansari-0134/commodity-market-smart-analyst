@@ -336,7 +336,76 @@ The Commodity Market Intelligence platform features an institutional 40-method s
 | 39 | **Visualization** | Percentile-band chart | Empirical confidence envelope around median path | 25th–75th interquartile & 10th–90th extreme bands |
 | 40 | **Visualization** | Current-vs-seasonal comparison | Direct visual comparison of current year against history | Glowing neon real-time trajectory vs amber benchmark |
 
+### 6.1 Interactive Seasonality Method Workbench & Visualization Engine
+
+Rather than displaying a static catalog, the platform provides a live **Interactive Seasonality Method Workbench** mounted directly inside the 20-Year Seasonality Studio:
+
+1. **Method Selector & Steppers**: A quick-select dropdown categorized by all 14 analytical lenses alongside `[◀ Prev]` and `[Next ▶]` stepper buttons, allowing instant switching between all 40 methods with keyboard navigation support (ArrowLeft / ArrowRight).
+2. **Dynamic Vector SVG Canvas**: Renders specialized charts tailored to the mathematical structure of each method:
+   - **Single & Grouped Bar Charts**: Monthly average returns, Day-of-week returns, RVOL, volume surges, and Z-scores.
+   - **Multi-Line & Spline Paths**: Day-of-Year (DOY) trajectories, rolling stability indices, term-structure slopes, and event study windows.
+   - **Range & Percentile Envelopes**: 5-Year historical inventory ranges with current year overlays, 10th–90th percentile dispersion funnels, and ATR envelopes.
+   - **Correlograms**: Autocorrelation lags with 95% Bartlett confidence threshold lines ($p < 0.05$).
+   - **Equity & Drawdown Curves**: Systematic seasonal backtest cumulative equity curves and underwater drawdown envelopes.
+3. **Summary KPI Metric Tiles**: Point-in-time calculated parameters and significance metrics (win rate %, expectancy, stability coefficient, sample size).
+4. **Empirical Data Table**: Tabular breakdown showing the exact mathematical numbers backing the visual chart.
+5. **Institutional Takeaway**: Explanatory quantitative narrative detailing how institutional desks trade, hedge, or manage risk around the seasonal signal.
+6. **Bidirectional Grid Synchronization**: Clicking any method card in the 40-card matrix automatically synchronizes the workbench, highlights the card with glowing neon accents, and scrolls the workbench into view.
+
+### 6.2 Institutional 5-Module Terminal Command Deck
+
+The quantitative research interface is structured as an institutional **Terminal Command Deck** designed for multi-screen trading and research environments:
+
+```
++-----------------------------------------------------------------------------------+
+|  [ 📑 Full Deck ]  [ 🗂️ Single Tab Focus ]   |   [1] Seasonality  [2] Volatility  ... |
++-----------------------------------------------------------------------------------+
+|  MODULE 1: 20-Year Seasonality Studio & 40-Method Matrix                          |
+|    +-- 1.1 Seasonality Overview & Win-Rate Trajectory                             |
+|    +-- 1.2 20-Year Monthly Return Matrix Heatmap                                  |
+|    +-- 1.3 40-Method Quantitative Explorer (with Encapsulated Lens Filter Deck)   |
+|    +-- 1.4 40-Method Institutional Catalog Grid                                   |
++-----------------------------------------------------------------------------------+
+|  MODULE 2: Multi-Horizon Volatility & Risk HUD                                    |
++-----------------------------------------------------------------------------------+
+|  MODULE 3: Forward Curves & Spline Term Structure                                 |
++-----------------------------------------------------------------------------------+
+|  MODULE 4: Inter-Commodity Spreads & Refining Margins                             |
++-----------------------------------------------------------------------------------+
+|  MODULE 5: Cross-Commodity Correlation & Cointegration Matrix                     |
++-----------------------------------------------------------------------------------+
+```
+
+#### Dual Presentation Modes
+1. **Full Deck Mode (`deck`)**: Renders all 5 master analytical modules in a continuous vertical command scroll. Clicking any navigation tab automatically performs smooth scrolling to the target module header while highlighting the active tab.
+2. **Single Tab Focus Mode (`tabs`)**: Isolates the active module exclusively, hiding background modules to maximize viewport utilization and eliminate visual clutter during deep quantitative analysis.
+
+#### Modular Framing & Sub-Module Isolation
+Each analytical module is visually separated with distinct institutional badge headers (`MODULE X.Y`), container boundaries, and dedicated toolbars:
+- **Module 1.1**: *20-Year Seasonality Overview & Win-Rate Trajectory* — displays continuous multi-year benchmark paths, monthly win-rate bars, and annual expectancy statistics.
+- **Module 1.2**: *20-Year Monthly Return Matrix Heatmap* — visualizes historical percentage returns across all months (Jan–Dec) from 2005 to 2026, color-coded by magnitude and sign.
+- **Module 1.3**: *40-Method Quantitative Method Explorer* — houses the interactive SVG canvas, KPI metrics, dynamic parameter sliders, and the **Encapsulated Lens Filter Deck** (with category pills, real-time keyword search, and live method counter `Filtered: N / 40 methods`) situated directly above the algorithm selector to clearly establish filter scope.
+- **Module 1.4**: *40-Method Institutional Catalog Grid* — responsive 4-column card grid tagged by lens, formula, and benchmark with real-time synchronized selection.
+
+### 6.3 TradingView Lightweight Charts & Institutional Telemetry
+
+The terminal embeds an institutional-grade **TradingView Lightweight Charts** engine integrated directly with the platform's point-in-time observation store:
+
+```mermaid
+graph LR
+    API["/api/market-data/live-quote/"] --> ChartEngine["TradingView Lightweight Charts Engine"]
+    ChartEngine --> S1["Candlestick Price Series (OHLC)"]
+    ChartEngine --> S2["Volume Histogram Series (Vol)"]
+    ChartEngine --> S3["Amber Open Interest Line Series (OI)"]
+```
+
+1. **High-Performance Candlestick Series**: Real-time intraday and daily price candles with automatic time-scale fitting, crosshair tooltips, and volume-weighted coloring.
+2. **Synchronized Volume Histogram**: Positioned on an overlay pane at the base of the chart with color-coded bull/bear bars matching candle direction.
+3. **Dedicated Institutional Open Interest (OI) Series**: Rendered as a distinct amber glowing spline (`#f59e0b`) on an independent right-side scale (`scaleMargins: top 0.7, bottom 0.0`), allowing quantitative analysts to monitor institutional positioning accumulation/liquidation directly beneath price action.
+4. **Real-Time Crosshair HUD**: Emits synchronized open, high, low, close, volume, and open interest metrics to the upper telemetry bar upon hovering across historical dates.
+
 ---
 
 ## 7. Regulatory & Analytical Disclaimers
 All outputs of the Quantitative Research Engine are computed strictly for analytical and research workflow automation. They do not constitute financial advice, trading signals, or investment recommendations under SEC, CFTC, or FCA regulations.
+
