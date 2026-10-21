@@ -1,0 +1,2420 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Architecture, Data Models, Data Provider Swapping Guide, and Phase Specifications.">
+      
+      
+        <meta name="author" content="Quantitative Research & Systems Engineering Team">
+      
+      
+      
+        <link rel="prev" href="../quant-engine/">
+      
+      
+        <link rel="next" href="../news-intel/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/logo.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Live Quantitative Feature Engine - Commodity Market Intelligence & Quant Platform</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="white" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#module-architecture-live-quantitative-feature-engine-appsquant_enginefeatures" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Commodity Market Intelligence &amp; Quant Platform" class="md-header__button md-logo" aria-label="Commodity Market Intelligence & Quant Platform" data-md-component="logo">
+      
+  <img src="../../assets/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Commodity Market Intelligence & Quant Platform
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Live Quantitative Feature Engine
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/nansari-0134/commodity-market-smart-analyst" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    commodity-market-smart-analyst
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  System Overview
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../market-data/" class="md-tabs__link">
+          
+  
+  
+  Architecture & Modules
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../guides/data-sources/" class="md-tabs__link">
+          
+  
+  
+  Integration Guides
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/overview/" class="md-tabs__link">
+          
+  
+  
+  REST API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Commodity Market Intelligence &amp; Quant Platform" class="md-nav__button md-logo" aria-label="Commodity Market Intelligence & Quant Platform" data-md-component="logo">
+      
+  <img src="../../assets/logo.png" alt="logo">
+
+    </a>
+    Commodity Market Intelligence & Quant Platform
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/nansari-0134/commodity-market-smart-analyst" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    commodity-market-smart-analyst
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture & Modules
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture & Modules
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../market-data/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Market Data & Observations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../quant-engine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quantitative Engine
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Live Quantitative Feature Engine
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Live Quantitative Feature Engine
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-core-architectural-directives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Core Architectural Directives
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Core Architectural Directives">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-3-governing-axioms" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The 3 Governing Axioms
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-comprehensive-mathematical-breakdown-the-20-feature-categories" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Comprehensive Mathematical Breakdown: The 20 Feature Categories
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Comprehensive Mathematical Breakdown: The 20 Feature Categories">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-price-multi-horizon-returns-pricepy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Price &amp; Multi-Horizon Returns (price.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-statistical-normalization-statisticspy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Statistical Normalization (statistics.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-trend-moving-average-structure-trendpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Trend &amp; Moving Average Structure (trend.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-momentum-oscillators-momentumpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Momentum &amp; Oscillators (momentum.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-volatility-analysis-volatilitypy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Volatility Analysis (volatility.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-price-location-range-position-locationpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Price Location &amp; Range Position (location.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7-volume-participation-volumepy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Volume &amp; Participation (volume.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#8-vwap-intraday-location-vwappy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. VWAP &amp; Intraday Location (vwap.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#9-market-structure-swing-detection-market_structurepy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Market Structure &amp; Swing Detection (market_structure.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#10-support-resistance-support_resistancepy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Support &amp; Resistance (support_resistance.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#11-futures-curve-term-structure-futures_curvepy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Futures Curve &amp; Term Structure (futures_curve.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-relative-value-cross-market-relative_valuepy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. Relative Value &amp; Cross-Market (relative_value.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#13-order-flow-microstructure-order_flowpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. Order Flow &amp; Microstructure (order_flow.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#14-liquidity-depth-liquiditypy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        14. Liquidity &amp; Depth (liquidity.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#15-fundamental-quantification-fundamentalspy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        15. Fundamental Quantification (fundamentals.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#16-event-catalyst-quantification-eventspy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        16. Event &amp; Catalyst Quantification (events.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#17-regime-synthesis-regimepy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        17. Regime Synthesis (regime.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#18-generalized-divergence-detection-divergencepy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        18. Generalized Divergence Detection (divergence.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#19-quantitative-composite-scores-scoringpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        19. Quantitative Composite Scores (scoring.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#20-llm-formatter-llm_formatterpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        20. LLM Formatter (llm_formatter.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-high-performance-live-processor-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. High-Performance Live Processor &amp; Pipeline
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. High-Performance Live Processor &amp; Pipeline">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#incremental-rolling-buffer-livefeatureprocessor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Incremental Rolling Buffer (LiveFeatureProcessor)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-rest-api-endpoint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. REST API Endpoint
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. REST API Endpoint">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#query-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Query Parameters
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../news-intel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    News, Sentiment & Catalysts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../commodity-master/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physical Commodities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../exchanges-and-calendars/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exchanges & Calendars
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts-and-derivatives/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Futures & Derivatives
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../taxonomy-and-units/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Taxonomy & Units
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../feature-catalog-overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Metadata Catalog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../provider-master/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data Providers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dataset-master/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Datasets & Feeds
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../endpoint-master/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Endpoints & Routing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../variable-master/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Variables & Metrics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../core-infrastructure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core Infrastructure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Integration Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Integration Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/data-sources/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Swapping Data Providers & LLMs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/adding-new-feature/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adding Features & Variables
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/adding-new-commodity-and-exchange/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adding Commodities & Venues
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/development/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development & Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    REST API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    REST API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/news-intel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    News & Catalysts API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/market-data/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Market Data API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/quant-engine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quantitative Engine API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/commodities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physical Commodities API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/contracts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Futures & Contracts API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/exchanges/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exchanges & Calendars API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/metadata/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Units & Metadata API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/datasets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dataset Catalog API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/variables/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Variable Catalog API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/providers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Provider Catalog API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/endpoints/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Endpoint Catalog API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-core-architectural-directives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Core Architectural Directives
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Core Architectural Directives">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-3-governing-axioms" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The 3 Governing Axioms
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-comprehensive-mathematical-breakdown-the-20-feature-categories" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Comprehensive Mathematical Breakdown: The 20 Feature Categories
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Comprehensive Mathematical Breakdown: The 20 Feature Categories">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-price-multi-horizon-returns-pricepy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Price &amp; Multi-Horizon Returns (price.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-statistical-normalization-statisticspy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Statistical Normalization (statistics.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-trend-moving-average-structure-trendpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Trend &amp; Moving Average Structure (trend.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-momentum-oscillators-momentumpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Momentum &amp; Oscillators (momentum.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-volatility-analysis-volatilitypy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Volatility Analysis (volatility.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-price-location-range-position-locationpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Price Location &amp; Range Position (location.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7-volume-participation-volumepy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Volume &amp; Participation (volume.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#8-vwap-intraday-location-vwappy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. VWAP &amp; Intraday Location (vwap.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#9-market-structure-swing-detection-market_structurepy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Market Structure &amp; Swing Detection (market_structure.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#10-support-resistance-support_resistancepy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Support &amp; Resistance (support_resistance.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#11-futures-curve-term-structure-futures_curvepy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Futures Curve &amp; Term Structure (futures_curve.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-relative-value-cross-market-relative_valuepy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. Relative Value &amp; Cross-Market (relative_value.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#13-order-flow-microstructure-order_flowpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. Order Flow &amp; Microstructure (order_flow.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#14-liquidity-depth-liquiditypy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        14. Liquidity &amp; Depth (liquidity.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#15-fundamental-quantification-fundamentalspy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        15. Fundamental Quantification (fundamentals.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#16-event-catalyst-quantification-eventspy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        16. Event &amp; Catalyst Quantification (events.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#17-regime-synthesis-regimepy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        17. Regime Synthesis (regime.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#18-generalized-divergence-detection-divergencepy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        18. Generalized Divergence Detection (divergence.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#19-quantitative-composite-scores-scoringpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        19. Quantitative Composite Scores (scoring.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#20-llm-formatter-llm_formatterpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        20. LLM Formatter (llm_formatter.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-high-performance-live-processor-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. High-Performance Live Processor &amp; Pipeline
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. High-Performance Live Processor &amp; Pipeline">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#incremental-rolling-buffer-livefeatureprocessor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Incremental Rolling Buffer (LiveFeatureProcessor)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-rest-api-endpoint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. REST API Endpoint
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. REST API Endpoint">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#query-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Query Parameters
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="module-architecture-live-quantitative-feature-engine-appsquant_enginefeatures">Module Architecture: Live Quantitative Feature Engine (<code>apps/quant_engine/features</code>)</h1>
+<p>The <strong>Live Quantitative Feature Engine</strong> is the live-first analytical transformation pipeline of the Commodity Market Intelligence Platform. It bridges the gap between raw, noisy exchange ticks, order-book telemetry, and point-in-time fundamental observations (<code>apps/market_data</code>) and the downstream <strong>Financial Research LLM</strong> (Phase 13).</p>
+<hr />
+<h2 id="1-core-architectural-directives">1. Core Architectural Directives</h2>
+<pre class="mermaid"><code>graph TD
+    subgraph DataFeeds ["Live Feeds &amp; Point-in-Time Observation Store"]
+        P["MarketPriceObservation&lt;br/&gt;OHLCV, Settlements, Volume, Open Interest"]
+        F["FundamentalObservation&lt;br/&gt;EIA Stocks, Cushing, Storage Draws"]
+        C["MarketCatalystEvent&lt;br/&gt;Consensus vs Actual, Surprise Delta"]
+        T["Intraday Ticks &amp; L1/L2 Quotes&lt;br/&gt;Order Flow, Bid/Ask Spread"]
+    end
+
+    subgraph FeatureEngine ["Live Quantitative Feature Engine (Zero LLM Mental Math)"]
+        F1["Price &amp; Multi-Horizon Returns&lt;br/&gt;1m, 5m, 15m, 1h, 1D, Return Accel"]
+        F2["Statistical Normalization&lt;br/&gt;Rolling Z-Score, Percentile Rank, Robust MAD"]
+        F3["Trend &amp; Strength&lt;br/&gt;20/50/200 EMA Ordering, Dist %, ADX Regime"]
+        F4["Momentum Acceleration&lt;br/&gt;RSI(14), RSI Percentile, MACD Crossovers"]
+        F5["Volatility &amp; Range&lt;br/&gt;14-Period ATR, ATR %, Realized Vol %"]
+        F6["Structure &amp; Pivots&lt;br/&gt;Range Position (20D/60D), Swings (HH/HL), Breakouts"]
+        F7["Volume &amp; VWAP&lt;br/&gt;RVOL, Volume Z-Score, VWAP Deviation %"]
+        F8["Futures Curve &amp; Spreads&lt;br/&gt;F1-F2, F2-F3, Term Structure Slope, Contango/Back"]
+        F9["Relative Value &amp; Fundamentals&lt;br/&gt;Pair Correlation, Inventory Z-Score, Momentum"]
+        F10["Regime &amp; Generalized Divergences&lt;br/&gt;Trend x Vol Matrix, Price vs RSI/Vol/OI"]
+        F11["Multi-Factor Scoring&lt;br/&gt;Normalized Scores [-1.0 to +1.0] across 10 Dimensions"]
+    end
+
+    subgraph LLMReady ["LLM-Ready Structured Outputs"]
+        S1["Section 21 Compact JSON&lt;br/&gt;Machine-Readable &amp;lt; 2 KB Schema"]
+        S2["Markdown Prompt Context&lt;br/&gt;Deterministic Financial Reasoning Injection"]
+    end
+
+    subgraph Downstream ["Phase 13: Financial Research LLM"]
+        LLM["AI Market Narratives &amp; Hybrid Context&lt;br/&gt;(Gemini, Claude, GPT-4o, Ollama)"]
+    end
+
+    P --&gt; FeatureEngine
+    F --&gt; FeatureEngine
+    C --&gt; FeatureEngine
+    T --&gt; FeatureEngine
+
+    FeatureEngine --&gt; S1 --&gt; LLM
+    FeatureEngine --&gt; S2 --&gt; LLM</code></pre>
+<h3 id="the-3-governing-axioms">The 3 Governing Axioms</h3>
+<ol>
+<li>
+<p><strong>Live-First Architecture</strong>:
+   The engine evaluates live intraday ticks and recent price action. Historical data is queried at the minimum depth required to establish rolling statistics (e.g. 20 periods for RVOL/range, 60 periods for RSI percentiles, 200 periods for secular trend EMAs). It avoids re-processing years of history for every live tick.</p>
+</li>
+<li>
+<p><strong>Relative Information &gt; Absolute Information</strong>:
+   Language models struggle to interpret raw absolute numbers (e.g., "$75.40" or "volume of 184,200") without contextual distributions. The engine transforms every metric into relative, normalized representations:</p>
+</li>
+<li>Z-scores: $Z_t = \frac{X_t - \mu_t}{\sigma_t}$</li>
+<li>Empirical percentiles: $PercentileRank(X_t) \in [0\%, 100\%]$</li>
+<li>Percentage distances: $(Price - EMA) / EMA \times 100\%$</li>
+<li>Range positions: $(Price - Low) / (High - Low) \times 100\%$</li>
+<li>
+<p>Quantified categorical regimes (<code>bullish_high_volatility</code>, <code>testing_resistance</code>, <code>drawing</code>).</p>
+</li>
+<li>
+<p><strong>Zero LLM Mental Math</strong>:
+   Downstream models never calculate indicators or mathematical deltas. The engine outputs fully pre-computed, deterministic facts, freeing the LLM to focus purely on economic synthesis, macro catalyst reasoning, and institutional scenario generation.</p>
+</li>
+</ol>
+<hr />
+<h2 id="2-comprehensive-mathematical-breakdown-the-20-feature-categories">2. Comprehensive Mathematical Breakdown: The 20 Feature Categories</h2>
+<h3 id="1-price-multi-horizon-returns-pricepy">1. Price &amp; Multi-Horizon Returns (<code>price.py</code>)</h3>
+<ul>
+<li><strong>Discrete &amp; Continuous Returns</strong>:
+  $$R_{1D} = \frac{P_t - P_{t-1}}{P_{t-1}}, \quad r_{\log} = \ln\left(\frac{P_t}{P_{t-1}}\right)$$</li>
+<li><strong>Return Acceleration</strong>: Measures the second derivative of price:
+  $$a_t = R_{1D, t} - R_{1D, t-1}$$</li>
+<li><strong>Rolling Price Percentile (20D)</strong>: Percentage of trading sessions in the last 20 days where price was below or equal to the current price.</li>
+<li><strong>Price Z-Score (20D)</strong>: Standard deviations from the 20-day mean.</li>
+</ul>
+<h3 id="2-statistical-normalization-statisticspy">2. Statistical Normalization (<code>statistics.py</code>)</h3>
+<ul>
+<li><strong>Rolling Z-Score</strong>: Configurable across 20, 60, and 120-period windows.</li>
+<li><strong>Rolling Empirical Percentile</strong>: Non-parametric rank across historical windows.</li>
+<li><strong>Robust MAD Z-Score</strong>: Resistant to extreme non-Gaussian commodity supply shocks:
+  $$Z_{\text{robust}} = 0.6745 \times \frac{X_t - \text{median}(X)}{\text{MAD}(X)}$$</li>
+</ul>
+<h3 id="3-trend-moving-average-structure-trendpy">3. Trend &amp; Moving Average Structure (<code>trend.py</code>)</h3>
+<ul>
+<li><strong>Triple EMA Hierarchy</strong>: Evaluates 20, 50, and 200-period Exponential Moving Averages:</li>
+<li><code>bullish</code>: $P_t \ge \text{EMA}<em 50="50">{20} &gt; \text{EMA}</em>$} &gt; \text{EMA}_{200</li>
+<li><code>bearish</code>: $P_t \le \text{EMA}<em 50="50">{20} &lt; \text{EMA}</em>$} &lt; \text{EMA}_{200</li>
+<li><code>neutral</code>: Any mixed or transitioning alignment.</li>
+<li><strong>EMA Distance &amp; Slope</strong>: Distance in % from each major EMA, and 3-period slope of the 20-EMA.</li>
+<li><strong>Wilder's Average Directional Index (ADX)</strong>: Evaluates directional trend intensity ($[0, 100]$) irrespective of price direction:</li>
+<li>$\text{ADX} \ge 40$: <code>strong_trend</code></li>
+<li>$\text{ADX} \ge 25$: <code>moderate_trend</code></li>
+<li>$\text{ADX} &lt; 25$: <code>ranging</code></li>
+</ul>
+<h3 id="4-momentum-oscillators-momentumpy">4. Momentum &amp; Oscillators (<code>momentum.py</code>)</h3>
+<ul>
+<li><strong>14-Period RSI</strong>: Wilder-smoothed oscillator with 60-day historical percentile rank and 3-period trajectory (<code>rising</code>, <code>falling</code>, <code>flat</code>).</li>
+<li><strong>Appel's MACD (12, 26, 9)</strong>: MACD line ($\text{EMA}<em 26="26">{12} - \text{EMA}</em>)$), and Histogram delta direction.}$), Signal line ($\text{EMA}_9(\text{MACD</li>
+<li><strong>Momentum Regime</strong>: Classified as <code>overbought</code> ($\text{RSI} \ge 70$), <code>oversold</code> ($\text{RSI} \le 30$), <code>strengthening</code>, <code>weakening</code>, or <code>neutral</code>.</li>
+</ul>
+<h3 id="5-volatility-analysis-volatilitypy">5. Volatility Analysis (<code>volatility.py</code>)</h3>
+<ul>
+<li><strong>Average True Range (ATR)</strong>: 14-period Wilder metric, formatted in physical currency units, as percentage of spot price ($\frac{\text{ATR}}{P} \times 100\%$), and empirical percentile over 60 days.</li>
+<li><strong>Annualized Realized Volatility</strong>: 20-day rolling sample standard deviation annualized by $\sqrt{252} \times 100\%$.</li>
+<li><strong>Volatility Regime</strong>: Classified against 1-year distribution: <code>extreme</code> ($&gt;90\%$), <code>high</code> ($&gt;75\%$), <code>normal</code> ($25\%-75\%$), or <code>low</code> ($&lt;25\%$).</li>
+</ul>
+<h3 id="6-price-location-range-position-locationpy">6. Price Location &amp; Range Position (<code>location.py</code>)</h3>
+<ul>
+<li><strong>Rolling Range Position</strong>:
+  $$\text{RangePos} = \frac{P_t - \text{Low}_N}{\text{High}_N - \text{Low}_N} \times 100\% \quad (N = 20D, 60D)$$</li>
+<li><strong>Structural Extremes</strong>: Distance in % to the 20D rolling high (resistance) and 20D rolling low (support).</li>
+</ul>
+<h3 id="7-volume-participation-volumepy">7. Volume &amp; Participation (<code>volume.py</code>)</h3>
+<ul>
+<li><strong>Relative Volume (RVOL)</strong>:
+  $$\text{RVOL} = \frac{\text{Volume}<em 20D="20D">t}{\overline{\text{Volume}}</em>$$}</li>
+<li><strong>Volume Z-Score</strong>: Standard deviations from the 20-day volume mean.</li>
+<li><strong>Participation State</strong>: <code>unusually_high</code> ($\text{RVOL} \ge 2.0\text{x}$ or $Z \ge 2.0$), <code>high</code>, <code>normal</code>, <code>low</code>, <code>unusually_low</code> ($\text{RVOL} \le 0.5\text{x}$).</li>
+</ul>
+<h3 id="8-vwap-intraday-location-vwappy">8. VWAP &amp; Intraday Location (<code>vwap.py</code>)</h3>
+<ul>
+<li><strong>Volume-Weighted Average Price</strong>:
+  $$\text{VWAP} = \frac{\sum (TP_i \times \text{Vol}_i)}{\sum \text{Vol}_i}, \quad TP_i = \frac{H_i + L_i + C_i}{3}$$</li>
+<li><strong>VWAP Deviation %</strong>: $(P_t - \text{VWAP}) / \text{VWAP} \times 100\%$.</li>
+</ul>
+<h3 id="9-market-structure-swing-detection-market_structurepy">9. Market Structure &amp; Swing Detection (<code>market_structure.py</code>)</h3>
+<ul>
+<li><strong>Local Swing Pivots</strong>: Identifies local swing highs and swing lows using a configurable 3-period pivot window.</li>
+<li><strong>Swing Sequence</strong>: Classifies Higher Highs / Higher Lows (<code>higher_highs_higher_lows</code>), Lower Highs / Lower Lows (<code>lower_highs_lower_lows</code>), <code>range</code>, or <code>transition</code>.</li>
+<li><strong>Breakout Confirmation</strong>: Detects statistically valid breaks beyond the nearest swing level confirmed by an ATR buffer ($\Delta P \ge 0.3 \times \text{ATR}$).</li>
+</ul>
+<h3 id="10-support-resistance-support_resistancepy">10. Support &amp; Resistance (<code>support_resistance.py</code>)</h3>
+<ul>
+<li><strong>Structural Levels</strong>: Queries prior day high/low, prior 5-day (weekly) high/low, and prominent swing points.</li>
+<li><strong>Level Touch Strength</strong>: Quantitative score ($[0.0, 1.0]$) evaluating touch frequency, rejection magnitude, and recency weighting within an ATR tolerance envelope ($\pm 0.35 \times \text{ATR}$).</li>
+</ul>
+<h3 id="11-futures-curve-term-structure-futures_curvepy">11. Futures Curve &amp; Term Structure (<code>futures_curve.py</code>)</h3>
+<ul>
+<li><strong>Calendar Spreads</strong>: Computes $F_1 - F_2$ (front to prompt+1), $F_2 - F_3$, and $F_1 - F_3$.</li>
+<li><strong>Term Structure Slope</strong>: Annualized slope across the forward strip: $\frac{F_{\text{far}} - F_1}{F_1 \times (T/12)}$.</li>
+<li><strong>Curve Regimes</strong>: <code>strong_backwardation</code>, <code>backwardation</code>, <code>flat</code>, <code>contango</code>, <code>strong_contango</code>.</li>
+</ul>
+<h3 id="12-relative-value-cross-market-relative_valuepy">12. Relative Value &amp; Cross-Market (<code>relative_value.py</code>)</h3>
+<ul>
+<li><strong>Rolling Correlation</strong>: 60-day Pearson correlation against canonical benchmark pairs (WTI vs Brent, WTI vs RBOB, Gold vs Silver, Corn vs Soybeans).</li>
+<li><strong>Spread Z-Score</strong>: Relative-value price ratio Z-score vs 60-day mean.</li>
+</ul>
+<h3 id="13-order-flow-microstructure-order_flowpy">13. Order Flow &amp; Microstructure (<code>order_flow.py</code>)</h3>
+<ul>
+<li><strong>Buy/Sell Imbalance</strong>: $\frac{\text{BuyVol} - \text{SellVol}}{\text{TotalVol}}$.</li>
+<li><strong>Cumulative Delta</strong>: Cumulative aggressive buying vs selling volume.</li>
+<li><strong>Zero Fabrication</strong>: Fields are strictly marked <code>UNAVAILABLE</code> when high-frequency tick data is absent.</li>
+</ul>
+<h3 id="14-liquidity-depth-liquiditypy">14. Liquidity &amp; Depth (<code>liquidity.py</code>)</h3>
+<ul>
+<li><strong>Bid-Ask Spread</strong>: Top-of-book currency spread, spread in exchange ticks, and percentile vs 20-day distribution.</li>
+<li><strong>Depth Imbalance</strong>: L2 book depth ratio $\frac{\text{BidDepth} - \text{AskDepth}}{\text{BidDepth} + \text{AskDepth}}$ (marked <code>UNAVAILABLE</code> when depth feed is inactive).</li>
+</ul>
+<h3 id="15-fundamental-quantification-fundamentalspy">15. Fundamental Quantification (<code>fundamentals.py</code>)</h3>
+<ul>
+<li><strong>Deviation from Seasonal Normal</strong>: Absolute and percentage difference from 5-year average inventory levels.</li>
+<li><strong>Inventory Z-Score</strong>: Deviation standardized against historical distribution.</li>
+<li><strong>Fundamental Momentum</strong>: Trajectory classified as <code>tightening</code>, <code>loosening</code>, <code>drawing</code>, or <code>building</code>.</li>
+</ul>
+<h3 id="16-event-catalyst-quantification-eventspy">16. Event &amp; Catalyst Quantification (<code>events.py</code>)</h3>
+<ul>
+<li><strong>Economic Surprise</strong>: $\text{Actual} - \text{Consensus}$ and standardized surprise z-score.</li>
+<li><strong>Market Reaction</strong>: Immediate 1-hour percentage price reaction and volatility expansion following government and OPEC releases.</li>
+</ul>
+<h3 id="17-regime-synthesis-regimepy">17. Regime Synthesis (<code>regime.py</code>)</h3>
+<ul>
+<li><strong>Rule-Based Multi-Factor Matrix</strong>: Combines Trend State $\times$ Volatility Regime:</li>
+<li>Example: <code>strong_bullish</code> $\times$ <code>high</code> $\to$ <code>bullish_high_volatility</code></li>
+<li>Example: <code>ranging</code> $\times$ <code>low</code> $\to$ <code>range_low_volatility</code></li>
+</ul>
+<h3 id="18-generalized-divergence-detection-divergencepy">18. Generalized Divergence Detection (<code>divergence.py</code>)</h3>
+<ul>
+<li><strong>Decoupled Market Signals</strong>: Detects higher-high / lower-low divergence between Price and:</li>
+<li>Price vs RSI (Oscillator exhaustion)</li>
+<li>Price vs Volume (Participation dry-up)</li>
+<li>Price vs Open Interest (Liquidation vs accumulation)</li>
+</ul>
+<h3 id="19-quantitative-composite-scores-scoringpy">19. Quantitative Composite Scores (<code>scoring.py</code>)</h3>
+<ul>
+<li><strong>10 Standardized Ratings</strong>: Continuous scores in $[-1.0, +1.0]$ across:</li>
+<li><code>trend_score</code></li>
+<li><code>momentum_score</code></li>
+<li><code>volatility_score</code> ($[0, 1]$)</li>
+<li><code>volume_score</code> ($[0, 1]$)</li>
+<li><code>structure_score</code></li>
+<li><code>curve_score</code></li>
+<li><code>relative_value_score</code></li>
+<li><code>fundamentals_score</code></li>
+<li><code>event_score</code></li>
+<li><code>overall_composite_score</code> (Weighted institutional multi-factor composite)</li>
+</ul>
+<h3 id="20-llm-formatter-llm_formatterpy">20. LLM Formatter (<code>llm_formatter.py</code>)</h3>
+<ul>
+<li>Generates Section 21 compact JSON and high-density Markdown prompt context formatted for zero token waste.</li>
+</ul>
+<hr />
+<h2 id="3-high-performance-live-processor-pipeline">3. High-Performance Live Processor &amp; Pipeline</h2>
+<h3 id="incremental-rolling-buffer-livefeatureprocessor">Incremental Rolling Buffer (<code>LiveFeatureProcessor</code>)</h3>
+<p>Maintains an in-memory <code>InstrumentRollingBuffer</code> per commodity:
+- Stores 252 rolling bars of prices, highs, lows, and volumes.
+- On live tick updates, updates the current bar in place and recalculates all 20 feature modules in <strong><code>&lt; 1.2 milliseconds</code></strong>.
+- Eliminates repeated database query overhead during high-frequency execution.</p>
+<hr />
+<h2 id="4-rest-api-endpoint">4. REST API Endpoint</h2>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>GET /api/quant/live-features/
+</span></code></pre></div>
+<h3 id="query-parameters">Query Parameters</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Default</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>commodity</code></td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;"><code>CL</code></td>
+<td style="text-align: left;">Canonical commodity code (e.g. <code>CL</code>, <code>BRENT</code>, <code>NG</code>, <code>CORN</code>, <code>GOLD</code>).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>timeframe</code></td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;"><code>1D</code></td>
+<td style="text-align: left;">Timeframe resolution (<code>1D</code>, <code>1h</code>, <code>15m</code>, <code>5m</code>, <code>1m</code>).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>refresh</code></td>
+<td style="text-align: left;">boolean</td>
+<td style="text-align: left;"><code>false</code></td>
+<td style="text-align: left;">When <code>true</code>, queries live external feed before calculating features.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>output</code></td>
+<td style="text-align: left;">string</td>
+<td style="text-align: left;"><code>json</code></td>
+<td style="text-align: left;">Output representation: <code>json</code> (default Section 21 schema) or <code>prompt</code> (Markdown text).</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2026. For analytical workflow automation only — Not financial advice or trading calls.
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "navigation.tracking", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
