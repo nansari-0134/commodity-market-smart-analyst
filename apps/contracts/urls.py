@@ -14,6 +14,7 @@ from apps.contracts.views import (
 app_name = "contracts"
 
 urlpatterns = [
+    path("", ContractSpecificationListView.as_view(), name="contract-root"),
     path("specifications/", ContractSpecificationListView.as_view(), name="specification-list"),
     path("specifications/<str:lookup>/", ContractSpecificationDetailView.as_view(), name="specification-detail"),
     path("expiries/", ContractExpiryListView.as_view(), name="expiry-list"),

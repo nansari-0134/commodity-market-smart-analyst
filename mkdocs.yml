@@ -59,6 +59,7 @@ nav:
       - Market Data & Observations: modules/market-data.md
       - Quantitative Engine: modules/quant-engine.md
       - Live Quantitative Feature Engine: modules/live-quant-feature-engine.md
+      - AI Market Narratives: modules/narratives.md
       - News, Sentiment & Catalysts: modules/news-intel.md
       - Physical Commodities: modules/commodity-master.md
       - Exchanges & Calendars: modules/exchanges-and-calendars.md
@@ -77,6 +78,7 @@ nav:
       - Development & Operations: guides/development.md
   - REST API Reference:
       - API Overview: api/overview.md
+      - AI Market Narratives API: api/narratives.md
       - News & Catalysts API: api/news-intel.md
       - Market Data API: api/market-data.md
       - Quantitative Engine API: api/quant-engine.md
