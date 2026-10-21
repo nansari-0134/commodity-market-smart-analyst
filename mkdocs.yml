@@ -58,6 +58,7 @@ nav:
   - Architecture & Modules:
       - Market Data & Observations: modules/market-data.md
       - Quantitative Engine: modules/quant-engine.md
+      - Live Quantitative Feature Engine: modules/live-quant-feature-engine.md
       - News, Sentiment & Catalysts: modules/news-intel.md
       - Physical Commodities: modules/commodity-master.md
       - Exchanges & Calendars: modules/exchanges-and-calendars.md

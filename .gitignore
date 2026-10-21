@@ -28,6 +28,8 @@ data/processed/
 .DS_Store
 Thumbs.db
 site/
+*.xlsx
+careers.txt
 
 AGENTS.md
 PROJECT_CONTEXT.md

@@ -11,12 +11,14 @@ from apps.quant_engine.views import (
     SeasonalityView,
     DiscoveryRegistryListView,
     SeasonalityMethodsCatalogView,
+    LiveQuantFeaturesView,
 )
 
 app_name = "quant_engine"
 
 urlpatterns = [
     path("evidence-package/", QuantitativeEvidencePackageView.as_view(), name="evidence-package"),
+    path("live-features/", LiveQuantFeaturesView.as_view(), name="live-features"),
     path("market-state/", MarketStateView.as_view(), name="market-state"),
     path("curve/", ForwardCurveView.as_view(), name="curve"),
     path("spreads/", SpreadsView.as_view(), name="spreads"),

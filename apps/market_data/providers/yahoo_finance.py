@@ -153,11 +153,15 @@ class YahooMarketDataProvider(BaseMarketDataProvider):
 
         # Determine time parameters
         years = kwargs.get("years", 20)
+        days = kwargs.get("days")
         target_end = end_date or date.today()
         p2 = int(datetime.combine(target_end, datetime.max.time()).replace(tzinfo=timezone.utc).timestamp())
 
         if start_date:
             p1 = int(datetime.combine(start_date, datetime.min.time()).replace(tzinfo=timezone.utc).timestamp())
+        elif days:
+            earliest_dt = date.today() - timedelta(days=days)
+            p1 = int(datetime.combine(earliest_dt, datetime.min.time()).replace(tzinfo=timezone.utc).timestamp())
         else:
             # For 20+ years, pull all available continuous history since inception (2000 to present)
             if years >= 20:

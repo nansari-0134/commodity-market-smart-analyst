@@ -2,12 +2,16 @@
 REST API Views for Market Data & Time-Series Observations.
 """
 
-from datetime import datetime, timezone, timedelta
+import logging
+from datetime import datetime, timezone, timedelta, date
 from uuid import UUID
+from django.core.cache import cache
 from django.db.models import Max, Min, Count
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
+logger = logging.getLogger(__name__)
 
 from apps.commodities.models import CommodityMaster
 
@@ -287,30 +291,41 @@ class LiveMarketQuoteAPIView(APIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        if refresh:
+        cache_key = f"live_quote_sync_{commodity.code}"
+        last_check = cache.get(cache_key)
+
+        latest_obs = (
+            MarketPriceObservation.objects.filter(commodity=commodity, is_prompt=True)
+            .order_by("-observation_date")
+            .first()
+        )
+        is_stale = latest_obs is None or (date.today() - latest_obs.observation_date).days > 0
+
+        if refresh or (is_stale and last_check is None):
+            cache.set(cache_key, datetime.now(timezone.utc).timestamp(), timeout=120)
             try:
                 from apps.market_data.providers.yahoo_finance import YahooMarketDataProvider
                 provider = YahooMarketDataProvider()
-                raw_obs = provider.fetch_price_observations(symbol=commodity.code, days=2)
-                if raw_obs:
-                    latest_raw = raw_obs[-1]
+                raw_obs = provider.fetch_price_observations(symbol=commodity.code, days=5)
+                for raw in raw_obs:
                     MarketPriceObservation.objects.update_or_create(
                         commodity=commodity,
-                        observation_date=latest_raw.observation_date,
-                        contract_month="PROMPT",
+                        observation_date=raw.observation_date,
+                        delivery_month="PROMPT",
+                        revision_number=0,
                         defaults={
                             "is_prompt": True,
-                            "open_price": latest_raw.open_price,
-                            "high_price": latest_raw.high_price,
-                            "low_price": latest_raw.low_price,
-                            "close_price": latest_raw.close_price,
-                            "settlement_price": latest_raw.settlement_price,
-                            "volume": latest_raw.volume,
-                            "publication_time": latest_raw.publication_time,
+                            "open_price": raw.open_price,
+                            "high_price": raw.high_price,
+                            "low_price": raw.low_price,
+                            "close_price": raw.close_price,
+                            "settlement_price": raw.settlement_price,
+                            "volume": raw.volume,
+                            "publication_time": raw.publication_time,
                         },
                     )
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.warning(f"Live market data refresh failed for {commodity.code}: {exc}")
 
         latest_obs = (
             MarketPriceObservation.objects.filter(commodity=commodity, is_prompt=True)
