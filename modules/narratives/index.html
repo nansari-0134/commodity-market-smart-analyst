@@ -589,22 +589,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#3-pluggable-llm-provider-architecture" class="md-nav__link">
+  <a href="#3-langchain-lcel-architecture-pluggable-providers" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. Pluggable LLM Provider Architecture
+        3. LangChain LCEL Architecture &amp; Pluggable Providers
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="3. Pluggable LLM Provider Architecture">
+    <nav class="md-nav" aria-label="3. LangChain LCEL Architecture &amp; Pluggable Providers">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#supported-provider-implementations" class="md-nav__link">
+  <a href="#supported-langchain-chat-models" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Supported Provider Implementations
+        Supported LangChain Chat Models
       
     </span>
   </a>
@@ -1665,22 +1665,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#3-pluggable-llm-provider-architecture" class="md-nav__link">
+  <a href="#3-langchain-lcel-architecture-pluggable-providers" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. Pluggable LLM Provider Architecture
+        3. LangChain LCEL Architecture &amp; Pluggable Providers
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="3. Pluggable LLM Provider Architecture">
+    <nav class="md-nav" aria-label="3. LangChain LCEL Architecture &amp; Pluggable Providers">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#supported-provider-implementations" class="md-nav__link">
+  <a href="#supported-langchain-chat-models" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Supported Provider Implementations
+        Supported LangChain Chat Models
       
     </span>
   </a>
@@ -1894,38 +1894,36 @@
 </tbody>
 </table>
 <hr />
-<h2 id="3-pluggable-llm-provider-architecture">3. Pluggable LLM Provider Architecture</h2>
-<p>Every LLM integration implements the abstract base contract defined in <code>apps.narratives.providers.base.BaseLLMProvider</code>:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">BaseLLMProvider</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">provider_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"base"</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">default_model</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"default"</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="nd">@abstractmethod</span>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">generate_narrative</span><span class="p">(</span>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>        <span class="bp">self</span><span class="p">,</span>
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>        <span class="n">prompt</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>        <span class="n">system_instruction</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>        <span class="n">context_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>        <span class="n">narrative_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"MORNING_BRIEF"</span><span class="p">,</span>
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LLMResponse</span><span class="p">:</span>
-</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>        <span class="k">pass</span>
+<h2 id="3-langchain-lcel-architecture-pluggable-providers">3. LangChain LCEL Architecture &amp; Pluggable Providers</h2>
+<p>Every LLM integration in <code>apps.narratives</code> is powered by the <strong>LangChain Expression Language (LCEL)</strong> pipeline:</p>
+<pre class="mermaid"><code>graph LR
+    A[ChatPromptTemplate] --&gt; B[BaseChatModel]
+    B --&gt; C[PydanticOutputParser]
+    C --&gt; D[NarrativeOutputSchema]</code></pre>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># apps/narratives/chains/narrative_chain.py</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">prompt</span> <span class="o">=</span> <span class="n">ChatPromptTemplate</span><span class="o">.</span><span class="n">from_messages</span><span class="p">([</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="p">(</span><span class="s2">"system"</span><span class="p">,</span> <span class="n">SYSTEM_RESEARCH_INSTRUCTION</span><span class="p">),</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="p">(</span><span class="s2">"human"</span><span class="p">,</span> <span class="s2">"</span><span class="si">{evidence_context}</span><span class="se">\n\n</span><span class="s2">Format your output strictly according to:</span><span class="se">\n</span><span class="si">{format_instructions}</span><span class="s2">"</span><span class="p">),</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="p">])</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="n">parser</span> <span class="o">=</span> <span class="n">PydanticOutputParser</span><span class="p">(</span><span class="n">pydantic_object</span><span class="o">=</span><span class="n">NarrativeOutputSchema</span><span class="p">)</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="n">chain</span> <span class="o">=</span> <span class="n">prompt</span> <span class="o">|</span> <span class="n">chat_model</span> <span class="o">|</span> <span class="n">parser</span>
 </span></code></pre></div>
-<h3 id="supported-provider-implementations">Supported Provider Implementations</h3>
+<h3 id="supported-langchain-chat-models">Supported LangChain Chat Models</h3>
 <ol>
-<li><strong><code>StaticLLMProvider</code> (<code>static</code>)</strong>:</li>
-<li>Deterministic rule-based synthesizer requiring zero external network calls or API keys.</li>
+<li><strong><code>StaticLangChainChatModel</code> (<code>static</code>)</strong>:</li>
+<li>LangChain <code>BaseChatModel</code> implementation providing deterministic financial report synthesis directly from ground-truth evidence.</li>
 <li>Evaluates multi-factor composite scores, contango/backwardation slopes, RSI percentiles, and divergences to generate high-grade institutional research.</li>
-<li>Serves as the default offline provider, ensuring 100% test suite reliability.</li>
-<li><strong><code>GeminiLLMProvider</code> (<code>gemini</code>)</strong>:</li>
+<li>Serves as the default offline provider, ensuring 100% test suite reliability without API keys.</li>
+<li><strong><code>GeminiLangChainChatModel</code> (<code>gemini</code>)</strong>:</li>
 <li>Google Gemini 2.0 / 1.5 Flash via REST API using <code>httpx</code>.</li>
 <li>Utilizes strict JSON response schema generation.</li>
-<li>Automatic fallback to <code>StaticLLMProvider</code> if <code>GEMINI_API_KEY</code> is absent or remote service times out.</li>
-<li><strong><code>ClaudeLLMProvider</code> (<code>claude</code>)</strong>:</li>
+<li>Automatic fallback to <code>StaticLangChainChatModel</code> if <code>GEMINI_API_KEY</code> is absent or remote service times out.</li>
+<li><strong><code>ClaudeLangChainChatModel</code> (<code>claude</code>)</strong>:</li>
 <li>Anthropic Claude 3.5 Sonnet via <code>/v1/messages</code>.</li>
 <li>High-precision macro reasoning with graceful offline fallback.</li>
-<li><strong><code>OpenAILLMProvider</code> (<code>openai</code>)</strong>:</li>
+<li><strong><code>OpenAILangChainChatModel</code> (<code>openai</code>)</strong>:</li>
 <li>OpenAI GPT-4o via <code>/v1/chat/completions</code> with JSON Mode enforcement.</li>
-<li><strong><code>OllamaLLMProvider</code> (<code>ollama</code>)</strong>:</li>
+<li><strong><code>OllamaLangChainChatModel</code> (<code>ollama</code>)</strong>:</li>
 <li>Local on-premise execution via <code>http://localhost:11434/api/generate</code> with zero data egress.</li>
 </ol>
 <hr />
