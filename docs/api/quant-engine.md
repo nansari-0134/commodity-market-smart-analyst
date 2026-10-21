@@ -136,7 +136,184 @@ Retrieve the complete, validated quantitative evidence package for a target comm
 
 ---
 
+## 1.1 Live Quantitative Feature Engine (LLM-Ready State)
+
+Retrieve real-time normalized, relative, and interpretable quantitative features matching Section 21 of the platform specification. Optimized directly for downstream Financial Research LLMs.
+
+* **Endpoint**: `GET /api/quant/live-features/`
+* **Query Parameters**:
+  - `commodity`: Canonical commodity code (e.g. `CL`, `BRENT`, `NG`, `CORN`, `GOLD`). Default: `CL`.
+  - `timeframe`: Evaluation horizon (`1D`, `1h`, `15m`, `5m`, `1m`). Default: `1D`.
+  - `refresh`: `true` to fetch the latest tick from market data provider before computing features. Default: `false`.
+  - `output`: `json` (Section 21 JSON schema) or `prompt` (high-density Markdown for LLM prompt context). Default: `json`.
+
+=== "cURL (JSON)"
+    ```bash
+    # Retrieve normalized quantitative features for WTI Crude
+    curl -X GET "http://127.0.0.1:8000/api/quant/live-features/?commodity=CL" \
+         -H "Accept: application/json"
+    ```
+
+=== "cURL (LLM Prompt Context)"
+    ```bash
+    # Retrieve high-density Markdown prompt context for LLM injection
+    curl -X GET "http://127.0.0.1:8000/api/quant/live-features/?commodity=CL&output=prompt" \
+         -H "Accept: application/json"
+    ```
+
+=== "Python (requests)"
+    ```python
+    import requests
+
+    response = requests.get(
+        "http://127.0.0.1:8000/api/quant/live-features/",
+        params={"commodity": "CL", "output": "json"}
+    )
+    features = response.json()
+
+    print(f"Instrument: {features['instrument']} ({features['name']})")
+    print(f"Price: ${features['price']['last']} | 20D Percentile: {features['price']['percentile_20d']}% | Z: {features['price']['zscore_20d']:+}σ")
+    print(f"Trend: {features['trend']['trend_state']} | ADX: {features['trend']['adx']}")
+    print(f"Momentum: {features['momentum']['momentum_state']} | RSI: {features['momentum']['rsi']}")
+    print(f"Composite Quant Rating: {features['scores']['overall_composite_score']:+}")
+    ```
+
+=== "JSON Response (200 OK)"
+    ```json
+    {
+      "instrument": "CL",
+      "name": "Light Sweet Crude Oil (WTI)",
+      "sector": "ENERGY",
+      "timestamp": "2026-10-08T13:20:00Z",
+      "timeframe": "1D",
+      "data_quality": "VALID",
+      "price": {
+        "last": 75.85,
+        "return_1d": 0.0125,
+        "log_return_1d": 0.0124,
+        "return_acceleration_1d": 0.0035,
+        "percentile_20d": 96.0,
+        "zscore_20d": 2.01
+      },
+      "trend": {
+        "ema_structure": "bullish",
+        "ema_slope": "positive",
+        "adx": 31.4,
+        "trend_state": "strong_bullish",
+        "dist_ema20_pct": 2.1,
+        "dist_ema50_pct": 4.5,
+        "dist_ema200_pct": 8.9
+      },
+      "momentum": {
+        "rsi": 72.0,
+        "rsi_percentile": 91.0,
+        "rsi_direction": "rising",
+        "macd": 1.25,
+        "macd_signal": 0.94,
+        "macd_histogram": 0.31,
+        "histogram_direction": "increasing",
+        "momentum_state": "strengthening"
+      },
+      "volatility": {
+        "atr": 1.42,
+        "atr_pct": 1.55,
+        "atr_percentile": 93.0,
+        "realized_volatility": 41.0,
+        "vol_percentile": 94.0,
+        "regime": "high"
+      },
+      "volume": {
+        "volume": 284100,
+        "relative_volume": 1.50,
+        "zscore": 2.2,
+        "state": "high"
+      },
+      "structure": {
+        "state": "bullish_breakout",
+        "range_position_20d": 94.0,
+        "range_position_60d": 88.0,
+        "nearest_resistance_distance_pct": 0.35,
+        "nearest_support_distance_pct": -0.46,
+        "nearest_resistance": 76.12,
+        "nearest_support": 75.50,
+        "swing_structure": "higher_highs_higher_lows",
+        "breakout_confirmed": true
+      },
+      "vwap": {
+        "vwap": 75.30,
+        "vwap_deviation_pct": 0.73
+      },
+      "curve": {
+        "spread_f1_f2": 0.45,
+        "spread_f2_f3": 0.30,
+        "spread_f1_f3": 0.75,
+        "spread_zscore": 1.4,
+        "spread_percentile": 82.0,
+        "curve_state": "backwardation",
+        "curve_slope_annualized": -0.052
+      },
+      "relative_value": {
+        "benchmark_pair": "CL-BRENT",
+        "rolling_correlation": 0.88,
+        "spread_zscore": 0.65
+      },
+      "order_flow": {
+        "imbalance": null,
+        "cumulative_delta": null,
+        "delta_direction": "unavailable",
+        "is_available": false
+      },
+      "liquidity": {
+        "bid_ask_spread": 0.02,
+        "bid_ask_spread_ticks": 2.0,
+        "spread_percentile": 35.0,
+        "depth_imbalance": null,
+        "is_available": false
+      },
+      "fundamentals": {
+        "primary_variable": "CRUDE_CUSHING_STOCKS",
+        "latest_value": 24.5,
+        "normal_reference": 32.0,
+        "deviation_abs": -7.5,
+        "deviation_pct": -23.4,
+        "inventory_zscore": -2.1,
+        "fundamental_momentum": "tightening"
+      },
+      "events": {
+        "latest_event": "EIA Weekly Petroleum",
+        "surprise": -1.8,
+        "standardized_surprise": -1.4,
+        "immediate_reaction_1h_pct": 0.85,
+        "reaction_volatility_pct": 1.2
+      },
+      "regime": {
+        "trend": "strong_bullish",
+        "volatility": "high",
+        "overall": "bullish_high_volatility"
+      },
+      "divergence": {
+        "has_divergence": false,
+        "active_divergences": []
+      },
+      "scores": {
+        "trend_score": 0.85,
+        "momentum_score": 0.72,
+        "volatility_score": 0.65,
+        "volume_score": 0.60,
+        "structure_score": 0.80,
+        "curve_score": 0.75,
+        "relative_value_score": 0.45,
+        "fundamentals_score": 0.70,
+        "event_score": 0.50,
+        "overall_composite_score": 0.74
+      }
+    }
+    ```
+
+---
+
 ## 2. Market State & Volatility Analytics
+
 
 Retrieve multi-horizon log returns, Garman-Klass volatility, Average True Range (ATR), volume shocks, and institutional Open Interest regimes.
 

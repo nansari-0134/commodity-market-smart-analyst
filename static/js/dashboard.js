@@ -1505,7 +1505,7 @@ function initLiveQuoteTelemetry() {
 
     // Trigger initial background sync
     setTimeout(() => {
-        refreshLiveQuote(false);
+        refreshLiveQuote(true);
     }, 1200);
 
     // Auto poll live quote every 20 seconds while tab is focused

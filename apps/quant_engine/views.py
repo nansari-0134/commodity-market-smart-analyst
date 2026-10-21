@@ -1,10 +1,13 @@
 """
 REST API Views for Quantitative Research & Forward Curves Engine.
 """
+import logging
 import numpy as np
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
+logger = logging.getLogger(__name__)
 
 from apps.commodities.models import CommodityMaster
 from apps.market_data.models import MarketPriceObservation, OptionsObservation
@@ -289,4 +292,88 @@ class SeasonalityMethodsCatalogView(APIView):
             })
         except ValueError as e:
             return Response({"error": str(e)}, status=status.HTTP_404_NOT_FOUND)
+
+
+class LiveQuantFeaturesView(APIView):
+    """
+    Live Quantitative Feature Engine Endpoint.
+    
+    Transforms raw live market ticks and recent point-in-time observations into
+    compact, normalized, relative, and interpretable quantitative features
+    designed specifically for downstream Financial Research LLMs.
+    
+    Query Parameters:
+      - `commodity`: Canonical commodity code (e.g. 'CL', 'BRENT', 'NG', 'GOLD')
+      - `timeframe`: Timeframe resolution (e.g. '1D', '1h', '15m')
+      - `refresh`: Set 'true' to trigger an on-demand exchange feed sync before calculating
+      - `format`: 'json' (default Section 21 schema) or 'prompt' (Markdown context for LLM prompt)
+    """
+
+    def get(self, request, *args, **kwargs):
+        code = (request.query_params.get("commodity") or request.query_params.get("symbol") or "CL").upper()
+        timeframe = request.query_params.get("timeframe", "1D")
+        output_format = (
+            request.query_params.get("output")
+            or request.query_params.get("mode")
+            or request.query_params.get("style")
+            or request.query_params.get("format", "json")
+        ).lower()
+        refresh = request.query_params.get("refresh", "false").lower() in ["true", "1"]
+
+        commodity = CommodityMaster.objects.filter(code__iexact=code).first()
+        if not commodity:
+            return Response(
+                {"error": f"Commodity with code '{code}' not found."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        if refresh:
+            try:
+                from apps.market_data.providers.yahoo_finance import YahooMarketDataProvider
+                provider = YahooMarketDataProvider()
+                raw_obs = provider.fetch_price_observations(symbol=commodity.code, days=5)
+                for raw in raw_obs:
+                    MarketPriceObservation.objects.update_or_create(
+                        commodity=commodity,
+                        observation_date=raw.observation_date,
+                        delivery_month="PROMPT",
+                        revision_number=0,
+                        defaults={
+                            "is_prompt": True,
+                            "open_price": raw.open_price,
+                            "high_price": raw.high_price,
+                            "low_price": raw.low_price,
+                            "close_price": raw.close_price,
+                            "settlement_price": raw.settlement_price,
+                            "volume": raw.volume,
+                            "publication_time": raw.publication_time,
+                        },
+                    )
+            except Exception as exc:
+                logger.warning(f"Live market data refresh failed for {commodity.code}: {exc}")
+
+        try:
+            from apps.quant_engine.features.pipeline import FeaturePipeline
+            from apps.quant_engine.features.llm_formatter import format_llm_prompt_context
+            
+            pipeline = FeaturePipeline()
+            package = pipeline.extract_features(commodity_code=code, timeframe=timeframe)
+
+            if output_format == "prompt":
+                prompt_context = format_llm_prompt_context(package)
+                return Response({
+                    "status": "ok",
+                    "commodity": code,
+                    "name": commodity.name,
+                    "timeframe": timeframe,
+                    "format": "prompt",
+                    "prompt_context": prompt_context,
+                })
+
+            return Response(package.model_dump())
+        except Exception as e:
+            return Response(
+                {"error": f"Feature calculation error: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
