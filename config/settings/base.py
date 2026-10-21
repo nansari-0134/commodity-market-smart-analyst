@@ -65,6 +65,7 @@ LOCAL_APPS = [
     "apps.market_data.apps.MarketDataConfig",
     "apps.quant_engine.apps.QuantEngineConfig",
     "apps.news_intel.apps.NewsIntelConfig",
+    "apps.narratives.apps.NarrativesConfig",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -212,4 +213,9 @@ MARKET_DATA_PROVIDER = env("MARKET_DATA_PROVIDER", default="static")
 FUNDAMENTAL_DATA_PROVIDER = env("FUNDAMENTAL_DATA_PROVIDER", default="static")
 COT_DATA_PROVIDER = env("COT_DATA_PROVIDER", default="static")
 NEWS_PROVIDER = env("NEWS_PROVIDER", default="static")
+LLM_PROVIDER = env("LLM_PROVIDER", default="static")
+GEMINI_API_KEY = env("GEMINI_API_KEY", default="")
+ANTHROPIC_API_KEY = env("ANTHROPIC_API_KEY", default="")
+OPENAI_API_KEY = env("OPENAI_API_KEY", default="")
+OLLAMA_BASE_URL = env("OLLAMA_BASE_URL", default="http://localhost:11434")
 

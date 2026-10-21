@@ -167,6 +167,7 @@ The platform executes across **7 coordinated lifecycle phases**. Below is the ex
 ### Phase G: Evidence-Linked AI Market Narratives (`apps/narratives`)
 * Generates executive morning market briefs, supply/demand balance commentary, and risk surveillance summaries.
 * **Anti-Hallucination Standard**: Context builder collects verified quantitative metrics (Cushing stocks, 1-week diff, prompt WTI, COT Managed Money Net). The LLM reasons *over* these ground-truth figures using a structured prompt template.
+* **Documentation**: See [AI Market Narratives Module Architecture](modules/narratives.md) and [AI Market Narratives REST API](api/narratives.md).
   > **Need to change the LLM Provider or Model (e.g. Gemini, Claude, GPT-4o, Ollama)?**  
   > See: [How to Swap LLM Models and Providers](guides/data-sources.md#6-how-to-swap-llm-models-and-providers-step-by-step).
 

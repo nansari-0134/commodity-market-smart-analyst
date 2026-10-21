@@ -32,6 +32,8 @@ urlpatterns = [
     path("api/quant/", include("apps.quant_engine.urls")),
     # News & Macroeconomic Catalyst Intelligence
     path("api/news/", include("apps.news_intel.urls")),
+    # AI Market Narratives & Hybrid Context Intelligence
+    path("api/intelligence/", include("apps.narratives.urls")),
     # Main terminal / intelligence dashboard
     path("", include("apps.dashboard.urls")),
 ]

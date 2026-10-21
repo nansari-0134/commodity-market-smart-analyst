@@ -60,8 +60,9 @@ def setup_commodity(db):
         MarketPriceObservation.objects.get_or_create(
             commodity=commodity,
             observation_date=d,
+            delivery_month="PROMPT",
+            is_prompt=True,
             defaults={
-                "is_prompt": True,
                 "open_price": p - 0.2,
                 "high_price": p + 0.8,
                 "low_price": p - 0.6,
