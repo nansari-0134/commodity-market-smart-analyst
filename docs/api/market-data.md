@@ -204,6 +204,99 @@ Retrieve CFTC institutional positioning reports with computed speculative and co
 
 ---
 
+## 3.1 Commitment of Traders (COT) 20Y Historical Analytics & Seasonality Studio
+
+Query complete multi-decade point-in-time positioning time series (Large Speculators, Commercial Hedgers, Small Retail, Open Interest) alongside empirical weekly (W1–W52) and monthly (Jan–Dec) seasonality averages and crowding regime telemetry.
+
+* **Endpoint**: `GET /api/market-data/cot/analytics/`
+* **Query Parameters**:
+  - `commodity`: Canonical commodity code (e.g. `CL`, `BRENT`, `NG`, `GOLD`, `CORN`).
+
+=== "cURL"
+    ```bash
+    # Query WTI Crude 20-Year COT Historical Analytics & Seasonality Distribution
+    curl -X GET "http://127.0.0.1:8000/api/market-data/cot/analytics/?commodity=CL" \
+         -H "Accept: application/json"
+    ```
+
+=== "Python (requests)"
+    ```python
+    import requests
+
+    response = requests.get(
+        "http://127.0.0.1:8000/api/market-data/cot/analytics/",
+        params={"commodity": "CL"}
+    )
+    data = response.json()
+    print(f"Commodity: {data['commodity_name']} ({data['commodity_code']})")
+    print(f"Total Observations: {data['total_observations']} across {len(data['historical_years'])} years")
+    print(f"Latest Speculator Net: {data['latest']['noncomm_net']:,} contracts")
+    print(f"Crowding Regime: {data['latest']['crowding_regime']}")
+    ```
+
+=== "JSON Response (200 OK)"
+    ```json
+    {
+      "status": "ok",
+      "commodity_code": "CL",
+      "commodity_name": "Crude Oil WTI",
+      "total_observations": 1043,
+      "historical_years": [2006, 2007, 2008, 2026],
+      "latest": {
+        "date": "2026-10-20",
+        "year": 2026,
+        "week": 43,
+        "month": 10,
+        "open_interest": 1835144,
+        "noncomm_long": 335112,
+        "noncomm_short": 245787,
+        "noncomm_net": 89325,
+        "comm_long": 890913,
+        "comm_short": 1007071,
+        "comm_net": -116158,
+        "nonrept_long": 76036,
+        "nonrept_short": 49203,
+        "nonrept_net": 26833,
+        "noncomm_net_pct_oi": 4.87,
+        "comm_net_pct_oi": -6.33,
+        "crowding_regime": "NEUTRAL"
+      },
+      "time_series": [
+        {
+          "date": "2026-10-20",
+          "year": 2026,
+          "week": 43,
+          "month": 10,
+          "open_interest": 1835144,
+          "noncomm_net": 89325,
+          "comm_net": -116158,
+          "nonrept_net": 26833,
+          "noncomm_net_pct_oi": 4.87
+        }
+      ],
+      "seasonality_weekly": {
+        "43": {
+          "avg_noncomm_net": 128450,
+          "avg_comm_net": -142100,
+          "avg_nonrept_net": 13650,
+          "avg_open_interest": 1720300,
+          "count": 21
+        }
+      },
+      "seasonality_monthly": {
+        "10": {
+          "avg_noncomm_net": 126200,
+          "avg_comm_net": -140500,
+          "avg_nonrept_net": 14300,
+          "avg_open_interest": 1715000,
+          "count": 21
+        }
+      }
+    }
+    ```
+
+---
+
 ## 4. Market Data Summary & Telemetry
 
 Get a high-level statistical overview of the observation store coverage and freshness.

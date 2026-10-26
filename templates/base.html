@@ -80,8 +80,9 @@
         }
         setInterval(updateClock, 1000);
     </script>
-    <!-- TradingView Lightweight Charts Library -->
+    <!-- TradingView Lightweight Charts Library & Chart.js for COT Positioning Analytics -->
     <script src="{% static 'js/lightweight-charts.standalone.production.js' %}"></script>
+    <script src="{% static 'js/chart.umd.min.js' %}"></script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>

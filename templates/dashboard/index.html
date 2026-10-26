@@ -1094,65 +1094,254 @@
         <div class="tm-header-left">
             <span class="tm-module-badge">MODULE 4</span>
             <div>
-                <h2 class="tm-module-title">CFTC Commitment of Traders (COT) Positioning & Physical Storage Regimes</h2>
-                <p class="tm-module-desc">Disaggregated CFTC speculative funds vs commercial hedgers net positioning, percentile crowding regimes, and physical commercial inventory draws/builds.</p>
+                <h2 class="tm-module-title">CFTC Commitment of Traders (COT) Positioning & 20Y Seasonality Studio</h2>
+                <p class="tm-module-desc">Official CFTC Socrata institutional speculative funds vs commercial hedgers net positioning, multi-year annual trajectory overlays, and structural market participation cycles.</p>
             </div>
         </div>
         <div class="tm-header-right">
-            <span class="badge-tag tag-pra">CFTC DISAGGREGATED • STORAGE DRAWS</span>
+            <span class="badge-tag tag-pra">CFTC SOCRATA LIVE • 20Y DEPTH</span>
         </div>
     </div>
 
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
-        <!-- CFTC COT Positioning -->
-        <div class="glass-panel" style="padding: 1.5rem;">
-            <h3 style="font-size: 1rem; font-weight: 700; color: #ffffff; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.85rem; font-family: var(--font-mono);">
-                CFTC Disaggregated Commitment of Traders
-            </h3>
-            <div style="display: flex; flex-direction: column; gap: 1rem;">
-                <div class="pulse-card">
-                    <div class="pulse-title">Managed Money (Speculative Funds) Net</div>
-                    <div class="pulse-value" style="color: var(--accent-cyan); margin-top: 0.3rem;">
-                        {% if commodity_detail.positioning.money_manager_net is not None %}
-                            {% if commodity_detail.positioning.money_manager_net >= 0 %}+{% endif %}{{ commodity_detail.positioning.money_manager_net|floatformat:0 }} <span style="font-size: 0.8rem; color: var(--text-muted);">Contracts</span>
-                        {% else %}
-                            <span style="color: var(--text-muted); font-size: 1.1rem;">N/A</span>
-                        {% endif %}
+    <style>
+    .cot-analytics-container { display: flex; flex-direction: column; gap: 1.5rem; }
+    .cot-stats-ribbon { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; }
+    .cot-stat-card {
+        background: rgba(15, 23, 42, 0.75);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 10px;
+        padding: 1rem 1.25rem;
+        position: relative;
+    }
+    .cot-stat-label {
+        font-size: 0.72rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-muted);
+        margin-bottom: 0.4rem;
+    }
+    .cot-stat-val {
+        font-family: var(--font-mono);
+        font-size: 1.35rem;
+        font-weight: 800;
+        line-height: 1.2;
+    }
+    .cot-stat-sub {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        margin-top: 0.35rem;
+        font-family: var(--font-mono);
+    }
+    .cot-chart-card {
+        background: rgba(15, 23, 42, 0.75);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        padding: 1.5rem;
+    }
+    .cot-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 1.25rem;
+    }
+    .cot-card-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #ffffff;
+        margin: 0;
+        letter-spacing: -0.01em;
+    }
+    .cot-card-subtitle {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        margin-top: 0.2rem;
+    }
+    .cot-btn-group {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 8px;
+        padding: 3px;
+        display: inline-flex;
+        gap: 3px;
+    }
+    .cot-btn {
+        border: none;
+        background: transparent;
+        color: var(--text-secondary);
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.35rem 0.75rem;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    .cot-btn:hover { color: #ffffff; background: rgba(255, 255, 255, 0.06); }
+    .cot-btn.active {
+        background: var(--accent-cyan);
+        color: #090e17;
+        font-weight: 700;
+    }
+    .cot-select {
+        background: rgba(15, 23, 42, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        color: var(--text-primary);
+        border-radius: 6px;
+        padding: 0.35rem 0.75rem;
+        font-size: 0.78rem;
+        font-family: var(--font-mono);
+        outline: none;
+        cursor: pointer;
+    }
+    .cot-switch-wrap {
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+        font-size: 0.78rem;
+        color: var(--text-secondary);
+        cursor: pointer;
+        user-select: none;
+    }
+    .cot-switch-wrap input { cursor: pointer; accent-color: var(--accent-cyan); }
+    </style>
+
+    <div class="cot-analytics-container">
+        <!-- 1. Key Metrics Strip (5 Institutional Stat Chips) -->
+        <div class="cot-stats-ribbon">
+            <div class="cot-stat-card">
+                <div class="cot-stat-label">Managed Money (Speculators) Net</div>
+                <div class="cot-stat-val" id="cotStatMmNet" style="color: var(--accent-cyan);">
+                    {% if commodity_detail.positioning.money_manager_net is not None %}
+                        {% if commodity_detail.positioning.money_manager_net >= 0 %}+{% endif %}{{ commodity_detail.positioning.money_manager_net|floatformat:0 }}
+                    {% else %}--{% endif %}
+                </div>
+                <div class="cot-stat-sub" id="cotStatMmPct">
+                    {% if commodity_detail.positioning.money_manager_net_pct_oi is not None %}
+                        {% if commodity_detail.positioning.money_manager_net_pct_oi >= 0 %}+{% endif %}{{ commodity_detail.positioning.money_manager_net_pct_oi|floatformat:1 }}% of OI
+                    {% else %}--{% endif %}
+                </div>
+            </div>
+
+            <div class="cot-stat-card">
+                <div class="cot-stat-label">Commercial Hedgers Net</div>
+                <div class="cot-stat-val" id="cotStatCommNet" style="color: var(--accent-amber);">
+                    {% if commodity_detail.positioning.commercial_net is not None %}
+                        {% if commodity_detail.positioning.commercial_net >= 0 %}+{% endif %}{{ commodity_detail.positioning.commercial_net|floatformat:0 }}
+                    {% else %}--{% endif %}
+                </div>
+                <div class="cot-stat-sub" id="cotStatCommPct">
+                    {% if commodity_detail.positioning.commercial_net_pct_oi is not None %}
+                        {% if commodity_detail.positioning.commercial_net_pct_oi >= 0 %}+{% endif %}{{ commodity_detail.positioning.commercial_net_pct_oi|floatformat:1 }}% of OI
+                    {% else %}--{% endif %}
+                </div>
+            </div>
+
+            <div class="cot-stat-card">
+                <div class="cot-stat-label">Small Retail Traders Net</div>
+                <div class="cot-stat-val" id="cotStatRetailNet" style="color: var(--accent-emerald);">--</div>
+                <div class="cot-stat-sub">Non-Reportables</div>
+            </div>
+
+            <div class="cot-stat-card">
+                <div class="cot-stat-label">Total Open Interest</div>
+                <div class="cot-stat-val" id="cotStatOI" style="color: #a855f7;">--</div>
+                <div class="cot-stat-sub">Outstanding Contracts</div>
+            </div>
+
+            <div class="cot-stat-card">
+                <div class="cot-stat-label">Crowding Regime & Cutoff</div>
+                <div class="cot-stat-val" id="cotStatRegime" style="color: var(--accent-violet); font-size: 1.1rem; text-transform: uppercase;">
+                    {{ commodity_detail.positioning.crowding_regime|default:"NEUTRAL" }}
+                </div>
+                <div class="cot-stat-sub">Cutoff: <strong id="cotStatDate" style="color: #ffffff;">--</strong></div>
+            </div>
+        </div>
+
+        <!-- 2. Main Chart: Historical Net Positions Over Time -->
+        <div class="cot-chart-card">
+            <div class="cot-card-header">
+                <div>
+                    <h3 class="cot-card-title">Historical Net Positions Over Time (20-Year Institutional Depth)</h3>
+                    <div class="cot-card-subtitle">Large Speculators (Managed Money) vs Commercial Hedgers vs Small Retail Traders (Net Long)</div>
+                </div>
+                <div class="cot-btn-group" id="cotPosBtnGroup">
+                    <button type="button" class="cot-btn cot-pos-btn active" data-mode="all" onclick="renderCotPosChart('all')">All Traders</button>
+                    <button type="button" class="cot-btn cot-pos-btn" data-mode="nc" onclick="renderCotPosChart('nc')">Speculators</button>
+                    <button type="button" class="cot-btn cot-pos-btn" data-mode="cm" onclick="renderCotPosChart('cm')">Commercials</button>
+                    <button type="button" class="cot-btn cot-pos-btn" data-mode="nr" onclick="renderCotPosChart('nr')">Small Retail</button>
+                </div>
+            </div>
+            <div style="position: relative; height: 350px;">
+                <canvas id="cotPosChart"></canvas>
+            </div>
+        </div>
+
+        <!-- 3. Seasonality Studio: 2 Columns (Net Positions Seasonals + Open Interest Seasonals) -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <!-- Left: Net Positions Seasonality Studio -->
+            <div class="cot-chart-card">
+                <div class="cot-card-header">
+                    <div>
+                        <h3 class="cot-card-title">Seasonality Studio (Net Positions)</h3>
+                        <div class="cot-card-subtitle" id="cotSeaSubtitle">Multi-year annual trajectory overlays and institutional seasonal bias</div>
                     </div>
-                    <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.3rem;">
-                        Net % of Total Open Interest: <strong>{{ commodity_detail.positioning.money_manager_net_pct_oi|floatformat:1 }}%</strong>
+                    <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+                        <label class="cot-switch-wrap" title="Rebase every year to start at 0 to compare relative positioning trajectories">
+                            <input type="checkbox" id="cotSeaZerobase" onchange="renderCotSeasonalityChart(); renderCotOiSeasonalityChart();">
+                            <span>Zerobase</span>
+                        </label>
+                        <div class="cot-btn-group">
+                            <button type="button" class="cot-btn cot-sea-type-btn active" data-type="weekly" onclick="setCotSeaType('weekly')">Weekly</button>
+                            <button type="button" class="cot-btn cot-sea-type-btn" data-type="monthly" onclick="setCotSeaType('monthly')">Monthly</button>
+                        </div>
+                        <select id="cotSeaFilter" class="cot-select" onchange="renderCotSeasonalityChart(); renderCotOiSeasonalityChart();">
+                            <option value="3" selected>Last 3 Yrs</option>
+                            <option value="5">Last 5 Yrs</option>
+                            <option value="10">Last 10 Yrs</option>
+                            <option value="all">All Years (20Y)</option>
+                        </select>
                     </div>
                 </div>
+                <div style="position: relative; height: 330px;">
+                    <canvas id="cotSeaChart"></canvas>
+                </div>
+            </div>
 
-                <div class="pulse-card">
-                    <div class="pulse-title">Commercial Hedgers (Producers/Merchants) Net</div>
-                    <div class="pulse-value" style="color: var(--accent-amber); margin-top: 0.3rem;">
-                        {% if commodity_detail.positioning.commercial_net is not None %}
-                            {% if commodity_detail.positioning.commercial_net >= 0 %}+{% endif %}{{ commodity_detail.positioning.commercial_net|floatformat:0 }} <span style="font-size: 0.8rem; color: var(--text-muted);">Contracts</span>
-                        {% else %}
-                            <span style="color: var(--text-muted); font-size: 1.1rem;">N/A</span>
-                        {% endif %}
-                    </div>
-                    <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.3rem;">
-                        Net % of Total Open Interest: <strong>{{ commodity_detail.positioning.commercial_net_pct_oi|floatformat:1 }}%</strong>
+            <!-- Right: Open Interest Seasonality Cycles -->
+            <div class="cot-chart-card">
+                <div class="cot-card-header">
+                    <div>
+                        <h3 class="cot-card-title">Seasonality Studio (Open Interest)</h3>
+                        <div class="cot-card-subtitle">Historical annual market participation and structural liquidity cycles</div>
                     </div>
                 </div>
-
-                <div style="background: rgba(139, 92, 246, 0.08); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 8px; padding: 0.85rem 1rem;">
-                    <div style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted);">POSITIONING REGIME CLASSIFICATION</div>
-                    <div style="font-family: var(--font-mono); font-size: 1.1rem; font-weight: 800; color: var(--accent-violet); margin-top: 0.2rem;">
-                        {{ commodity_detail.positioning.crowding_regime|default:"BALANCED NEUTRAL" }}
-                    </div>
+                <div style="position: relative; height: 330px;">
+                    <canvas id="cotOiSeaChart"></canvas>
                 </div>
             </div>
         </div>
 
-        <!-- Fundamental Inventories -->
+        <!-- 4. Open Interest Historical Time Series -->
+        <div class="cot-chart-card">
+            <div class="cot-card-header">
+                <div>
+                    <h3 class="cot-card-title">Market Participation (Open Interest Time Series)</h3>
+                    <div class="cot-card-subtitle">Total reportable outstanding futures contracts over time illustrating macro liquidity trends</div>
+                </div>
+            </div>
+            <div style="position: relative; height: 210px;">
+                <canvas id="cotOiChart"></canvas>
+            </div>
+        </div>
+
+        <!-- 5. Fundamental Storage & Seasonal Balance Regimes -->
         <div class="glass-panel" style="padding: 1.5rem;">
             <h3 style="font-size: 1rem; font-weight: 700; color: #ffffff; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.85rem; font-family: var(--font-mono);">
                 Physical Storage & Seasonal Balance Regimes
             </h3>
-            <div style="display: flex; flex-direction: column; gap: 1rem;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
                 <div class="pulse-card">
                     <div class="pulse-title">Primary Benchmark Storage</div>
                     <div class="pulse-value" style="color: var(--text-primary); margin-top: 0.3rem;">

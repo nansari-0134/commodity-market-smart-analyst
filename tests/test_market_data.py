@@ -373,6 +373,24 @@ class TestMarketDataAPI:
         assert "commercial_net" in item
         assert "money_manager_net_pct_oi" in item
 
+    def test_cot_analytics_endpoint(self):
+        res = self.client.get("/api/market-data/cot/analytics/?commodity=CL")
+        assert res.status_code == 200
+        data = res.json()
+        assert data["status"] == "ok"
+        assert data["commodity_code"] == "CL"
+        assert "total_observations" in data
+        assert "historical_years" in data
+        assert "latest" in data
+        assert "time_series" in data
+        assert "seasonality_weekly" in data
+        assert "seasonality_monthly" in data
+        assert len(data["time_series"]) > 0
+        latest = data["latest"]
+        assert "noncomm_net" in latest
+        assert "comm_net" in latest
+        assert "crowding_regime" in latest
+
     def test_market_data_summary(self):
         res = self.client.get("/api/market-data/summary/")
         assert res.status_code == 200

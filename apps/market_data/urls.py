@@ -11,6 +11,7 @@ from apps.market_data.views import (
     FundamentalObservationDetailAPIView,
     CommitmentOfTradersListAPIView,
     CommitmentOfTradersDetailAPIView,
+    CommitmentOfTradersAnalyticsAPIView,
     OptionsObservationListAPIView,
     MarketDataSummaryAPIView,
     LiveMarketQuoteAPIView,
@@ -29,8 +30,9 @@ urlpatterns = [
     # Fundamentals
     path("fundamentals/", FundamentalObservationListAPIView.as_view(), name="fundamental-list"),
     path("fundamentals/<uuid:pk>/", FundamentalObservationDetailAPIView.as_view(), name="fundamental-detail"),
-    # COT Positioning
+    # COT Positioning & Seasonality Engine
     path("cot/", CommitmentOfTradersListAPIView.as_view(), name="cot-list"),
+    path("cot/analytics/", CommitmentOfTradersAnalyticsAPIView.as_view(), name="cot-analytics"),
     path("cot/<uuid:pk>/", CommitmentOfTradersDetailAPIView.as_view(), name="cot-detail"),
     # Telemetry Summary
     path("summary/", MarketDataSummaryAPIView.as_view(), name="market-data-summary"),

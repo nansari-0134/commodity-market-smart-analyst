@@ -81,6 +81,10 @@ function openProductDetail(commodityCode) {
                 }
             }, 100);
         }
+        const activeTabEl = document.querySelector(".detail-tab-btn.active")?.getAttribute("data-tab");
+        if (activeTabEl === "tab-positioning" && typeof loadAndRenderCotAnalytics === "function") {
+            loadAndRenderCotAnalytics();
+        }
         window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
         // Navigate to the selected commodity detail view
@@ -117,6 +121,10 @@ function switchDetailTab(targetTabId) {
     } else if (targetTabId === "tab-forward-curve") {
         if (typeof renderForwardCurveSvgChart === "function" && dashboardData && dashboardData.contracts) {
             renderForwardCurveSvgChart(dashboardData.contracts);
+        }
+    } else if (targetTabId === "tab-positioning") {
+        if (typeof loadAndRenderCotAnalytics === "function") {
+            loadAndRenderCotAnalytics();
         }
     }
 }
@@ -1695,5 +1703,781 @@ function initLiveQuoteTelemetry() {
         }
     }, 20000);
 }
+
+/* =========================================================================
+   CFTC COMMITMENT OF TRADERS (COT) 20Y ANALYTICS & SEASONALITY ENGINE
+   ========================================================================= */
+
+let cotDataCache = {};
+let cotPosChartInst = null;
+let cotSeaChartInst = null;
+let cotOiSeaChartInst = null;
+let cotOiChartInst = null;
+let cotActivePosMode = "all";
+let cotActiveSeaType = "weekly";
+let cotIsLoading = false;
+
+const COT_YEAR_COLORS = {
+    2026: { border: "#ffffff", width: 3.0, pointRadius: 2.5 },
+    2025: { border: "#38bdf8", width: 2.0, pointRadius: 0 },
+    2024: { border: "#fbbf24", width: 1.8, pointRadius: 0 },
+    2023: { border: "#34d399", width: 1.8, pointRadius: 0 },
+    2022: { border: "#f472b6", width: 1.6, pointRadius: 0 },
+    2021: { border: "#a78bfa", width: 1.6, pointRadius: 0 },
+    2020: { border: "#fb923c", width: 1.6, pointRadius: 0 },
+};
+
+function getCotYearStyle(year, maxYear) {
+    if (COT_YEAR_COLORS[year]) {
+        return COT_YEAR_COLORS[year];
+    }
+    const diff = maxYear - year;
+    const hue = (year * 53) % 360;
+    const alpha = diff > 8 ? 0.45 : 0.75;
+    return {
+        border: `hsla(${hue}, 75%, 65%, ${alpha})`,
+        width: 1.2,
+        pointRadius: 0,
+    };
+}
+
+function applyZerobase(dataArray) {
+    let firstVal = null;
+    for (let i = 0; i < dataArray.length; i++) {
+        if (dataArray[i] !== null && dataArray[i] !== undefined && !isNaN(dataArray[i])) {
+            firstVal = dataArray[i];
+            break;
+        }
+    }
+    if (firstVal === null) return dataArray;
+    return dataArray.map(v => (v !== null && v !== undefined && !isNaN(v)) ? (v - firstVal) : null);
+}
+
+function getCotBaseChartOptions(options = {}) {
+    return {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: { duration: 250 },
+        interaction: {
+            mode: "index",
+            intersect: false,
+        },
+        plugins: {
+            legend: {
+                position: "top",
+                labels: {
+                    color: "#94a3b8",
+                    boxWidth: 12,
+                    boxHeight: 12,
+                    padding: 10,
+                    font: {
+                        family: "'JetBrains Mono', 'Roboto Mono', monospace",
+                        size: 11,
+                    },
+                },
+            },
+            tooltip: {
+                backgroundColor: "rgba(10, 15, 30, 0.95)",
+                titleColor: "#ffffff",
+                bodyColor: "#cbd5e1",
+                borderColor: "rgba(255, 255, 255, 0.15)",
+                borderWidth: 1,
+                padding: 10,
+                titleFont: { family: "'JetBrains Mono', monospace", size: 12, weight: "bold" },
+                bodyFont: { family: "'JetBrains Mono', monospace", size: 11 },
+                callbacks: {
+                    label: function(context) {
+                        let label = context.dataset.label || "";
+                        if (label) label += ": ";
+                        if (context.parsed.y !== null && context.parsed.y !== undefined) {
+                            const yVal = context.parsed.y;
+                            const prefix = (yVal > 0 && options.showPlusSign) ? "+" : "";
+                            label += prefix + Math.round(yVal).toLocaleString() + (options.unit || " contracts");
+                        }
+                        return label;
+                    }
+                }
+            },
+        },
+        scales: {
+            x: {
+                grid: {
+                    color: "rgba(255, 255, 255, 0.04)",
+                },
+                ticks: {
+                    color: "#64748b",
+                    font: {
+                        family: "'JetBrains Mono', monospace",
+                        size: 10,
+                    },
+                    maxTicksLimit: options.maxXTicks || 14,
+                },
+            },
+            y: {
+                grid: {
+                    color: (ctx) => (ctx.tick && ctx.tick.value === 0) ? "rgba(255, 255, 255, 0.28)" : "rgba(255, 255, 255, 0.04)",
+                    lineWidth: (ctx) => (ctx.tick && ctx.tick.value === 0) ? 1.5 : 1,
+                },
+                ticks: {
+                    color: "#64748b",
+                    font: {
+                        family: "'JetBrains Mono', monospace",
+                        size: 10,
+                    },
+                    callback: (value) => {
+                        if (Math.abs(value) >= 1000000) return (value / 1000000).toFixed(1) + "M";
+                        if (Math.abs(value) >= 1000) return (value / 1000).toFixed(0) + "k";
+                        return value;
+                    },
+                },
+            },
+        },
+    };
+}
+
+/**
+ * Update Key Telemetry Ribbon
+ */
+function updateCotStatsRibbon(latest) {
+    if (!latest) return;
+
+    const elSpecNet = document.getElementById("cotStatSpecNet");
+    const elSpecPct = document.getElementById("cotStatSpecPct");
+    const elCommNet = document.getElementById("cotStatCommNet");
+    const elCommPct = document.getElementById("cotStatCommPct");
+    const elRetailNet = document.getElementById("cotStatRetailNet");
+    const elOI = document.getElementById("cotStatOI");
+    const elRegime = document.getElementById("cotStatRegime");
+    const elDate = document.getElementById("cotStatDate");
+
+    if (elSpecNet) {
+        const val = latest.noncomm_net || 0;
+        elSpecNet.textContent = (val >= 0 ? "+" : "") + val.toLocaleString();
+        elSpecNet.style.color = val >= 0 ? "var(--accent-cyan)" : "#f43f5e";
+    }
+    if (elSpecPct) {
+        const pct = latest.noncomm_net_pct_oi || 0;
+        elSpecPct.textContent = (pct >= 0 ? "+" : "") + pct.toFixed(1) + "% of OI";
+    }
+    if (elCommNet) {
+        const val = latest.comm_net || 0;
+        elCommNet.textContent = (val >= 0 ? "+" : "") + val.toLocaleString();
+        elCommNet.style.color = val >= 0 ? "var(--accent-amber)" : "#fbbf24";
+    }
+    if (elCommPct) {
+        const pct = latest.comm_net_pct_oi || 0;
+        elCommPct.textContent = (pct >= 0 ? "+" : "") + pct.toFixed(1) + "% of OI";
+    }
+    if (elRetailNet) {
+        const val = latest.nonrept_net || 0;
+        elRetailNet.textContent = (val >= 0 ? "+" : "") + val.toLocaleString();
+    }
+    if (elOI) {
+        const val = latest.open_interest || 0;
+        elOI.textContent = val.toLocaleString();
+    }
+    if (elRegime) {
+        elRegime.textContent = (latest.crowding_regime || "BALANCED NEUTRAL").replace("_", " ");
+    }
+    if (elDate && latest.date) {
+        elDate.textContent = latest.date;
+    }
+}
+
+/**
+ * Chart 1: Historical Net Positions Over Time
+ */
+function renderCotPosChart(mode = null) {
+    if (mode) cotActivePosMode = mode;
+    const currentMode = cotActivePosMode;
+
+    // Update active button state
+    document.querySelectorAll(".cot-pos-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.getAttribute("data-mode") === currentMode);
+    });
+
+    const canvas = document.getElementById("cotPosChart");
+    if (!canvas) return;
+
+    const commCode = currentCommodityCode || "CL";
+    const dataObj = cotDataCache[commCode];
+    if (!dataObj || !dataObj.time_series || dataObj.time_series.length === 0) return;
+
+    const ts = dataObj.time_series;
+    const labels = ts.map(d => d.date);
+    let datasets = [];
+
+    if (currentMode === "all") {
+        datasets = [
+            {
+                label: "Large Speculators (Net)",
+                data: ts.map(d => d.noncomm_net),
+                borderColor: "#00f2fe",
+                backgroundColor: "rgba(0, 242, 254, 0.08)",
+                borderWidth: 2,
+                pointRadius: 0,
+                pointHoverRadius: 4,
+                tension: 0.12,
+            },
+            {
+                label: "Commercial Hedgers (Net)",
+                data: ts.map(d => d.comm_net),
+                borderColor: "#f9d423",
+                backgroundColor: "rgba(249, 212, 35, 0.08)",
+                borderWidth: 2,
+                pointRadius: 0,
+                pointHoverRadius: 4,
+                tension: 0.12,
+            },
+            {
+                label: "Small Retail (Net)",
+                data: ts.map(d => d.nonrept_net),
+                borderColor: "#10b981",
+                backgroundColor: "rgba(16, 185, 129, 0.05)",
+                borderWidth: 1.5,
+                pointRadius: 0,
+                pointHoverRadius: 4,
+                tension: 0.12,
+            },
+        ];
+    } else if (currentMode === "nc") {
+        datasets = [
+            {
+                label: "Speculator Net Positioning",
+                data: ts.map(d => d.noncomm_net),
+                borderColor: "#00f2fe",
+                backgroundColor: "rgba(0, 242, 254, 0.12)",
+                fill: true,
+                borderWidth: 2.2,
+                pointRadius: 0,
+                pointHoverRadius: 4,
+                tension: 0.12,
+            },
+            {
+                label: "Speculator Gross Long",
+                data: ts.map(d => d.noncomm_long),
+                borderColor: "rgba(16, 185, 129, 0.75)",
+                borderDash: [4, 4],
+                borderWidth: 1.2,
+                pointRadius: 0,
+                tension: 0.12,
+            },
+            {
+                label: "Speculator Gross Short",
+                data: ts.map(d => d.noncomm_short),
+                borderColor: "rgba(244, 63, 94, 0.75)",
+                borderDash: [4, 4],
+                borderWidth: 1.2,
+                pointRadius: 0,
+                tension: 0.12,
+            },
+        ];
+    } else if (currentMode === "cm") {
+        datasets = [
+            {
+                label: "Commercial Hedgers Net Positioning",
+                data: ts.map(d => d.comm_net),
+                borderColor: "#f9d423",
+                backgroundColor: "rgba(249, 212, 35, 0.12)",
+                fill: true,
+                borderWidth: 2.2,
+                pointRadius: 0,
+                pointHoverRadius: 4,
+                tension: 0.12,
+            },
+            {
+                label: "Commercial Gross Long",
+                data: ts.map(d => d.comm_long),
+                borderColor: "rgba(16, 185, 129, 0.75)",
+                borderDash: [4, 4],
+                borderWidth: 1.2,
+                pointRadius: 0,
+                tension: 0.12,
+            },
+            {
+                label: "Commercial Gross Short",
+                data: ts.map(d => d.comm_short),
+                borderColor: "rgba(244, 63, 94, 0.75)",
+                borderDash: [4, 4],
+                borderWidth: 1.2,
+                pointRadius: 0,
+                tension: 0.12,
+            },
+        ];
+    } else if (currentMode === "nr") {
+        datasets = [
+            {
+                label: "Small Retail Non-Reportables Net",
+                data: ts.map(d => d.nonrept_net),
+                borderColor: "#10b981",
+                backgroundColor: "rgba(16, 185, 129, 0.12)",
+                fill: true,
+                borderWidth: 2,
+                pointRadius: 0,
+                pointHoverRadius: 4,
+                tension: 0.12,
+            },
+            {
+                label: "Retail Gross Long",
+                data: ts.map(d => d.nonrept_long),
+                borderColor: "rgba(56, 189, 248, 0.75)",
+                borderDash: [4, 4],
+                borderWidth: 1.2,
+                pointRadius: 0,
+                tension: 0.12,
+            },
+            {
+                label: "Retail Gross Short",
+                data: ts.map(d => d.nonrept_short),
+                borderColor: "rgba(244, 63, 94, 0.75)",
+                borderDash: [4, 4],
+                borderWidth: 1.2,
+                pointRadius: 0,
+                tension: 0.12,
+            },
+        ];
+    }
+
+    if (cotPosChartInst) {
+        cotPosChartInst.destroy();
+        cotPosChartInst = null;
+    }
+
+    const options = getCotBaseChartOptions({ showPlusSign: true, maxXTicks: 16 });
+    cotPosChartInst = new Chart(canvas, {
+        type: "line",
+        data: { labels, datasets },
+        options: options,
+    });
+}
+
+/**
+ * Chart 2: COT Net Positions Seasonality Studio
+ */
+function renderCotSeasonalityChart() {
+    const canvas = document.getElementById("cotSeaChart");
+    if (!canvas) return;
+
+    const commCode = currentCommodityCode || "CL";
+    const dataObj = cotDataCache[commCode];
+    if (!dataObj || !dataObj.time_series) return;
+
+    const isZerobase = document.getElementById("cotSeaZerobase")?.checked || false;
+    const filterVal = document.getElementById("cotSeaFilter")?.value || "3";
+    const isWeekly = (cotActiveSeaType === "weekly");
+
+    // Update subtitle text
+    const subtitle = document.getElementById("cotSeaSubtitle");
+    if (subtitle) {
+        subtitle.textContent = isWeekly
+            ? `Multi-year annual trajectory overlays (W1–W52) • ${isZerobase ? "Zerobased from Start of Year" : "Absolute Net Contracts"}`
+            : `Multi-year annual trajectory overlays (Jan–Dec) • ${isZerobase ? "Zerobased from Start of Year" : "Absolute Net Contracts"}`;
+    }
+
+    // Determine target years
+    const allYears = dataObj.historical_years || [];
+    const maxYear = allYears.length > 0 ? Math.max(...allYears) : 2026;
+    let selectedYears = [];
+
+    if (filterVal === "3") {
+        selectedYears = allYears.filter(y => y >= maxYear - 2);
+    } else if (filterVal === "5") {
+        selectedYears = allYears.filter(y => y >= maxYear - 4);
+    } else if (filterVal === "10") {
+        selectedYears = allYears.filter(y => y >= maxYear - 9);
+    } else {
+        selectedYears = [...allYears];
+    }
+
+    let labels = [];
+    let datasets = [];
+
+    if (isWeekly) {
+        labels = Array.from({ length: 52 }, (_, i) => `W${i + 1}`);
+
+        // Add 20Y Benchmark Averages
+        const wkAvgs = dataObj.seasonality_weekly || {};
+        let avgSpec = [];
+        let avgComm = [];
+        for (let w = 1; w <= 52; w++) {
+            const row = wkAvgs[String(w)];
+            avgSpec.push(row ? row.avg_noncomm_net : null);
+            avgComm.push(row ? row.avg_comm_net : null);
+        }
+        if (isZerobase) {
+            avgSpec = applyZerobase(avgSpec);
+            avgComm = applyZerobase(avgComm);
+        }
+
+        datasets.push({
+            label: "20Y AVG Speculators",
+            data: avgSpec,
+            borderColor: "#00f2fe",
+            borderDash: [5, 4],
+            borderWidth: 2.5,
+            pointRadius: 0,
+            pointHoverRadius: 4,
+            tension: 0.25,
+            order: 1,
+        });
+
+        datasets.push({
+            label: "20Y AVG Commercials",
+            data: avgComm,
+            borderColor: "#f9d423",
+            borderDash: [5, 4],
+            borderWidth: 2.5,
+            pointRadius: 0,
+            pointHoverRadius: 4,
+            tension: 0.25,
+            order: 2,
+        });
+
+        // Add yearly curves
+        selectedYears.forEach(yr => {
+            let yrData = new Array(52).fill(null);
+            dataObj.time_series.forEach(item => {
+                if (item.year === yr) {
+                    const idx = item.week - 1;
+                    if (idx >= 0 && idx < 52) {
+                        yrData[idx] = item.noncomm_net;
+                    }
+                }
+            });
+            if (isZerobase) yrData = applyZerobase(yrData);
+
+            const style = getCotYearStyle(yr, maxYear);
+            datasets.push({
+                label: yr === maxYear ? `${yr} (Current)` : String(yr),
+                data: yrData,
+                borderColor: style.border,
+                borderWidth: style.width,
+                pointRadius: style.pointRadius,
+                pointHoverRadius: 4,
+                tension: 0.2,
+                order: yr === maxYear ? 3 : 10,
+            });
+        });
+    } else {
+        // Monthly
+        labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+        const moAvgs = dataObj.seasonality_monthly || {};
+        let avgSpec = [];
+        let avgComm = [];
+        for (let m = 1; m <= 12; m++) {
+            const row = moAvgs[String(m)];
+            avgSpec.push(row ? row.avg_noncomm_net : null);
+            avgComm.push(row ? row.avg_comm_net : null);
+        }
+        if (isZerobase) {
+            avgSpec = applyZerobase(avgSpec);
+            avgComm = applyZerobase(avgComm);
+        }
+
+        datasets.push({
+            label: "20Y AVG Speculators",
+            data: avgSpec,
+            borderColor: "#00f2fe",
+            borderDash: [5, 4],
+            borderWidth: 2.5,
+            pointRadius: 0,
+            pointHoverRadius: 4,
+            tension: 0.25,
+            order: 1,
+        });
+
+        datasets.push({
+            label: "20Y AVG Commercials",
+            data: avgComm,
+            borderColor: "#f9d423",
+            borderDash: [5, 4],
+            borderWidth: 2.5,
+            pointRadius: 0,
+            pointHoverRadius: 4,
+            tension: 0.25,
+            order: 2,
+        });
+
+        selectedYears.forEach(yr => {
+            let yrData = new Array(12).fill(null);
+            dataObj.time_series.forEach(item => {
+                if (item.year === yr) {
+                    const idx = item.month - 1;
+                    if (idx >= 0 && idx < 12) {
+                        yrData[idx] = item.noncomm_net;
+                    }
+                }
+            });
+            if (isZerobase) yrData = applyZerobase(yrData);
+
+            const style = getCotYearStyle(yr, maxYear);
+            datasets.push({
+                label: yr === maxYear ? `${yr} (Current)` : String(yr),
+                data: yrData,
+                borderColor: style.border,
+                borderWidth: style.width,
+                pointRadius: style.pointRadius,
+                pointHoverRadius: 4,
+                tension: 0.2,
+                order: yr === maxYear ? 3 : 10,
+            });
+        });
+    }
+
+    if (cotSeaChartInst) {
+        cotSeaChartInst.destroy();
+        cotSeaChartInst = null;
+    }
+
+    const options = getCotBaseChartOptions({ showPlusSign: true, maxXTicks: isWeekly ? 13 : 12 });
+    cotSeaChartInst = new Chart(canvas, {
+        type: "line",
+        data: { labels, datasets },
+        options: options,
+    });
+}
+
+/**
+ * Chart 3: Open Interest Seasonality Cycles
+ */
+function renderCotOiSeasonalityChart() {
+    const canvas = document.getElementById("cotOiSeaChart");
+    if (!canvas) return;
+
+    const commCode = currentCommodityCode || "CL";
+    const dataObj = cotDataCache[commCode];
+    if (!dataObj || !dataObj.time_series) return;
+
+    const isZerobase = document.getElementById("cotSeaZerobase")?.checked || false;
+    const filterVal = document.getElementById("cotSeaFilter")?.value || "3";
+    const isWeekly = (cotActiveSeaType === "weekly");
+
+    const allYears = dataObj.historical_years || [];
+    const maxYear = allYears.length > 0 ? Math.max(...allYears) : 2026;
+    let selectedYears = [];
+
+    if (filterVal === "3") {
+        selectedYears = allYears.filter(y => y >= maxYear - 2);
+    } else if (filterVal === "5") {
+        selectedYears = allYears.filter(y => y >= maxYear - 4);
+    } else if (filterVal === "10") {
+        selectedYears = allYears.filter(y => y >= maxYear - 9);
+    } else {
+        selectedYears = [...allYears];
+    }
+
+    let labels = [];
+    let datasets = [];
+
+    if (isWeekly) {
+        labels = Array.from({ length: 52 }, (_, i) => `W${i + 1}`);
+
+        // 20Y Open Interest Average
+        const wkAvgs = dataObj.seasonality_weekly || {};
+        let avgOi = [];
+        for (let w = 1; w <= 52; w++) {
+            const row = wkAvgs[String(w)];
+            avgOi.push(row ? row.avg_open_interest : null);
+        }
+        if (isZerobase) avgOi = applyZerobase(avgOi);
+
+        datasets.push({
+            label: "20Y AVG Open Interest",
+            data: avgOi,
+            borderColor: "#a855f7",
+            borderDash: [5, 4],
+            borderWidth: 2.5,
+            pointRadius: 0,
+            pointHoverRadius: 4,
+            tension: 0.25,
+            order: 1,
+        });
+
+        selectedYears.forEach(yr => {
+            let yrData = new Array(52).fill(null);
+            dataObj.time_series.forEach(item => {
+                if (item.year === yr) {
+                    const idx = item.week - 1;
+                    if (idx >= 0 && idx < 52) {
+                        yrData[idx] = item.open_interest;
+                    }
+                }
+            });
+            if (isZerobase) yrData = applyZerobase(yrData);
+
+            const style = getCotYearStyle(yr, maxYear);
+            datasets.push({
+                label: yr === maxYear ? `${yr} (Current)` : String(yr),
+                data: yrData,
+                borderColor: style.border,
+                borderWidth: style.width,
+                pointRadius: style.pointRadius,
+                pointHoverRadius: 4,
+                tension: 0.2,
+                order: yr === maxYear ? 3 : 10,
+            });
+        });
+    } else {
+        labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+        const moAvgs = dataObj.seasonality_monthly || {};
+        let avgOi = [];
+        for (let m = 1; m <= 12; m++) {
+            const row = moAvgs[String(m)];
+            avgOi.push(row ? row.avg_open_interest : null);
+        }
+        if (isZerobase) avgOi = applyZerobase(avgOi);
+
+        datasets.push({
+            label: "20Y AVG Open Interest",
+            data: avgOi,
+            borderColor: "#a855f7",
+            borderDash: [5, 4],
+            borderWidth: 2.5,
+            pointRadius: 0,
+            pointHoverRadius: 4,
+            tension: 0.25,
+            order: 1,
+        });
+
+        selectedYears.forEach(yr => {
+            let yrData = new Array(12).fill(null);
+            dataObj.time_series.forEach(item => {
+                if (item.year === yr) {
+                    const idx = item.month - 1;
+                    if (idx >= 0 && idx < 12) {
+                        yrData[idx] = item.open_interest;
+                    }
+                }
+            });
+            if (isZerobase) yrData = applyZerobase(yrData);
+
+            const style = getCotYearStyle(yr, maxYear);
+            datasets.push({
+                label: yr === maxYear ? `${yr} (Current)` : String(yr),
+                data: yrData,
+                borderColor: style.border,
+                borderWidth: style.width,
+                pointRadius: style.pointRadius,
+                pointHoverRadius: 4,
+                tension: 0.2,
+                order: yr === maxYear ? 3 : 10,
+            });
+        });
+    }
+
+    if (cotOiSeaChartInst) {
+        cotOiSeaChartInst.destroy();
+        cotOiSeaChartInst = null;
+    }
+
+    const options = getCotBaseChartOptions({ showPlusSign: isZerobase, maxXTicks: isWeekly ? 13 : 12 });
+    cotOiSeaChartInst = new Chart(canvas, {
+        type: "line",
+        data: { labels, datasets },
+        options: options,
+    });
+}
+
+/**
+ * Chart 4: Market Participation (Open Interest History)
+ */
+function renderCotOiChart() {
+    const canvas = document.getElementById("cotOiChart");
+    if (!canvas) return;
+
+    const commCode = currentCommodityCode || "CL";
+    const dataObj = cotDataCache[commCode];
+    if (!dataObj || !dataObj.time_series) return;
+
+    const ts = dataObj.time_series;
+    const labels = ts.map(d => d.date);
+
+    if (cotOiChartInst) {
+        cotOiChartInst.destroy();
+        cotOiChartInst = null;
+    }
+
+    const options = getCotBaseChartOptions({ showPlusSign: false, maxXTicks: 16 });
+    cotOiChartInst = new Chart(canvas, {
+        type: "line",
+        data: {
+            labels: labels,
+            datasets: [{
+                label: "Total Open Interest (Reportable Futures)",
+                data: ts.map(d => d.open_interest),
+                borderColor: "#a855f7",
+                backgroundColor: "rgba(168, 85, 247, 0.12)",
+                fill: true,
+                borderWidth: 2,
+                pointRadius: 0,
+                pointHoverRadius: 4,
+                tension: 0.15,
+            }],
+        },
+        options: options,
+    });
+}
+
+/**
+ * Toggle Seasonality Frequency (Weekly vs Monthly)
+ */
+function setCotSeaType(type) {
+    cotActiveSeaType = type;
+    document.querySelectorAll(".cot-sea-type-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.getAttribute("data-type") === type);
+    });
+    renderCotSeasonalityChart();
+    renderCotOiSeasonalityChart();
+}
+
+/**
+ * Master Controller: Fetch COT Analytics & Render Charts
+ */
+async function loadAndRenderCotAnalytics(forceReload = false) {
+    const commCode = currentCommodityCode || (dashboardData && (dashboardData.code || dashboardData.commodity?.code)) || "CL";
+
+    if (!forceReload && cotDataCache[commCode]) {
+        updateCotStatsRibbon(cotDataCache[commCode].latest);
+        renderCotPosChart(cotActivePosMode);
+        renderCotSeasonalityChart();
+        renderCotOiSeasonalityChart();
+        renderCotOiChart();
+        return;
+    }
+
+    if (cotIsLoading) return;
+    cotIsLoading = true;
+
+    try {
+        const url = `/api/market-data/cot/analytics/?commodity=${encodeURIComponent(commCode)}`;
+        const resp = await fetch(url);
+        if (!resp.ok) {
+            throw new Error(`HTTP ${resp.status} fetching COT analytics`);
+        }
+        const data = await resp.json();
+        cotDataCache[commCode] = data;
+
+        updateCotStatsRibbon(data.latest);
+        renderCotPosChart(cotActivePosMode);
+        renderCotSeasonalityChart();
+        renderCotOiSeasonalityChart();
+        renderCotOiChart();
+    } catch (err) {
+        console.warn("Failed to load COT analytics:", err);
+    } finally {
+        cotIsLoading = false;
+    }
+}
+
+// Expose functions globally for interactive events
+window.loadAndRenderCotAnalytics = loadAndRenderCotAnalytics;
+window.renderCotPosChart = renderCotPosChart;
+window.renderCotSeasonalityChart = renderCotSeasonalityChart;
+window.renderCotOiSeasonalityChart = renderCotOiSeasonalityChart;
+window.renderCotOiChart = renderCotOiChart;
+window.setCotSeaType = setCotSeaType;
+
 
 

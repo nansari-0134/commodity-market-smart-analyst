@@ -134,6 +134,15 @@ Captures CFTC institutional trader positioning across Managed Money (Hedge Funds
 | `money_manager_net_pct_oi`| Property (float) | Managed Money Net as a percentage of Total Open Interest. |
 | `commercial_net_pct_oi` | Property (float) | Commercial Net as a percentage of Total Open Interest. |
 
+### 4.1 COT 20-Year Seasonality Studio & Relative Zerobase Overlay
+
+The terminal's positioning intelligence module provides a full institutional quantitative studio:
+1. **Historical Net Positions Over Time**: 20-year structural time series with interactive trader category filtering (`All Traders`, `Speculators`, `Commercials`, `Small Retail`).
+2. **COT Seasonality Studio**: Multi-year annual trajectory overlays plotted across calendar weeks (W1–W52) or months (Jan–Dec) alongside **20-Year Benchmark Averages** (`AVG Speculators` in cyan `#00f2fe` and `AVG Commercials` in gold `#f9d423`).
+3. **Deterministic Zerobasing Algorithm**: Normalizes every calendar year curve to start at $0$ by subtracting its first non-null observation ($Y_{w}^{norm} = Y_{w} - Y_{w_0}$), isolating relative seasonal accumulation/liquidation regimes regardless of macro open interest secular trends.
+4. **Open Interest Seasonality Cycles**: Overlays annual market liquidity build-up and contract roll dynamics with the empirical 20-year open interest seasonal benchmark.
+5. **Structural Market Participation**: Full historical open interest timeline highlighting macro structural shifts in speculative vs commercial participation.
+
 ---
 
 ## 5. Management Commands

@@ -195,6 +195,135 @@ class CommitmentOfTradersDetailAPIView(generics.RetrieveAPIView):
     serializer_class = CommitmentOfTradersObservationSerializer
 
 
+class CommitmentOfTradersAnalyticsAPIView(APIView):
+    """
+    Quantitative COT historical positioning analytics & seasonality engine.
+    Returns:
+    - full point-in-time time series (speculators, commercial hedgers, non-reportables, open interest)
+    - weekly (W1-W53) and monthly (M1-M12) seasonality distributions and empirical averages
+    - statistical summary, crowding percentile regimes, and year breakdown.
+    """
+
+    def get(self, request, *args, **kwargs):
+        commodity_param = request.query_params.get("commodity", "CL").strip().upper()
+        commodity = CommodityMaster.objects.filter(code=commodity_param).first()
+        if not commodity:
+            return Response(
+                {"error": f"Commodity '{commodity_param}' not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        qs = (
+            CommitmentOfTradersObservation.objects.filter(commodity=commodity)
+            .order_by("observation_date")
+            .values(
+                "observation_date",
+                "open_interest",
+                "money_manager_long",
+                "money_manager_short",
+                "prod_merc_long",
+                "prod_merc_short",
+                "swap_long",
+                "swap_short",
+                "non_rept_long",
+                "non_rept_short",
+                "publication_time",
+            )
+        )
+
+        time_series = []
+        wk_acc: dict[int, list] = {}
+        mo_acc: dict[int, list] = {}
+        all_years = set()
+
+        for row in qs:
+            obs_date = row["observation_date"]
+            yr = obs_date.year
+            all_years.add(yr)
+            wk = obs_date.isocalendar()[1]
+            mo = obs_date.month
+
+            oi = row["open_interest"] or 0
+            nc_long = row["money_manager_long"] or 0
+            nc_short = row["money_manager_short"] or 0
+            nc_net = nc_long - nc_short
+
+            cm_long = (row["prod_merc_long"] or 0) + (row["swap_long"] or 0)
+            cm_short = (row["prod_merc_short"] or 0) + (row["swap_short"] or 0)
+            cm_net = cm_long - cm_short
+
+            nr_long = row["non_rept_long"] or 0
+            nr_short = row["non_rept_short"] or 0
+            nr_net = nr_long - nr_short
+
+            nc_pct_oi = round((nc_net / oi) * 100, 2) if oi > 0 else 0.0
+            cm_pct_oi = round((cm_net / oi) * 100, 2) if oi > 0 else 0.0
+
+            item = {
+                "date": obs_date.isoformat(),
+                "year": yr,
+                "week": wk,
+                "month": mo,
+                "open_interest": oi,
+                "noncomm_long": nc_long,
+                "noncomm_short": nc_short,
+                "noncomm_net": nc_net,
+                "comm_long": cm_long,
+                "comm_short": cm_short,
+                "comm_net": cm_net,
+                "nonrept_long": nr_long,
+                "nonrept_short": nr_short,
+                "nonrept_net": nr_net,
+                "noncomm_net_pct_oi": nc_pct_oi,
+                "comm_net_pct_oi": cm_pct_oi,
+            }
+            time_series.append(item)
+
+            wk_acc.setdefault(wk, []).append((nc_net, cm_net, nr_net, oi))
+            mo_acc.setdefault(mo, []).append((nc_net, cm_net, nr_net, oi))
+
+        def calc_avgs(acc):
+            res = {}
+            for key, vals in sorted(acc.items()):
+                cnt = len(vals)
+                res[key] = {
+                    "avg_noncomm_net": round(sum(v[0] for v in vals) / cnt),
+                    "avg_comm_net": round(sum(v[1] for v in vals) / cnt),
+                    "avg_nonrept_net": round(sum(v[2] for v in vals) / cnt),
+                    "avg_open_interest": round(sum(v[3] for v in vals) / cnt),
+                    "count": cnt,
+                }
+            return res
+
+        latest = time_series[-1] if time_series else None
+        crowd_regime = "NEUTRAL"
+        if latest:
+            pct = latest["noncomm_net_pct_oi"]
+            if pct >= 20.0:
+                crowd_regime = "EXTREME_LONG"
+            elif pct >= 10.0:
+                crowd_regime = "MODERATE_LONG"
+            elif pct <= -20.0:
+                crowd_regime = "EXTREME_SHORT"
+            elif pct <= -10.0:
+                crowd_regime = "MODERATE_SHORT"
+
+        return Response({
+            "status": "ok",
+            "commodity_code": commodity.code,
+            "commodity_name": commodity.name,
+            "total_observations": len(time_series),
+            "historical_years": sorted(list(all_years)),
+            "latest": {
+                **(latest or {}),
+                "crowding_regime": crowd_regime,
+            },
+            "time_series": time_series,
+            "seasonality_weekly": calc_avgs(wk_acc),
+            "seasonality_monthly": calc_avgs(mo_acc),
+        })
+
+
 class OptionsObservationListAPIView(generics.ListAPIView):
     """
     List options implied volatility surfaces and positioning metrics across contracts M1-M24.
