@@ -4,54 +4,212 @@
 {% block title %}Institutional Market Intelligence & 20Y Seasonality Terminal | {{ APP_NAME }}{% endblock %}
 
 {% block content %}
-<!-- 1. Streamlined Institutional Ticker & Commodity Switcher Bar -->
-<div class="institutional-ticker-bar glass-panel">
-    <div class="ticker-bar-header">
-        <div class="comm-sector-tabs">
-            <button type="button" class="sector-tab-btn active" data-sector="ALL">All Markets ({{ ticker_commodities|length }})</button>
-            <button type="button" class="sector-tab-btn" data-sector="ENERGY">⚡ Energy</button>
-            <button type="button" class="sector-tab-btn" data-sector="METALS_PRECIOUS">🥇 Precious</button>
-            <button type="button" class="sector-tab-btn" data-sector="METALS_BASE">🔩 Base</button>
-            <button type="button" class="sector-tab-btn" data-sector="AGRICULTURE">🌾 Agri</button>
-            <button type="button" class="sector-tab-btn" data-sector="LIVESTOCK">🥩 Livestock</button>
-        </div>
-        <div class="ticker-regime-indicator" style="display: flex; align-items: center; gap: 0.75rem;">
-            <div style="display: flex; align-items: center; gap: 0.4rem;">
-                <span class="pulse-dot"></span>
-                <span style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--accent-cyan); font-weight: 600;">20Y POINT-IN-TIME FEED</span>
+<!-- =========================================================================
+     TIER 1: PRODUCT CARDS OVERVIEW DECK
+     ========================================================================= -->
+<div id="marketCardsView" class="view-panel {% if active_view == 'detail' %}hidden{% endif %}">
+    <!-- Header / Control Ribbon for Cards View -->
+    <div class="cards-view-header glass-panel">
+        <div class="cards-header-left">
+            <div class="cards-header-title-group">
+                <div>
+                    <h1 class="cards-header-title">Commodity Intelligence Terminal</h1>
+                    <p class="cards-header-subtitle">Real-time prompt pricing, 20-day statistical Z-scores, and 20-year empirical seasonality regimes.</p>
+                </div>
             </div>
-            <div class="chart-divider-v" style="height: 14px;"></div>
-            <button type="button" class="btn-refresh-quote" id="btnLiveSyncAll" onclick="refreshLiveQuote(true)" title="Fetch Live Market Tick Updates">
+            <div class="cards-sector-filters">
+                <button type="button" class="card-filter-btn active" data-sector="ALL" onclick="filterCardsBySector('ALL')">All Markets ({{ product_cards|length }})</button>
+                <button type="button" class="card-filter-btn" data-sector="ENERGY" onclick="filterCardsBySector('ENERGY')">Energy</button>
+                <button type="button" class="card-filter-btn" data-sector="METALS_PRECIOUS" onclick="filterCardsBySector('METALS_PRECIOUS')">Precious Metals</button>
+                <button type="button" class="card-filter-btn" data-sector="METALS_BASE" onclick="filterCardsBySector('METALS_BASE')">Base Metals</button>
+                <button type="button" class="card-filter-btn" data-sector="AGRICULTURE" onclick="filterCardsBySector('AGRICULTURE')">Agriculture</button>
+                <button type="button" class="card-filter-btn" data-sector="LIVESTOCK" onclick="filterCardsBySector('LIVESTOCK')">Livestock</button>
+            </div>
+        </div>
+        <div class="cards-header-right">
+            <div class="cards-search-wrap">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" id="cardSearchInput" class="cards-search-input" placeholder="Search commodity, symbol, sector..." oninput="filterCardsBySearch()" />
+            </div>
+            <div class="cards-live-badge">
+                <span class="pulse-dot"></span>
+                <span>20Y POINT-IN-TIME FEED</span>
+            </div>
+            <button type="button" class="btn-refresh-quote" onclick="refreshLiveQuote(true)" title="Fetch Live Market Tick Updates">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="23 4 23 10 17 10"></polyline>
                     <polyline points="1 20 1 14 7 14"></polyline>
                     <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
                 </svg>
-                <span id="liveSyncStatusText">SYNC LIVE QUOTE</span>
+                <span>SYNC LIVE</span>
             </button>
         </div>
     </div>
 
-    <div class="comm-pills-wrap" id="commPillsContainer">
-        {% for item in ticker_commodities %}
-        <a href="?commodity={{ item.code }}" 
-           class="comm-pill-btn {% if item.code == selected_code %}active{% endif %}" 
-           data-sector="{{ item.sector }}"
-           onclick="selectCommodity('{{ item.code }}'); return false;"
-           title="{{ item.name }}">
-            <span class="comm-pill-code">{{ item.code }}</span>
-            <span class="comm-pill-name">{{ item.name|truncatechars:15 }}</span>
-            <span class="comm-pill-price">${{ item.price|floatformat:2 }}</span>
-            <span class="ticker-change {% if item.ret_1d >= 0 %}pos{% else %}neg{% endif %}">
-                {% if item.ret_1d >= 0 %}+{% endif %}{{ item.ret_1d|floatformat:1 }}%
-            </span>
-        </a>
+    <!-- Product Cards Responsive Grid -->
+    <div class="product-cards-grid" id="productCardsContainer">
+        {% for card in product_cards %}
+        <div class="product-card" 
+             data-code="{{ card.code }}" 
+             data-sector="{{ card.sector }}" 
+             data-name="{{ card.name|lower }}"
+             onclick="openProductDetail('{{ card.code }}')"
+             role="button"
+             tabindex="0"
+             title="Click to launch multi-tab detailed intelligence for {{ card.name }}">
+            <!-- Card Top Bar: Symbol Badge, Name, Exchange, Sector -->
+            <div class="card-top-bar">
+                <div class="card-symbol-wrap">
+                    <span class="card-symbol-badge">{{ card.code }}</span>
+                    <div class="card-name-group">
+                        <span class="card-name" title="{{ card.name }}">{{ card.name }}</span>
+                        <span class="card-exchange-tag">{{ card.exchange }}</span>
+                    </div>
+                </div>
+                <span class="card-sector-tag sector-{{ card.sector|lower }}">{{ card.sector }}</span>
+            </div>
+
+            <!-- Price & Sparkline Section -->
+            <div class="card-price-row">
+                <div class="card-price-group">
+                    <div class="card-price">${{ card.price|floatformat:2 }}</div>
+                    <div class="card-change-chip {% if card.ret_1d >= 0 %}pos{% else %}neg{% endif %}">
+                        <span class="card-arrow">{% if card.ret_1d >= 0 %}▲{% else %}▼{% endif %}</span>
+                        <span>{% if card.ret_1d >= 0 %}+{% endif %}{{ card.ret_1d|floatformat:2 }}%</span>
+                        <span class="card-point-change">({% if card.chg_1d >= 0 %}+{% endif %}{{ card.chg_1d|floatformat:2 }})</span>
+                    </div>
+                </div>
+                <div class="card-sparkline-box" title="15-Day Price Trajectory">
+                    <svg class="card-sparkline-svg" viewBox="0 0 100 30" preserveAspectRatio="none">
+                        <polyline fill="none" stroke="{{ card.sparkline_color }}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" points="{{ card.sparkline_points }}" />
+                    </svg>
+                    <span class="sparkline-label">15D Trend</span>
+                </div>
+            </div>
+
+            <!-- Quant Metrics Intelligence Boxes: Z-Score & 30D Seasonality -->
+            <div class="card-quant-grid">
+                <!-- Metric 1: 20D Price Z-Score -->
+                <div class="card-quant-cell">
+                    <div class="cell-label">
+                        <span>20D Z-SCORE</span>
+                    </div>
+                    <div class="cell-metric-wrap">
+                        <span class="cell-value">{{ card.zscore_20|floatformat:2 }}σ</span>
+                        <span class="quant-chip {{ card.z_class }}">{{ card.z_regime }}</span>
+                    </div>
+                </div>
+
+                <!-- Metric 2: Seasonal Next 30 Days Move -->
+                <div class="card-quant-cell">
+                    <div class="cell-label">
+                        <span>30D SEASONALITY</span>
+                    </div>
+                    <div class="cell-metric-wrap">
+                        <span class="cell-value {% if card.seasonal_30d_med >= 0 %}pos{% else %}neg{% endif %}">
+                            {% if card.seasonal_30d_med >= 0 %}+{% endif %}{{ card.seasonal_30d_med|floatformat:1 }}%
+                        </span>
+                        <span class="quant-chip {{ card.seasonal_badge }}">
+                            {{ card.seasonal_30d_wr|floatformat:0 }}% WR · {{ card.seasonal_bias }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card Action Footer -->
+            <div class="card-footer-action">
+                <span class="action-prompt">Open Terminal</span>
+                <span class="action-arrow">→</span>
+            </div>
+        </div>
         {% endfor %}
     </div>
 </div>
 
-<!-- 2. Institutional Dual-Stage Trading Floor (Interactive Lightweight Charts & Live Telemetry) -->
-{% if commodity_detail %}
+<!-- =========================================================================
+     TIER 2: MULTI-TAB DETAILED PRODUCT WORKSPACE
+     ========================================================================= -->
+<div id="marketDetailView" class="view-panel {% if active_view != 'detail' %}hidden{% endif %}">
+    <!-- Top Detail Bar: Back Button, Current Product Headline, Quick Switcher -->
+    <div class="detail-nav-header glass-panel">
+        <div class="detail-nav-left">
+            <button type="button" class="btn-back-to-cards" onclick="showCardsView()" title="Return to Products Cards Overview">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+                <span>← All Products</span>
+            </button>
+            <div class="detail-hero-divider"></div>
+            {% if commodity_detail %}
+            <div class="detail-hero-info">
+                <div class="detail-hero-title-row">
+                    <h1 id="detailActiveTitle" class="detail-hero-name">{{ commodity_detail.commodity.name }}</h1>
+                    <span id="detailActiveBadge" class="symbol-badge">{{ commodity_detail.commodity.code }}</span>
+                    <span class="badge-tag tag-exchange">{{ commodity_detail.commodity.primary_exchange.code|default:"CME" }}</span>
+                    <span class="badge-tag tag-comm">{{ commodity_detail.commodity.sector }}</span>
+                </div>
+                <div class="detail-hero-price-row">
+                    <span class="detail-hero-price" id="detailActivePrice">${{ commodity_detail.current_price|floatformat:2 }}</span>
+                    <span class="detail-hero-change {% if commodity_detail.change_1d >= 0 %}pos{% else %}neg{% endif %}" id="detailActiveChange">
+                        {% if commodity_detail.change_1d >= 0 %}+{% endif %}{{ commodity_detail.change_1d|floatformat:2 }} ({% if commodity_detail.return_1d >= 0 %}+{% endif %}{{ commodity_detail.return_1d|floatformat:2 }}%)
+                    </span>
+                    <span class="badge-tag tag-live" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.35); font-weight: 700;">
+                        <span class="live-pulse-dot" style="width: 6px; height: 6px;"></span> LIVE
+                    </span>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="detail-nav-right">
+            <div class="detail-switcher-label">SWITCH PRODUCT:</div>
+            <div class="detail-switcher-pills">
+                {% for item in ticker_commodities %}
+                <button type="button" 
+                        class="detail-switch-btn {% if item.code == selected_code %}active{% endif %}"
+                        onclick="openProductDetail('{{ item.code }}')"
+                        title="{{ item.name }} (${{ item.price|floatformat:2 }})">
+                    <span class="switch-btn-code">{{ item.code }}</span>
+                    <span class="switch-btn-chg {% if item.ret_1d >= 0 %}pos{% else %}neg{% endif %}">
+                        {% if item.ret_1d >= 0 %}+{% endif %}{{ item.ret_1d|floatformat:1 }}%
+                    </span>
+                </button>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Multi-Tab Navigation Bar -->
+    <div class="detail-tabs-bar">
+        <button type="button" class="detail-tab-btn {% if active_tab == 'tab-chart' %}active{% endif %}" data-tab="tab-chart" onclick="switchDetailTab('tab-chart')">
+            <span class="tab-label">Chart & Order Flow</span>
+        </button>
+        <button type="button" class="detail-tab-btn {% if active_tab == 'tab-seasonality' %}active{% endif %}" data-tab="tab-seasonality" onclick="switchDetailTab('tab-seasonality')">
+            <span class="tab-label">Seasonality Studio</span>
+            <span class="tab-count-badge">40 Models</span>
+        </button>
+        <button type="button" class="detail-tab-btn {% if active_tab == 'tab-forward-curve' %}active{% endif %}" data-tab="tab-forward-curve" onclick="switchDetailTab('tab-forward-curve')">
+            <span class="tab-label">Forward Curves</span>
+            <span class="tab-count-badge">M1–M24</span>
+        </button>
+        <button type="button" class="detail-tab-btn {% if active_tab == 'tab-spreads' %}active{% endif %}" data-tab="tab-spreads" onclick="switchDetailTab('tab-spreads')">
+            <span class="tab-label">Transformation Spreads</span>
+        </button>
+        <button type="button" class="detail-tab-btn {% if active_tab == 'tab-positioning' %}active{% endif %}" data-tab="tab-positioning" onclick="switchDetailTab('tab-positioning')">
+            <span class="tab-label">COT & Positioning</span>
+        </button>
+        <button type="button" class="detail-tab-btn {% if active_tab == 'tab-news-intel' %}active{% endif %}" data-tab="tab-news-intel" onclick="switchDetailTab('tab-news-intel')">
+            <span class="tab-label">News & Catalysts</span>
+        </button>
+        <button type="button" class="detail-tab-btn {% if active_tab == 'tab-architecture' %}active{% endif %}" data-tab="tab-architecture" onclick="switchDetailTab('tab-architecture')">
+            <span class="tab-label">System Architecture</span>
+        </button>
+    </div>
+
+    <!-- TAB 1: Interactive Lightweight Charts & Order Flow Pane -->
+    {% if commodity_detail %}
+    <div id="tab-chart" class="terminal-tab-panel" style="display: {% if active_tab == 'tab-chart' %}block{% else %}none{% endif %};">
 <div class="terminal-stage-grid">
     <!-- LEFT: 68% Interactive TradingView Lightweight Chart Stage -->
     <div class="chart-stage-card">
@@ -84,9 +242,9 @@
 
                 <!-- Chart Type -->
                 <div class="chart-btn-group" id="tvChartTypeGroup">
-                    <button type="button" class="chart-tool-btn active" data-type="candles" title="Candlestick Chart">🕯️ Candles</button>
-                    <button type="button" class="chart-tool-btn" data-type="area" title="Area Chart">📈 Area</button>
-                    <button type="button" class="chart-tool-btn" data-type="line" title="Line Chart">📉 Line</button>
+                    <button type="button" class="chart-tool-btn active" data-type="candles" title="Candlestick Chart">Candles</button>
+                    <button type="button" class="chart-tool-btn" data-type="area" title="Area Chart">Area</button>
+                    <button type="button" class="chart-tool-btn" data-type="line" title="Line Chart">Line</button>
                 </div>
 
                 <div class="chart-divider-v"></div>
@@ -94,13 +252,13 @@
                 <!-- Indicator Layers -->
                 <div class="chart-btn-group" id="tvIndicatorGroup">
                     <button type="button" class="chart-tool-btn active active-green" data-series="volume" id="btnToggleVolume" title="Toggle Volume Histogram">
-                        📊 Vol
+                        Vol
                     </button>
-                    <button type="button" class="chart-tool-btn active" data-series="oi" id="btnToggleOi" title="Toggle Open Interest (OI) Overlay" style="color: #f59e0b; border-color: rgba(245, 158, 11, 0.4); background: rgba(245, 158, 11, 0.15);">
-                        📑 OI
+                    <button type="button" class="chart-tool-btn" data-series="oi" id="btnToggleOi" title="Toggle Open Interest (OI) Overlay" style="color: #f59e0b; border-color: rgba(245, 158, 11, 0.4);">
+                        OI
                     </button>
                     <button type="button" class="chart-tool-btn" id="btnResetScale" title="Reset Zoom & Auto-Fit Data">
-                        ⛶ Fit
+                        Fit
                     </button>
                 </div>
             </div>
@@ -118,8 +276,17 @@
             <span class="hud-item">OI: <span class="hud-val" id="hudOi" style="color: var(--accent-amber);">--</span></span>
         </div>
 
-        <!-- TradingView Lightweight Charts Mount Canvas -->
-        <div id="tvChartContainer" class="tv-chart-mount"></div>
+        <!-- TradingView Lightweight Charts Mount Canvas (Primary Price Action) -->
+        <div id="tvChartContainer" class="tv-chart-mount tv-chart-main"></div>
+
+        <!-- Volume Sub-Plot Pane -->
+        <div id="tvVolumePane" class="tv-volume-pane">
+            <div class="tv-subplot-bar">
+                <span class="tv-subplot-tag">VOLUME (CONTRACTS)</span>
+                <span class="tv-subplot-val" id="tvSubplotVol">--</span>
+            </div>
+            <div id="tvVolumeContainer" class="tv-chart-mount tv-chart-volume"></div>
+        </div>
 
         <!-- Chart Legend & Gesture Helper Strip -->
         <div class="chart-sub-legend">
@@ -257,65 +424,13 @@
         </div>
     </div>
 </div>
-{% endif %}
-
-<!-- 5. Main Terminal Navigation Command Deck & View Mode Controller -->
-<div class="terminal-deck-controller">
-    <div class="deck-nav-buttons">
-        <button type="button" class="terminal-nav-tab active" data-tab="tab-seasonality" onclick="handleNavTabClick('tab-seasonality')">
-            <span class="tab-badge-num">1</span>
-            <div class="tab-text-wrap">
-                <span class="tab-title">20Y Seasonality Suite</span>
-                <span class="tab-subtitle">40 Engines • DOY • 20Y Heatmap</span>
-            </div>
-        </button>
-        <button type="button" class="terminal-nav-tab" data-tab="tab-forward-curve" onclick="handleNavTabClick('tab-forward-curve')">
-            <span class="tab-badge-num">2</span>
-            <div class="tab-text-wrap">
-                <span class="tab-title">Forward Curve Strip</span>
-                <span class="tab-subtitle">24 Tenors M1–M24 • Options Surface</span>
-            </div>
-        </button>
-        <button type="button" class="terminal-nav-tab" data-tab="tab-spreads" onclick="handleNavTabClick('tab-spreads')">
-            <span class="tab-badge-num">3</span>
-            <div class="tab-text-wrap">
-                <span class="tab-title">Cross-Commodity Spreads</span>
-                <span class="tab-subtitle">Crack • Crush • Spark • Macro</span>
-            </div>
-        </button>
-        <button type="button" class="terminal-nav-tab" data-tab="tab-positioning" onclick="handleNavTabClick('tab-positioning')">
-            <span class="tab-badge-num">4</span>
-            <div class="tab-text-wrap">
-                <span class="tab-title">COT Positioning & Storage</span>
-                <span class="tab-subtitle">CFTC Funds vs Hedgers • Balances</span>
-            </div>
-        </button>
-        <button type="button" class="terminal-nav-tab" data-tab="tab-news-intel" onclick="handleNavTabClick('tab-news-intel')">
-            <span class="tab-badge-num">5</span>
-            <div class="tab-text-wrap">
-                <span class="tab-title">News Wire & Catalysts</span>
-                <span class="tab-subtitle">Phase 12 Live Real-Time Feed</span>
-            </div>
-        </button>
-    </div>
-
-    <div class="deck-view-switcher">
-        <span class="deck-mode-caption">DISPLAY MODE:</span>
-        <div class="deck-mode-toggle-group">
-            <button type="button" class="deck-toggle-pill active" id="btnModeDeck" onclick="setTerminalDeckMode('deck')" title="View all 5 analytical modules sequentially on one comprehensive trading deck">
-                <span>📑</span> Full Deck (All 5 Modules)
-            </button>
-            <button type="button" class="deck-toggle-pill" id="btnModeTabs" onclick="setTerminalDeckMode('tabs')" title="Focus on one module tab at a time">
-                <span>🗂️</span> Single Tab Focus
-            </button>
-        </div>
-    </div>
 </div>
+{% endif %}
 
 <!-- =========================================================================
      TAB PANEL 1: 20-Year Seasonality Suite (Module 1)
      ========================================================================= -->
-<div id="tab-seasonality" class="terminal-tab-panel" style="display: block;">
+<div id="tab-seasonality" class="terminal-tab-panel" style="display: {% if active_tab == 'tab-seasonality' %}block{% else %}none{% endif %};">
     <!-- Master Header Strip for Module 1 -->
     <div class="terminal-module-header-strip">
         <div class="tm-header-left">
@@ -777,11 +892,12 @@
         </div>
     </div>
 </div>
+</div> <!-- END tab-seasonality -->
 
 <!-- =========================================================================
      TAB PANEL 2: Forward Curve Strip (M1–M24) & Options Volatility (Module 2)
      ========================================================================= -->
-<div id="tab-forward-curve" class="terminal-tab-panel" style="display: none;">
+<div id="tab-forward-curve" class="terminal-tab-panel" style="display: {% if active_tab == 'tab-forward-curve' %}block{% else %}none{% endif %};">
     <!-- Master Header Strip for Module 2 -->
     <div class="terminal-module-header-strip">
         <div class="tm-header-left">
@@ -872,7 +988,7 @@
 <!-- =========================================================================
      TAB PANEL 3: Cross-Commodity & Spreads Matrix (Module 3)
      ========================================================================= -->
-<div id="tab-spreads" class="terminal-tab-panel" style="display: none;">
+<div id="tab-spreads" class="terminal-tab-panel" style="display: {% if active_tab == 'tab-spreads' %}block{% else %}none{% endif %};">
     <!-- Master Header Strip for Module 3 -->
     <div class="terminal-module-header-strip">
         <div class="tm-header-left">
@@ -901,10 +1017,10 @@
                 <div class="pulse-card">
                     <div class="pulse-title">3:2:1 Refinery Crack Spread</div>
                     <div class="pulse-value" style="color: var(--accent-cyan); margin-top: 0.4rem;">
-                        {% if commodity_detail.spreads.crack_321 %}
+                        {% if commodity_detail.spreads.crack_321 is not None %}
                             ${{ commodity_detail.spreads.crack_321|floatformat:2 }} / BBL
                         {% else %}
-                            $24.50 / BBL
+                            <span style="color: var(--text-muted); font-size: 1.1rem;">N/A</span>
                         {% endif %}
                     </div>
                     <div class="pulse-subtext">Formula: (2 × RBOB + 1 × Heating Oil - 3 × Crude) / 3</div>
@@ -914,10 +1030,10 @@
                 <div class="pulse-card">
                     <div class="pulse-title">Soybean Crush Margin</div>
                     <div class="pulse-value" style="color: var(--accent-emerald); margin-top: 0.4rem;">
-                        {% if commodity_detail.spreads.crush_spread %}
+                        {% if commodity_detail.spreads.crush_spread is not None %}
                             ${{ commodity_detail.spreads.crush_spread|floatformat:2 }} / BU
                         {% else %}
-                            $1.85 / BU
+                            <span style="color: var(--text-muted); font-size: 1.1rem;">N/A</span>
                         {% endif %}
                     </div>
                     <div class="pulse-subtext">Formula: Meal + Oil product value vs raw Soybeans</div>
@@ -927,10 +1043,10 @@
                 <div class="pulse-card">
                     <div class="pulse-title">Gas-to-Power Spark Spread</div>
                     <div class="pulse-value" style="color: var(--accent-amber); margin-top: 0.4rem;">
-                        {% if commodity_detail.spreads.spark_spread %}
+                        {% if commodity_detail.spreads.spark_spread is not None %}
                             ${{ commodity_detail.spreads.spark_spread|floatformat:2 }} / MWh
                         {% else %}
-                            $14.20 / MWh
+                            <span style="color: var(--text-muted); font-size: 1.1rem;">N/A</span>
                         {% endif %}
                     </div>
                     <div class="pulse-subtext">Thermal power conversion margin vs Henry Hub</div>
@@ -972,7 +1088,7 @@
 <!-- =========================================================================
      TAB PANEL 4: COT Positioning & Storage (Module 4)
      ========================================================================= -->
-<div id="tab-positioning" class="terminal-tab-panel" style="display: none;">
+<div id="tab-positioning" class="terminal-tab-panel" style="display: {% if active_tab == 'tab-positioning' %}block{% else %}none{% endif %};">
     <!-- Master Header Strip for Module 4 -->
     <div class="terminal-module-header-strip">
         <div class="tm-header-left">
@@ -997,20 +1113,28 @@
                 <div class="pulse-card">
                     <div class="pulse-title">Managed Money (Speculative Funds) Net</div>
                     <div class="pulse-value" style="color: var(--accent-cyan); margin-top: 0.3rem;">
-                        {{ commodity_detail.positioning.money_manager_net|default:"+142,500" }} <span style="font-size: 0.8rem; color: var(--text-muted);">Contracts</span>
+                        {% if commodity_detail.positioning.money_manager_net is not None %}
+                            {% if commodity_detail.positioning.money_manager_net >= 0 %}+{% endif %}{{ commodity_detail.positioning.money_manager_net|floatformat:0 }} <span style="font-size: 0.8rem; color: var(--text-muted);">Contracts</span>
+                        {% else %}
+                            <span style="color: var(--text-muted); font-size: 1.1rem;">N/A</span>
+                        {% endif %}
                     </div>
                     <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.3rem;">
-                        Net % of Total Open Interest: <strong>{{ commodity_detail.positioning.money_manager_net_pct_oi|default:"16.4" }}%</strong>
+                        Net % of Total Open Interest: <strong>{{ commodity_detail.positioning.money_manager_net_pct_oi|floatformat:1 }}%</strong>
                     </div>
                 </div>
 
                 <div class="pulse-card">
                     <div class="pulse-title">Commercial Hedgers (Producers/Merchants) Net</div>
                     <div class="pulse-value" style="color: var(--accent-amber); margin-top: 0.3rem;">
-                        {{ commodity_detail.positioning.commercial_net|default:"-185,200" }} <span style="font-size: 0.8rem; color: var(--text-muted);">Contracts</span>
+                        {% if commodity_detail.positioning.commercial_net is not None %}
+                            {% if commodity_detail.positioning.commercial_net >= 0 %}+{% endif %}{{ commodity_detail.positioning.commercial_net|floatformat:0 }} <span style="font-size: 0.8rem; color: var(--text-muted);">Contracts</span>
+                        {% else %}
+                            <span style="color: var(--text-muted); font-size: 1.1rem;">N/A</span>
+                        {% endif %}
                     </div>
                     <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.3rem;">
-                        Net % of Total Open Interest: <strong>{{ commodity_detail.positioning.commercial_net_pct_oi|default:"-21.2" }}%</strong>
+                        Net % of Total Open Interest: <strong>{{ commodity_detail.positioning.commercial_net_pct_oi|floatformat:1 }}%</strong>
                     </div>
                 </div>
 
@@ -1032,20 +1156,28 @@
                 <div class="pulse-card">
                     <div class="pulse-title">Primary Benchmark Storage</div>
                     <div class="pulse-value" style="color: var(--text-primary); margin-top: 0.3rem;">
-                        {{ commodity_detail.fundamentals.storage_level|default:"428.5" }} <span style="font-size: 0.8rem; color: var(--text-muted);">{{ commodity_detail.fundamentals.storage_unit|default:"MBBL" }}</span>
+                        {% if commodity_detail.fundamentals.storage_level is not None %}
+                            {{ commodity_detail.fundamentals.storage_level|floatformat:1 }} <span style="font-size: 0.8rem; color: var(--text-muted);">{{ commodity_detail.fundamentals.storage_unit|default:"" }}</span>
+                        {% else %}
+                            <span style="color: var(--text-muted); font-size: 1.1rem;">N/A</span>
+                        {% endif %}
                     </div>
                     <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.3rem;">
-                        {{ commodity_detail.fundamentals.storage_name|default:"US Commercial Crude Inventories (excl SPR)" }}
+                        {{ commodity_detail.fundamentals.storage_name|default:"Physical Commercial Inventory" }}
                     </div>
                 </div>
 
                 <div class="pulse-card">
                     <div class="pulse-title">Weekly Net Storage Change</div>
-                    <div class="pulse-value" style="color: var(--accent-emerald); margin-top: 0.3rem;">
-                        {{ commodity_detail.fundamentals.storage_change_1w|default:"-2.85" }} <span style="font-size: 0.8rem; color: var(--text-muted);">{{ commodity_detail.fundamentals.storage_unit|default:"MBBL Draw" }}</span>
+                    <div class="pulse-value" style="color: {% if commodity_detail.fundamentals.storage_change_1w and commodity_detail.fundamentals.storage_change_1w < 0 %}var(--accent-emerald){% else %}var(--accent-cyan){% endif %}; margin-top: 0.3rem;">
+                        {% if commodity_detail.fundamentals.storage_change_1w is not None %}
+                            {% if commodity_detail.fundamentals.storage_change_1w >= 0 %}+{% endif %}{{ commodity_detail.fundamentals.storage_change_1w|floatformat:2 }} <span style="font-size: 0.8rem; color: var(--text-muted);">{{ commodity_detail.fundamentals.storage_unit|default:"" }} {% if commodity_detail.fundamentals.storage_change_1w < 0 %}Draw{% else %}Build{% endif %}</span>
+                        {% else %}
+                            <span style="color: var(--text-muted); font-size: 1.1rem;">--</span>
+                        {% endif %}
                     </div>
                     <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.3rem;">
-                        Balance Regime: <strong style="color: var(--accent-cyan);">{{ commodity_detail.fundamentals.balance_regime|default:"DEFICIT_DRAW" }}</strong>
+                        Balance Regime: <strong style="color: var(--accent-cyan);">{{ commodity_detail.fundamentals.balance_regime|default:"BALANCED" }}</strong>
                     </div>
                 </div>
             </div>
@@ -1056,7 +1188,7 @@
 <!-- =========================================================================
      TAB PANEL 5: News & Macroeconomic Catalyst Intelligence (Module 5)
      ========================================================================= -->
-<div id="tab-news-intel" class="terminal-tab-panel" style="display: none;">
+<div id="tab-news-intel" class="terminal-tab-panel" style="display: {% if active_tab == 'tab-news-intel' %}block{% else %}none{% endif %};">
     <!-- Master Header Strip for Module 5 -->
     <div class="terminal-module-header-strip">
         <div class="tm-header-left">
@@ -1287,7 +1419,7 @@
 <!-- =========================================================================
      TAB PANEL 5: Quantitative Pipeline & Phase Roadmap (Maintains Test Compliance)
      ========================================================================= -->
-<div id="tab-architecture" class="terminal-tab-panel" style="display: none;">
+<div id="tab-architecture" class="terminal-tab-panel" style="display: {% if active_tab == 'tab-architecture' %}block{% else %}none{% endif %};">
     <!-- Architecture Pipeline Flow -->
     <div class="glass-panel" style="padding: 1.5rem 1.75rem; margin-bottom: 1.5rem;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
@@ -1393,6 +1525,7 @@
         </div>
     </div>
 </div>
+</div> <!-- END marketDetailView -->
 
 <!-- 6. Regulatory Notice & Standard Disclaimer -->
 <div style="margin-top: 2rem; padding: 1rem 1.25rem; background: rgba(245, 158, 11, 0.04); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 8px; display: flex; align-items: flex-start; gap: 0.85rem;">
@@ -1401,6 +1534,7 @@
         <strong style="color: #f59e0b; text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.78rem;">Regulatory Notice & Standard Disclaimer:</strong>
         This application is strictly an analytical, research, and quantitative workflow automation tool designed to make commodity market data processing easier and more efficient. It does <strong>NOT</strong> provide financial advice, investment recommendations, buy/sell signals, or "trading calls." All market data, forward curves, balance sheets, and AI-generated narratives are for informational research purposes only. Trading commodity futures and derivatives involves substantial risk of loss.
     </div>
+</div>
 <!-- 40-Method Seasonality Modal Inspector Drawer -->
 <div id="s40ModalBackdrop" class="s40-modal-backdrop" onclick="closeSeasonalityInspector(event)">
     <div class="s40-modal-content" onclick="event.stopPropagation();">
@@ -1466,5 +1600,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/dashboard.js' %}"></script>
+<script src="{% static 'js/dashboard.js' %}?v=2.0"></script>
 {% endblock %}

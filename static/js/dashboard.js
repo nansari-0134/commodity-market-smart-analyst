@@ -47,75 +47,119 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 /**
- * Terminal Command Deck & View Mode Controller
+ * Two-Tier UI Navigation & Card Grid Controller
  */
-let terminalDeckMode = localStorage.getItem("terminalDeckMode") || "deck";
+function showCardsView() {
+    const cardsView = document.getElementById("marketCardsView");
+    const detailView = document.getElementById("marketDetailView");
+    if (cardsView) cardsView.classList.remove("hidden");
+    if (detailView) detailView.classList.add("hidden");
+    const url = new URL(window.location.href);
+    url.searchParams.set("view", "cards");
+    window.history.pushState({}, "", url.toString());
+    window.scrollTo({ top: 0, behavior: "smooth" });
+}
 
-function setTerminalDeckMode(mode) {
-    terminalDeckMode = mode;
-    localStorage.setItem("terminalDeckMode", mode);
+function openProductDetail(commodityCode) {
+    const currentCode = (dashboardData && (dashboardData.code || (dashboardData.commodity && dashboardData.commodity.code))) || currentCommodityCode || "";
+    if (currentCode === commodityCode) {
+        // Fast instant swap without reload!
+        const cardsView = document.getElementById("marketCardsView");
+        const detailView = document.getElementById("marketDetailView");
+        if (cardsView) cardsView.classList.add("hidden");
+        if (detailView) detailView.classList.remove("hidden");
+        const url = new URL(window.location.href);
+        url.searchParams.set("commodity", commodityCode);
+        url.searchParams.set("view", "detail");
+        window.history.pushState({}, "", url.toString());
+        // Trigger chart fit
+        if (typeof tvChart !== "undefined" && tvChart && tvChart.timeScale) {
+            setTimeout(() => {
+                tvChart.timeScale().fitContent();
+                if (typeof tvVolumeChart !== "undefined" && tvVolumeChart && tvVolumeChart.timeScale) {
+                    tvVolumeChart.timeScale().fitContent();
+                }
+            }, 100);
+        }
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+        // Navigate to the selected commodity detail view
+        const currentTab = document.querySelector(".detail-tab-btn.active")?.getAttribute("data-tab") || "tab-chart";
+        window.location.href = `/?commodity=${commodityCode}&view=detail&tab=${currentTab}`;
+    }
+}
 
-    const btnDeck = document.getElementById("btnModeDeck");
-    const btnTabs = document.getElementById("btnModeTabs");
-    if (btnDeck) btnDeck.classList.toggle("active", mode === "deck");
-    if (btnTabs) btnTabs.classList.toggle("active", mode === "tabs");
+function switchDetailTab(targetTabId) {
+    const tabButtons = document.querySelectorAll(".detail-tab-btn");
+    tabButtons.forEach(btn => {
+        btn.classList.toggle("active", btn.getAttribute("data-tab") === targetTabId);
+    });
 
     const panels = document.querySelectorAll(".terminal-tab-panel");
+    panels.forEach(panel => {
+        panel.style.display = (panel.id === targetTabId) ? "block" : "none";
+    });
 
-    if (mode === "deck") {
-        panels.forEach(panel => {
-            panel.style.display = "block";
-        });
+    // Update URL query param without reload
+    const url = new URL(window.location.href);
+    url.searchParams.set("tab", targetTabId);
+    window.history.replaceState({}, "", url.toString());
+
+    if (targetTabId === "tab-chart") {
+        if (typeof tvChart !== "undefined" && tvChart && tvChart.timeScale) {
+            setTimeout(() => {
+                tvChart.timeScale().fitContent();
+                if (typeof tvVolumeChart !== "undefined" && tvVolumeChart && tvVolumeChart.timeScale) {
+                    tvVolumeChart.timeScale().fitContent();
+                }
+            }, 50);
+        }
+    } else if (targetTabId === "tab-forward-curve") {
         if (typeof renderForwardCurveSvgChart === "function" && dashboardData && dashboardData.contracts) {
             renderForwardCurveSvgChart(dashboardData.contracts);
         }
-    } else {
-        const activeTab = document.querySelector(".terminal-nav-tab.active");
-        const activeId = activeTab ? activeTab.getAttribute("data-tab") : "tab-seasonality";
-        panels.forEach(panel => {
-            panel.style.display = (panel.id === activeId) ? "block" : "none";
-        });
-        if (activeId === "tab-forward-curve" && typeof renderForwardCurveSvgChart === "function" && dashboardData && dashboardData.contracts) {
-            renderForwardCurveSvgChart(dashboardData.contracts);
-        }
     }
 }
 
-function handleNavTabClick(targetId) {
-    const tabButtons = document.querySelectorAll(".terminal-nav-tab");
-    tabButtons.forEach(b => {
-        b.classList.toggle("active", b.getAttribute("data-tab") === targetId);
-    });
+function filterCardsBySector(sector) {
+    const btns = document.querySelectorAll(".card-filter-btn");
+    btns.forEach(b => b.classList.toggle("active", b.getAttribute("data-sector") === sector));
 
-    if (terminalDeckMode === "deck") {
-        const activePanel = document.getElementById(targetId);
-        if (activePanel) {
-            activePanel.scrollIntoView({ behavior: "smooth", block: "start" });
-        }
-    } else {
-        document.querySelectorAll(".terminal-tab-panel").forEach(panel => {
-            panel.style.display = (panel.id === targetId) ? "block" : "none";
-        });
-        if (targetId === "tab-forward-curve" && typeof renderForwardCurveSvgChart === "function" && dashboardData && dashboardData.contracts) {
-            renderForwardCurveSvgChart(dashboardData.contracts);
-        }
-    }
+    const cards = document.querySelectorAll(".product-card");
+    const searchVal = (document.getElementById("cardSearchInput")?.value || "").toLowerCase().trim();
+
+    cards.forEach(card => {
+        const cardSector = card.getAttribute("data-sector") || "";
+        const cardName = card.getAttribute("data-name") || "";
+        const cardCode = (card.getAttribute("data-code") || "").toLowerCase();
+
+        const matchesSector = (sector === "ALL" || cardSector === sector);
+        const matchesSearch = (!searchVal || cardName.includes(searchVal) || cardCode.includes(searchVal) || cardSector.toLowerCase().includes(searchVal));
+
+        card.style.display = (matchesSector && matchesSearch) ? "flex" : "none";
+    });
+}
+
+function filterCardsBySearch() {
+    const activeSectorBtn = document.querySelector(".card-filter-btn.active");
+    const activeSector = activeSectorBtn ? activeSectorBtn.getAttribute("data-sector") : "ALL";
+    filterCardsBySector(activeSector);
 }
 
 function initSubTabs() {
-    window.setTerminalDeckMode = setTerminalDeckMode;
-    window.handleNavTabClick = handleNavTabClick;
+    window.showCardsView = showCardsView;
+    window.openProductDetail = openProductDetail;
+    window.switchDetailTab = switchDetailTab;
+    window.filterCardsBySector = filterCardsBySector;
+    window.filterCardsBySearch = filterCardsBySearch;
 
-    const tabButtons = document.querySelectorAll(".terminal-nav-tab");
-    tabButtons.forEach(btn => {
-        btn.addEventListener("click", () => {
-            const targetId = btn.getAttribute("data-tab");
-            handleNavTabClick(targetId);
-        });
-    });
-
-    // Apply saved or default deck mode on load
-    setTerminalDeckMode(terminalDeckMode);
+    // Check URL parameters on load for initial tab
+    const urlParams = new URLSearchParams(window.location.search);
+    const initialTab = urlParams.get("tab") || "tab-chart";
+    const detailPanel = document.getElementById(initialTab);
+    if (detailPanel) {
+        switchDetailTab(initialTab);
+    }
 }
 
 /**
@@ -152,6 +196,7 @@ function selectCommodity(code) {
     // Smooth URL update
     const url = new URL(window.location);
     url.searchParams.set("commodity", code);
+    url.searchParams.set("view", "detail");
     window.location.href = url.toString();
 }
 
@@ -290,7 +335,15 @@ function renderSeasonalitySvgChart(points) {
  */
 function renderForwardCurveSvgChart(contracts) {
     const svg = document.getElementById("forwardCurveSvgChart");
-    if (!svg || !contracts || contracts.length === 0) return;
+    if (!svg) return;
+    if (!contracts || contracts.length === 0) {
+        svg.innerHTML = `
+            <text x="480" y="150" fill="#64748b" font-family="'JetBrains Mono', monospace" font-size="13" text-anchor="middle">
+                Forward curve contracts are currently synchronizing for this commodity...
+            </text>
+        `;
+        return;
+    }
 
     const width = 960;
     const height = 300;
@@ -1007,6 +1060,7 @@ function drawWorkbenchChart(svg, viz) {
 
 // Global Chart References
 let tvChart = null;
+let tvVolumeChart = null;
 let tvCandleSeries = null;
 let tvAreaSeries = null;
 let tvLineSeries = null;
@@ -1016,7 +1070,7 @@ let tvActiveTimeframe = "1Y";
 let tvActiveChartType = "candles";
 let tvCandleData = [];
 let isVolumeVisible = true;
-let isOiVisible = true;
+let isOiVisible = false;
 let livePollInterval = null;
 
 /**
@@ -1057,6 +1111,7 @@ function updateCrosshairHud(candle) {
     const hudChg = document.getElementById("hudChg");
     const hudVol = document.getElementById("hudVol");
     const hudOi = document.getElementById("hudOi");
+    const subplotVol = document.getElementById("tvSubplotVol");
 
     if (hudDate) hudDate.textContent = candle.time || "--";
     if (hudOpen) hudOpen.textContent = candle.open !== undefined ? Number(candle.open).toFixed(2) : "--";
@@ -1071,13 +1126,20 @@ function updateCrosshairHud(candle) {
         hudChg.className = `hud-val ${diff >= 0 ? 'pos' : 'neg'}`;
     }
 
-    if (hudVol) {
-        const vol = candle.volume || 0;
-        hudVol.textContent = vol.toLocaleString();
-    }
+    const vol = candle.volume || 0;
+    const volStr = vol.toLocaleString();
+    if (hudVol) hudVol.textContent = volStr;
+    if (subplotVol) subplotVol.textContent = volStr;
+
     if (hudOi) {
-        const oi = candle.open_interest || 0;
-        hudOi.textContent = oi.toLocaleString();
+        const oi = candle ? (candle.open_interest || 0) : 0;
+        if (oi > 0) {
+            hudOi.textContent = oi.toLocaleString();
+        } else if (dashboardData && dashboardData.day_oi) {
+            hudOi.textContent = `${Number(dashboardData.day_oi).toLocaleString()} (${dashboardData.day_oi_source || 'COT'})`;
+        } else {
+            hudOi.textContent = "--";
+        }
     }
 }
 
@@ -1093,6 +1155,7 @@ function applyTimeframe(tf) {
 
     if (tf === "ALL") {
         tvChart.timeScale().fitContent();
+        if (tvVolumeChart) tvVolumeChart.timeScale().fitContent();
         return;
     }
 
@@ -1113,6 +1176,12 @@ function applyTimeframe(tf) {
         from: fromStr,
         to: toStr
     });
+    if (tvVolumeChart) {
+        tvVolumeChart.timeScale().setVisibleRange({
+            from: fromStr,
+            to: toStr
+        });
+    }
 }
 
 /**
@@ -1129,15 +1198,33 @@ function switchChartType(type) {
 }
 
 /**
- * Toggle Volume Histogram Overlay
+ * Toggle Volume Sub-Plot Pane
  */
 function toggleVolumeOverlay() {
     isVolumeVisible = !isVolumeVisible;
-    if (tvVolumeSeries) tvVolumeSeries.applyOptions({ visible: isVolumeVisible });
+    const pane = document.getElementById("tvVolumePane");
+    const container = document.getElementById("tvChartContainer");
     const btn = document.getElementById("btnToggleVolume");
+
     if (btn) {
         btn.classList.toggle("active", isVolumeVisible);
         btn.classList.toggle("active-green", isVolumeVisible);
+    }
+    if (pane) {
+        pane.classList.toggle("collapsed", !isVolumeVisible);
+    }
+    if (tvChart) {
+        const newH = isVolumeVisible ? 310 : 420;
+        tvChart.applyOptions({
+            height: newH,
+            timeScale: { visible: !isVolumeVisible },
+        });
+        if (container) container.style.height = `${newH}px`;
+    }
+    if (isVolumeVisible && tvVolumeChart && tvChart) {
+        tvVolumeChart.applyOptions({ height: 110 });
+        const curRange = tvChart.timeScale().getVisibleLogicalRange();
+        if (curRange) tvVolumeChart.timeScale().setVisibleLogicalRange(curRange);
     }
 }
 
@@ -1150,14 +1237,16 @@ function toggleOiOverlay() {
     const btn = document.getElementById("btnToggleOi");
     if (btn) {
         btn.classList.toggle("active", isOiVisible);
+        btn.style.background = isOiVisible ? "rgba(245, 158, 11, 0.15)" : "transparent";
     }
 }
 
 /**
- * Mount and render TradingView Lightweight Charts
+ * Mount and render TradingView Lightweight Charts (Main Candlestick & Volume Subplot)
  */
 function initLightweightChart() {
     const container = document.getElementById("tvChartContainer");
+    const volumeContainer = document.getElementById("tvVolumeContainer");
     if (!container) return;
     if (typeof LightweightCharts === "undefined") {
         console.warn("TradingView LightweightCharts library not found in window context.");
@@ -1165,6 +1254,7 @@ function initLightweightChart() {
     }
 
     container.innerHTML = "";
+    if (volumeContainer) volumeContainer.innerHTML = "";
     tvCandleData = prepareCandleData(dashboardData.candles || []);
 
     if (tvCandleData.length === 0) {
@@ -1176,10 +1266,12 @@ function initLightweightChart() {
         return;
     }
 
-    // Create TradingView Chart Instance
+    const chartWidth = container.clientWidth || 800;
+
+    // 1. Create Main TradingView Price Chart Instance
     tvChart = LightweightCharts.createChart(container, {
-        width: container.clientWidth || 800,
-        height: 420,
+        width: chartWidth,
+        height: 310,
         layout: {
             background: { type: 'solid', color: 'transparent' },
             textColor: '#94a3b8',
@@ -1207,16 +1299,17 @@ function initLightweightChart() {
         },
         rightPriceScale: {
             borderColor: 'rgba(255, 255, 255, 0.08)',
-            scaleMargins: { top: 0.08, bottom: 0.28 },
+            scaleMargins: { top: 0.08, bottom: 0.12 },
         },
         timeScale: {
             borderColor: 'rgba(255, 255, 255, 0.08)',
-            timeVisible: true,
+            timeVisible: false,
             secondsVisible: false,
+            visible: true,
         },
     });
 
-    // 1. Candlestick Series (Primary)
+    // 2. Candlestick Series (Primary)
     tvCandleSeries = tvChart.addCandlestickSeries({
         upColor: '#10b981',
         downColor: '#f43f5e',
@@ -1232,7 +1325,7 @@ function initLightweightChart() {
         close: c.close
     })));
 
-    // 2. Area Series (Alternate)
+    // 3. Area Series (Alternate)
     tvAreaSeries = tvChart.addAreaSeries({
         topColor: 'rgba(0, 242, 254, 0.35)',
         bottomColor: 'rgba(0, 242, 254, 0.0)',
@@ -1242,7 +1335,7 @@ function initLightweightChart() {
     });
     tvAreaSeries.setData(tvCandleData.map(c => ({ time: c.time, value: c.close })));
 
-    // 3. Line Series (Alternate)
+    // 4. Line Series (Alternate)
     tvLineSeries = tvChart.addLineSeries({
         color: '#38bdf8',
         lineWidth: 2,
@@ -1250,69 +1343,142 @@ function initLightweightChart() {
     });
     tvLineSeries.setData(tvCandleData.map(c => ({ time: c.time, value: c.close })));
 
-    // 4. Volume Histogram (Anchored to lower 22% of chart)
-    tvVolumeSeries = tvChart.addHistogramSeries({
-        priceFormat: { type: 'volume' },
-        priceScaleId: 'volume_scale',
-        visible: true,
-    });
-    tvChart.priceScale('volume_scale').applyOptions({
-        scaleMargins: { top: 0.78, bottom: 0 },
-    });
-    tvVolumeSeries.setData(tvCandleData.map(c => ({
-        time: c.time,
-        value: c.volume,
-        color: c.close >= c.open ? 'rgba(16, 185, 129, 0.45)' : 'rgba(244, 63, 94, 0.45)',
-    })));
-
-    // 5. Open Interest (OI) Overlay Line (Scaled between 62% and 80%)
+    // 5. Open Interest (OI) Overlay Line
     tvOiSeries = tvChart.addLineSeries({
         color: '#f59e0b',
         lineWidth: 1.8,
         lineStyle: LightweightCharts.LineStyle.Dashed,
         priceScaleId: 'oi_scale',
-        visible: true,
+        visible: isOiVisible,
         title: 'OI',
     });
     tvChart.priceScale('oi_scale').applyOptions({
-        scaleMargins: { top: 0.62, bottom: 0.20 },
+        scaleMargins: { top: 0.65, bottom: 0.08 },
     });
-    tvOiSeries.setData(tvCandleData.map(c => ({
-        time: c.time,
-        value: c.open_interest,
-    })));
+    const validOiData = tvCandleData
+        .filter(c => c.open_interest && c.open_interest > 0)
+        .map(c => ({
+            time: c.time,
+            value: c.open_interest,
+        }));
+    tvOiSeries.setData(validOiData);
+
+    // 6. Create Volume Sub-Plot Chart Instance
+    if (volumeContainer) {
+        tvVolumeChart = LightweightCharts.createChart(volumeContainer, {
+            width: chartWidth,
+            height: 110,
+            layout: {
+                background: { type: 'solid', color: 'transparent' },
+                textColor: '#94a3b8',
+                fontFamily: "'JetBrains Mono', 'Roboto Mono', 'SF Pro Text', -apple-system, monospace",
+                fontSize: 10,
+            },
+            grid: {
+                vertLines: { color: 'rgba(255, 255, 255, 0.04)' },
+                horzLines: { color: 'rgba(255, 255, 255, 0.03)' },
+            },
+            crosshair: {
+                mode: LightweightCharts.CrosshairMode.Normal,
+                vertLine: {
+                    color: 'rgba(0, 242, 254, 0.55)',
+                    width: 1,
+                    style: LightweightCharts.LineStyle.Dashed,
+                    labelBackgroundColor: '#00f2fe',
+                },
+                horzLine: {
+                    color: 'rgba(0, 242, 254, 0.3)',
+                    width: 1,
+                    style: LightweightCharts.LineStyle.Dashed,
+                    labelBackgroundColor: '#0f172a',
+                },
+            },
+            rightPriceScale: {
+                borderColor: 'rgba(255, 255, 255, 0.08)',
+                scaleMargins: { top: 0.12, bottom: 0.02 },
+            },
+            timeScale: {
+                borderColor: 'rgba(255, 255, 255, 0.08)',
+                timeVisible: true,
+                secondsVisible: false,
+            },
+        });
+
+        tvVolumeSeries = tvVolumeChart.addHistogramSeries({
+            priceFormat: { type: 'volume' },
+            color: 'rgba(0, 242, 254, 0.55)',
+        });
+        tvVolumeSeries.setData(tvCandleData.map(c => ({
+            time: c.time,
+            value: c.volume,
+            color: c.close >= c.open ? 'rgba(16, 185, 129, 0.65)' : 'rgba(244, 63, 94, 0.65)',
+        })));
+
+        // Bidirectional TimeScale Synchronization
+        let isSyncingRange = false;
+        tvChart.timeScale().subscribeVisibleLogicalRangeChange(range => {
+            if (isSyncingRange || !range || !tvVolumeChart) return;
+            isSyncingRange = true;
+            try {
+                tvVolumeChart.timeScale().setVisibleLogicalRange(range);
+            } catch (e) {}
+            isSyncingRange = false;
+        });
+
+        tvVolumeChart.timeScale().subscribeVisibleLogicalRangeChange(range => {
+            if (isSyncingRange || !range || !tvChart) return;
+            isSyncingRange = true;
+            try {
+                tvChart.timeScale().setVisibleLogicalRange(range);
+            } catch (e) {}
+            isSyncingRange = false;
+        });
+    }
 
     // Initial HUD State set to latest candle
     const lastCandle = tvCandleData[tvCandleData.length - 1];
     updateCrosshairHud(lastCandle);
 
-    // Crosshair Hover Subscription (60fps dynamic HUD telemetry)
-    tvChart.subscribeCrosshairMove((param) => {
-        if (!param.time || !param.seriesData) {
+    // Crosshair Sync & Hover Dispatcher
+    const handleCrosshair = (param) => {
+        if (!param.time) {
             updateCrosshairHud(lastCandle);
             return;
         }
-        const candle = param.seriesData.get(tvCandleSeries) || 
-                       param.seriesData.get(tvAreaSeries) || 
-                       param.seriesData.get(tvLineSeries);
-        const vol = param.seriesData.get(tvVolumeSeries);
-        const oi = param.seriesData.get(tvOiSeries);
 
-        if (candle) {
-            const timeStr = typeof param.time === 'string' 
-                ? param.time 
-                : `${param.time.year}-${String(param.time.month).padStart(2,'0')}-${String(param.time.day).padStart(2,'0')}`;
-            updateCrosshairHud({
-                time: timeStr,
-                open: candle.open !== undefined ? candle.open : candle.value,
-                high: candle.high !== undefined ? candle.high : candle.value,
-                low: candle.low !== undefined ? candle.low : candle.value,
-                close: candle.close !== undefined ? candle.close : candle.value,
-                volume: vol ? vol.value : 0,
-                open_interest: oi ? oi.value : 0,
-            });
+        const timeStr = typeof param.time === 'string' 
+            ? param.time 
+            : `${param.time.year}-${String(param.time.month).padStart(2,'0')}-${String(param.time.day).padStart(2,'0')}`;
+
+        const matched = tvCandleData.find(c => c.time === timeStr) || lastCandle;
+
+        let candle = null;
+        let vol = null;
+        let oi = null;
+
+        if (param.seriesData) {
+            candle = param.seriesData.get(tvCandleSeries) || 
+                     param.seriesData.get(tvAreaSeries) || 
+                     param.seriesData.get(tvLineSeries);
+            vol = tvVolumeSeries ? param.seriesData.get(tvVolumeSeries) : null;
+            oi = tvOiSeries ? param.seriesData.get(tvOiSeries) : null;
         }
-    });
+
+        updateCrosshairHud({
+            time: timeStr,
+            open: candle && candle.open !== undefined ? candle.open : (candle ? candle.value : matched.open),
+            high: candle && candle.high !== undefined ? candle.high : (candle ? candle.value : matched.high),
+            low: candle && candle.low !== undefined ? candle.low : (candle ? candle.value : matched.low),
+            close: candle && candle.close !== undefined ? candle.close : (candle ? candle.value : matched.close),
+            volume: vol ? vol.value : matched.volume,
+            open_interest: oi ? oi.value : matched.open_interest,
+        });
+    };
+
+    tvChart.subscribeCrosshairMove(handleCrosshair);
+    if (tvVolumeChart) {
+        tvVolumeChart.subscribeCrosshairMove(handleCrosshair);
+    }
 
     // Wire Timeframe Selectors
     const tfButtons = document.querySelectorAll("#tvTimeframeGroup .chart-tool-btn");
@@ -1340,7 +1506,12 @@ function initLightweightChart() {
     if (btnOi) btnOi.addEventListener("click", toggleOiOverlay);
 
     const btnFit = document.getElementById("btnResetScale");
-    if (btnFit) btnFit.addEventListener("click", () => tvChart.timeScale().fitContent());
+    if (btnFit) {
+        btnFit.addEventListener("click", () => {
+            tvChart.timeScale().fitContent();
+            if (tvVolumeChart) tvVolumeChart.timeScale().fitContent();
+        });
+    }
 
     // Set Default Timeframe (1Y)
     applyTimeframe("1Y");
@@ -1349,7 +1520,10 @@ function initLightweightChart() {
     const resizeObserver = new ResizeObserver(entries => {
         if (entries.length > 0 && tvChart) {
             const { width } = entries[0].contentRect;
-            if (width > 0) tvChart.applyOptions({ width });
+            if (width > 0) {
+                tvChart.applyOptions({ width });
+                if (tvVolumeChart) tvVolumeChart.applyOptions({ width });
+            }
         }
     });
     resizeObserver.observe(container);
@@ -1426,7 +1600,12 @@ function updateLiveTelemetryUI(data) {
 
     // 4. Session Telemetry Numbers
     const telVol = document.getElementById("telemetryVolume");
-    if (telVol && data.day_volume !== undefined) telVol.textContent = Number(data.day_volume).toLocaleString();
+    const subVol = document.getElementById("tvSubplotVol");
+    if (data.day_volume !== undefined) {
+        const volStr = Number(data.day_volume).toLocaleString();
+        if (telVol) telVol.textContent = volStr;
+        if (subVol) subVol.textContent = volStr;
+    }
 
     const telOi = document.getElementById("telemetryOi");
     if (telOi && data.day_oi !== undefined) telOi.textContent = Number(data.day_oi).toLocaleString();
@@ -1457,7 +1636,7 @@ function updateLiveTelemetryUI(data) {
             tvVolumeSeries.update({
                 time: c.time,
                 value: Number(c.volume),
-                color: Number(c.close) >= Number(c.open) ? 'rgba(16, 185, 129, 0.45)' : 'rgba(244, 63, 94, 0.45)',
+                color: Number(c.close) >= Number(c.open) ? 'rgba(16, 185, 129, 0.65)' : 'rgba(244, 63, 94, 0.65)',
             });
         }
         if (tvOiSeries && c.open_interest !== undefined) {

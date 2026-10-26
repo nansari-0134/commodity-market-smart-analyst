@@ -79,9 +79,12 @@ class FeaturePipeline:
             raise ValueError(f"Commodity with code '{code}' does not exist.")
 
         # 1. Fetch minimum required price observations (e.g. 250 bars for 200 EMA & 1Y Vol)
+        base_qs = MarketPriceObservation.objects.filter(commodity=commodity, is_prompt=True)
+        if base_qs.filter(delivery_month="PROMPT").exists():
+            base_qs = base_qs.filter(delivery_month="PROMPT")
+
         price_obs = list(
-            MarketPriceObservation.objects.filter(commodity=commodity, is_prompt=True)
-            .order_by("observation_date")
+            base_qs.order_by("observation_date")
             .values_list("settlement_price", "close_price", "open_price", "high_price", "low_price", "volume", "open_interest")
         )[-252:]
 

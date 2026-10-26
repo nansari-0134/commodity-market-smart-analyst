@@ -9,11 +9,137 @@ from django.conf import settings
 from django.utils import timezone
 import numpy as np
 
+from django.core.cache import cache
+
 from apps.commodities.models import CommodityMaster
 from apps.market_data.models import MarketPriceObservation, OptionsObservation, CommitmentOfTradersObservation
 from apps.quant_engine.services.evidence_builder import EvidencePackageBuilder
 from apps.quant_engine.core import compute_comprehensive_seasonality_profile
 from apps.quant_engine.core.seasonality_methods import evaluate_40_seasonality_methods
+
+
+def get_dashboard_product_cards(active_commodities):
+    """
+    Computes and caches high-density summary metrics for each commodity product card:
+    Current Price, 1D Return %, 20D Price Z-Score & Regime, Next 30D Seasonal Median Return & Win Rate,
+    and 15-day SVG Sparkline trajectory.
+    """
+    cache_key = f"dashboard_product_cards_v3_{len(active_commodities)}"
+    cached_cards = cache.get(cache_key)
+    if cached_cards:
+        return cached_cards
+
+    cards = []
+    for c in active_commodities:
+        obs_qs = MarketPriceObservation.objects.filter(
+            commodity=c, is_prompt=True
+        )
+        if obs_qs.filter(delivery_month="PROMPT").exists():
+            obs_qs = obs_qs.filter(delivery_month="PROMPT")
+
+        obs_list = list(
+            obs_qs.order_by("observation_date").values(
+                "observation_date", "close_price"
+            )
+        )
+        seen = set()
+        clean_obs = []
+        for r in obs_list:
+            if r["observation_date"] not in seen and r["close_price"] is not None:
+                seen.add(r["observation_date"])
+                clean_obs.append(r)
+
+        if not clean_obs:
+            continue
+
+        dates = [r["observation_date"] for r in clean_obs]
+        prices = np.array([float(r["close_price"]) for r in clean_obs])
+        curr_price = float(prices[-1])
+        prev_price = float(prices[-2]) if len(prices) > 1 else curr_price
+        chg_1d = curr_price - prev_price
+        ret_1d = (chg_1d / prev_price * 100.0) if prev_price > 0 else 0.0
+
+        p20 = prices[-20:] if len(prices) >= 20 else prices
+        mean_20 = float(np.mean(p20))
+        std_20 = float(np.std(p20)) or 1e-6
+        zscore_20 = (curr_price - mean_20) / std_20
+
+        if zscore_20 >= 1.5:
+            z_regime = "Overbought"
+            z_class = "regime-overbought"
+        elif zscore_20 >= 0.5:
+            z_regime = "Bullish Momentum"
+            z_class = "regime-bull"
+        elif zscore_20 <= -1.5:
+            z_regime = "Oversold"
+            z_class = "regime-oversold"
+        elif zscore_20 <= -0.5:
+            z_regime = "Bearish Momentum"
+            z_class = "regime-bear"
+        else:
+            z_regime = "Normal Range"
+            z_class = "regime-neutral"
+
+        try:
+            prof = compute_comprehensive_seasonality_profile(dates, prices, dates[-1], c.code)
+            f30 = next((p for p in prof.get("tenure_patterns", []) if p["tenure_window"] == "FORWARD_30D"), None)
+        except Exception:
+            f30 = None
+
+        if f30:
+            seasonal_30d_med = float(f30.get("median_return", 0.0))
+            seasonal_30d_wr = float(f30.get("win_rate", 50.0))
+            seasonal_class = f30.get("pattern_classification", "BALANCED_SEASONAL_RANGE")
+        else:
+            seasonal_30d_med = 0.0
+            seasonal_30d_wr = 50.0
+            seasonal_class = "BALANCED_SEASONAL_RANGE"
+
+        if seasonal_30d_med > 1.5 and seasonal_30d_wr >= 55.0:
+            seasonal_bias = "BULLISH"
+            seasonal_badge = "s-bull"
+        elif seasonal_30d_med < -1.5 and seasonal_30d_wr <= 45.0:
+            seasonal_bias = "BEARISH"
+            seasonal_badge = "s-bear"
+        else:
+            seasonal_bias = "NEUTRAL"
+            seasonal_badge = "s-neutral"
+
+        recent_15 = prices[-15:].tolist() if len(prices) >= 15 else prices.tolist()
+        min_p = min(recent_15)
+        max_p = max(recent_15)
+        span = (max_p - min_p) if (max_p - min_p) > 0 else 1.0
+        n_pts = len(recent_15)
+        pts = []
+        for i, p in enumerate(recent_15):
+            x = (i / (n_pts - 1)) * 100.0 if n_pts > 1 else 50.0
+            y = 28.0 - ((p - min_p) / span) * 24.0
+            pts.append(f"{x:.1f},{y:.1f}")
+        sparkline_svg = " ".join(pts)
+
+        cards.append({
+            "code": c.code,
+            "name": c.name,
+            "sector": c.sector,
+            "exchange": c.primary_exchange.code if c.primary_exchange else "CME",
+            "unit": c.pricing_unit.symbol if c.pricing_unit else "$",
+            "price": curr_price,
+            "ret_1d": round(ret_1d, 2),
+            "chg_1d": round(chg_1d, 2),
+            "zscore_20": round(zscore_20, 2),
+            "z_regime": z_regime,
+            "z_class": z_class,
+            "seasonal_30d_med": round(seasonal_30d_med, 1),
+            "seasonal_30d_wr": round(seasonal_30d_wr, 0),
+            "seasonal_bias": seasonal_bias,
+            "seasonal_badge": seasonal_badge,
+            "seasonal_class_label": seasonal_class.replace("_", " ").title(),
+            "sparkline_points": sparkline_svg,
+            "sparkline_color": "#10b981" if ret_1d >= 0 else "#ef4444",
+        })
+
+    cache.set(cache_key, cards, timeout=3600)
+    return cards
 
 
 def index(request):
@@ -128,7 +254,37 @@ def index(request):
             ticker_commodities.append(ticker_item)
             commodity_lookup[c.code] = ticker_item
 
-    # 3. Selected Commodity Resolution
+    # 2.5 Compute / Retrieve Product Cards for Tier-1 Card Grid
+    product_cards = get_dashboard_product_cards(active_commodities)
+
+    # 3. View Mode and Selected Commodity Resolution
+    req_view = request.GET.get("view", "").lower()
+    has_commodity_param = "commodity" in request.GET
+    if req_view == "detail" or (has_commodity_param and req_view != "cards"):
+        active_view = "detail"
+    else:
+        active_view = "cards"
+
+    raw_tab = request.GET.get("tab", "tab-chart").lower()
+    tab_mapping = {
+        "chart": "tab-chart",
+        "tab-chart": "tab-chart",
+        "seasonality": "tab-seasonality",
+        "tab-seasonality": "tab-seasonality",
+        "curves": "tab-forward-curve",
+        "tab-forward-curve": "tab-forward-curve",
+        "spreads": "tab-spreads",
+        "tab-spreads": "tab-spreads",
+        "cot": "tab-positioning",
+        "positioning": "tab-positioning",
+        "tab-positioning": "tab-positioning",
+        "news": "tab-news-intel",
+        "tab-news-intel": "tab-news-intel",
+        "architecture": "tab-architecture",
+        "tab-architecture": "tab-architecture",
+    }
+    active_tab = tab_mapping.get(raw_tab, "tab-chart")
+
     selected_code = request.GET.get("commodity", "CL").upper()
     if selected_code not in commodity_lookup and active_commodities:
         selected_code = active_commodities[0].code
@@ -143,13 +299,16 @@ def index(request):
         selected_commodity = builder.commodity
 
         # Prompt price and candle history for Lightweight Charts & 20Y Seasonality
-        candle_obs = list(
-            MarketPriceObservation.objects.filter(
-                commodity=selected_commodity,
-                is_prompt=True,
-                observation_date__lte=pkg.as_of.date(),
-            )
-            .order_by("observation_date")
+        obs_qs = MarketPriceObservation.objects.filter(
+            commodity=selected_commodity,
+            is_prompt=True,
+            observation_date__lte=pkg.as_of.date(),
+        )
+        if obs_qs.filter(delivery_month="PROMPT").exists():
+            obs_qs = obs_qs.filter(delivery_month="PROMPT")
+
+        raw_candle_obs = list(
+            obs_qs.order_by("observation_date")
             .values(
                 "observation_date",
                 "open_price",
@@ -160,6 +319,13 @@ def index(request):
                 "open_interest",
             )
         )
+        seen_dates = set()
+        candle_obs = []
+        for r in raw_candle_obs:
+            if r["observation_date"] not in seen_dates:
+                seen_dates.add(r["observation_date"])
+                candle_obs.append(r)
+
         dates = [r["observation_date"] for r in candle_obs]
         prices = np.array([float(r["close_price"]) for r in candle_obs])
 
@@ -187,14 +353,7 @@ def index(request):
 
         ohlcv_candles = []
         for r in candle_obs:
-            oi_val = r["open_interest"]
-            if not oi_val or oi_val <= 0:
-                if cot_dates:
-                    idx = bisect.bisect_right(cot_dates, r["observation_date"]) - 1
-                    if idx >= 0 and cot_records[idx]["open_interest"]:
-                        oi_val = cot_records[idx]["open_interest"]
-            if not oi_val or oi_val <= 0:
-                oi_val = listing_typical_oi
+            oi_val = r["open_interest"] if r["open_interest"] and r["open_interest"] > 0 else None
 
             ohlcv_candles.append(
                 {
@@ -204,7 +363,7 @@ def index(request):
                     "low": float(r["low_price"] or r["close_price"]),
                     "close": float(r["close_price"]),
                     "volume": int(r["volume"] or 0),
-                    "open_interest": int(oi_val or 0),
+                    "open_interest": int(oi_val) if oi_val is not None else 0,
                 }
             )
 
@@ -221,13 +380,16 @@ def index(request):
         day_low = latest_candle["low"] if latest_candle else spot
         day_volume = latest_candle["volume"] if latest_candle else 0
 
-        # Day OI with complete fallback
+        # Day OI with transparent source identification
         day_oi = latest_candle["open_interest"] if latest_candle and latest_candle["open_interest"] > 0 else 0
+        day_oi_source = "Exchange Daily Feed"
         if day_oi == 0:
             if cot_records and cot_records[-1]["open_interest"]:
                 day_oi = cot_records[-1]["open_interest"]
+                day_oi_source = "CFTC Weekly COT"
             else:
                 day_oi = listing_typical_oi
+                day_oi_source = "Exchange Benchmark"
         point_change = round(spot - (prev_candle["close"] if prev_candle else spot), 4)
 
         seasonality_profile = compute_comprehensive_seasonality_profile(
@@ -250,22 +412,41 @@ def index(request):
             digits = "".join(ch for ch in m_str if ch.isdigit())
             return int(digits) if digits else 999
 
+        latest_curve_date = (
+            MarketPriceObservation.objects.filter(
+                commodity=selected_commodity,
+                observation_date__lte=pkg.as_of.date(),
+                delivery_month__startswith="M",
+            )
+            .order_by("-observation_date")
+            .values_list("observation_date", flat=True)
+            .first()
+        )
         curve_obs = list(
             MarketPriceObservation.objects.filter(
                 commodity=selected_commodity,
-                observation_date=pkg.as_of.date(),
+                observation_date=latest_curve_date,
                 delivery_month__startswith="M",
             )
-        )
+        ) if latest_curve_date else []
         curve_obs.sort(key=lambda o: parse_tenor(o.delivery_month))
 
+        latest_opt_date = (
+            OptionsObservation.objects.filter(
+                commodity=selected_commodity,
+                observation_date__lte=pkg.as_of.date(),
+            )
+            .order_by("-observation_date")
+            .values_list("observation_date", flat=True)
+            .first()
+        )
         options_map = {
             opt.delivery_month: opt
             for opt in OptionsObservation.objects.filter(
                 commodity=selected_commodity,
-                observation_date=pkg.as_of.date(),
+                observation_date=latest_opt_date,
             )
-        }
+        } if latest_opt_date else {}
 
         contracts_data = []
         for c_obs in curve_obs:
@@ -309,7 +490,11 @@ def index(request):
             "day_volume_formatted": f"{day_volume:,}" if day_volume else "0",
             "day_oi": day_oi,
             "day_oi_formatted": f"{day_oi:,}" if day_oi else "0",
+            "day_oi_source": day_oi_source,
             "point_change": point_change,
+            "current_price": spot,
+            "change_1d": point_change,
+            "return_1d": pkg.market_state.returns_1d,
             "high_52w": high_52w,
             "low_52w": low_52w,
         }
@@ -326,6 +511,7 @@ def index(request):
             "day_low": day_low,
             "day_volume": day_volume,
             "day_oi": day_oi,
+            "day_oi_source": day_oi_source,
             "high_52w": high_52w,
             "low_52w": low_52w,
             "returns_1d": pkg.market_state.returns_1d,
@@ -339,6 +525,9 @@ def index(request):
             "volatility_forecast": seasonality_profile.get("volatility_forecast", {}),
             "seasonality_40": seasonality_40,
             "contracts": contracts_data,
+            "spreads": pkg.spreads.model_dump(),
+            "positioning": pkg.positioning_state.model_dump(),
+            "fundamentals": pkg.fundamental_state.model_dump(),
         }
 
     except Exception as e:
@@ -429,6 +618,9 @@ def index(request):
         "news_articles": art_qs_filtered[:15],
         "all_news_articles_count": art_qs.count(),
         "sentiment_barometer": sentiment_barometer,
+        "product_cards": product_cards,
+        "active_view": active_view,
+        "active_tab": active_tab,
     }
     return render(request, "dashboard/index.html", context)
 

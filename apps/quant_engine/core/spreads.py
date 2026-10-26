@@ -87,7 +87,10 @@ def compute_spark_spread(
     Compute Spark Spread in $/MWh for natural gas combined-cycle power generation.
     
     Formula: Power ($/MWh) - [Natural Gas ($/MMBtu) * Heat Rate / 1000]
+    Automatically normalizes Natural Gas price if quoted in cents/MMBtu (e.g. > 20.0).
     """
-    fuel_cost = natural_gas_mmbtu * (heat_rate_btu_kwh / 1000.0)
+    gas_mmbtu = natural_gas_mmbtu / 100.0 if natural_gas_mmbtu > 20.0 else natural_gas_mmbtu
+    fuel_cost = gas_mmbtu * (heat_rate_btu_kwh / 1000.0)
     spark_spread = power_price_mwh - fuel_cost
     return round(float(spark_spread), 2)
+

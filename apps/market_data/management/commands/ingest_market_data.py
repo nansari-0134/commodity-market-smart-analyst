@@ -431,6 +431,13 @@ class Command(BaseCommand):
             "CRUDE_CUSHING_STOCKS",
             "NATGAS_LOWER_48_WORKING_STORAGE",
             "NATGAS_WEEKLY_NET_CHANGE",
+            "GASOLINE_US_TOTAL_STOCKS",
+            "DISTILLATE_US_TOTAL_STOCKS",
+            "WASDE_CORN_US_ENDING_STOCKS",
+            "WASDE_SOYBEANS_US_ENDING_STOCKS",
+            "WASDE_WHEAT_US_ENDING_STOCKS",
+            "LME_COPPER_ON_WARRANT_STOCKS",
+            "LME_ALUMINUM_TOTAL_STOCKS",
         ]
 
         units = {u.code: u for u in UnitMaster.objects.all()}

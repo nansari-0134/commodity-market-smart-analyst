@@ -108,6 +108,14 @@ class FundamentalObservationListAPIView(generics.ListAPIView):
             "variable", "unit", "source_endpoint"
         ).all()
 
+        commodity = self.request.query_params.get("commodity")
+        if commodity:
+            try:
+                c_uuid = UUID(commodity)
+                qs = qs.filter(variable__commodity_id=c_uuid)
+            except ValueError:
+                qs = qs.filter(variable__commodity__code__iexact=commodity)
+
         variable = self.request.query_params.get("variable")
         if variable:
             try:

@@ -75,27 +75,47 @@ class ForwardCurveView(APIView):
             contracts_data = []
             if commodity:
                 from apps.market_data.models import MarketPriceObservation, OptionsObservation
-                latest_date = package.as_of
+                as_of_date = package.as_of.date() if hasattr(package.as_of, "date") else package.as_of
+                latest_curve_date = (
+                    MarketPriceObservation.objects.filter(
+                        commodity=commodity,
+                        observation_date__lte=as_of_date,
+                        delivery_month__startswith="M",
+                    )
+                    .order_by("-observation_date")
+                    .values_list("observation_date", flat=True)
+                    .first()
+                )
                 curve_obs = list(
                     MarketPriceObservation.objects.filter(
                         commodity=commodity,
-                        observation_date=latest_date,
+                        observation_date=latest_curve_date,
                         delivery_month__startswith="M",
                     )
-                )
+                ) if latest_curve_date else []
+
                 def parse_tenor(m_str):
                     digits = "".join(c for c in m_str if c.isdigit())
                     return int(digits) if digits else 999
 
                 curve_obs.sort(key=lambda o: parse_tenor(o.delivery_month))
 
+                latest_opt_date = (
+                    OptionsObservation.objects.filter(
+                        commodity=commodity,
+                        observation_date__lte=as_of_date,
+                    )
+                    .order_by("-observation_date")
+                    .values_list("observation_date", flat=True)
+                    .first()
+                )
                 options_map = {
                     opt.delivery_month: opt
                     for opt in OptionsObservation.objects.filter(
                         commodity=commodity,
-                        observation_date=latest_date,
+                        observation_date=latest_opt_date,
                     )
-                }
+                } if latest_opt_date else {}
 
                 spot = package.market_state.spot_price
                 for obs in curve_obs:

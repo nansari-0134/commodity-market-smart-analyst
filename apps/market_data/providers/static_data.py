@@ -45,10 +45,10 @@ BENCHMARK_CONFIGS = {
     "CORN": {"base": 420.00, "amp": 25.00, "vol": 140000, "oi": 1480000},
     "SILVER": {"base": 31.50, "amp": 1.50, "vol": 120000, "oi": 420000},
     "COPPER": {"base": 4.30, "amp": 0.20, "vol": 95000, "oi": 310000},
-    "RB": {"base": 2.15, "amp": 0.15, "vol": 110000, "oi": 390000},
-    "HO": {"base": 2.30, "amp": 0.18, "vol": 105000, "oi": 380000},
+    "RB": {"base": 2.45, "amp": 0.15, "vol": 110000, "oi": 390000},
+    "HO": {"base": 2.55, "amp": 0.18, "vol": 105000, "oi": 380000},
     "SOYBEANS": {"base": 1020.00, "amp": 40.00, "vol": 160000, "oi": 850000},
-    "SOYOIL": {"base": 43.50, "amp": 2.50, "vol": 85000, "oi": 460000},
+    "SOYOIL": {"base": 48.50, "amp": 2.50, "vol": 85000, "oi": 460000},
     "WHEAT_SRW": {"base": 580.00, "amp": 30.00, "vol": 115000, "oi": 520000},
     "SUGAR_11": {"base": 22.50, "amp": 1.20, "vol": 130000, "oi": 720000},
     "COFFEE_ARABICA": {"base": 255.00, "amp": 15.00, "vol": 65000, "oi": 320000},
@@ -89,14 +89,16 @@ class StaticMarketDataProvider(BaseMarketDataProvider):
 
         while cur_date <= end_date:
             if cur_date.weekday() < 5:
-                drift = cfg["amp"] * math.sin(day_idx * 0.12) + (day_idx * 0.03)
-                settle = round(Decimal(str(cfg["base"] + drift)), 2)
-                opn = round(settle - Decimal("0.35"), 2)
-                high = round(settle + Decimal("0.85"), 2)
-                low = round(settle - Decimal("0.95"), 2)
-                cls = round(settle + Decimal("0.10"), 2)
+                # Realistic cyclical drift bounded around benchmark base without runaway linear trend
+                drift = cfg["amp"] * math.sin(day_idx * 0.04) + (cfg["amp"] * 0.4) * math.cos(day_idx * 0.015)
+                settle = round(Decimal(str(max(0.10, cfg["base"] + drift))), 2)
+                step = Decimal("0.02") if cfg["base"] < 10.0 else Decimal("0.35")
+                opn = round(settle - step, 2)
+                high = round(settle + (step * Decimal("2.0")), 2)
+                low = round(settle - (step * Decimal("2.2")), 2)
+                cls = round(settle + (step * Decimal("0.5")), 2)
                 vol = int(cfg["vol"] * (0.85 + 0.3 * math.cos(day_idx * 0.15)))
-                oi = int(cfg["oi"] + (day_idx * 450))
+                oi = int(cfg["oi"] * (0.90 + 0.20 * math.sin(day_idx * 0.03)))
 
                 pub_time = datetime.combine(
                     cur_date, time(20, 30, tzinfo=timezone.utc)
@@ -107,7 +109,7 @@ class StaticMarketDataProvider(BaseMarketDataProvider):
                     RawPriceObservation(
                         symbol=canonical_symbol,
                         observation_date=cur_date,
-                        contract_month="2026-11" if canonical_symbol in ["CL", "BRENT"] else "PROMPT",
+                        contract_month="PROMPT",
                         is_prompt=True,
                         open_price=opn,
                         high_price=high,
@@ -278,6 +280,7 @@ class StaticFundamentalProvider(BaseFundamentalProvider):
                 "drift_step": 650.0,
                 "pub_hour": 14,
                 "pub_min": 30,
+                "endpoint": "EIA_CRUDE_STOCKS_WEEKLY",
             },
             "CRUDE_CUSHING_STOCKS": {
                 "base": 24500.0,
@@ -285,6 +288,7 @@ class StaticFundamentalProvider(BaseFundamentalProvider):
                 "drift_step": 320.0,
                 "pub_hour": 14,
                 "pub_min": 30,
+                "endpoint": "EIA_CRUDE_STOCKS_WEEKLY",
             },
             "NATGAS_LOWER_48_WORKING_STORAGE": {
                 "base": 3250.0,
@@ -292,6 +296,7 @@ class StaticFundamentalProvider(BaseFundamentalProvider):
                 "drift_step": 45.0,
                 "pub_hour": 14,
                 "pub_min": 30,
+                "endpoint": "EIA_NATGAS_STORAGE_WEEKLY",
             },
             "NATGAS_WEEKLY_NET_CHANGE": {
                 "base": -35.0,
@@ -299,12 +304,69 @@ class StaticFundamentalProvider(BaseFundamentalProvider):
                 "drift_step": 15.0,
                 "pub_hour": 14,
                 "pub_min": 30,
+                "endpoint": "EIA_NATGAS_STORAGE_WEEKLY",
+            },
+            "GASOLINE_US_TOTAL_STOCKS": {
+                "base": 222500.0,
+                "unit": "MBBL",
+                "drift_step": 850.0,
+                "pub_hour": 14,
+                "pub_min": 30,
+                "endpoint": "EIA_CRUDE_STOCKS_WEEKLY",
+            },
+            "DISTILLATE_US_TOTAL_STOCKS": {
+                "base": 116800.0,
+                "unit": "MBBL",
+                "drift_step": 620.0,
+                "pub_hour": 14,
+                "pub_min": 30,
+                "endpoint": "EIA_CRUDE_STOCKS_WEEKLY",
+            },
+            "WASDE_CORN_US_ENDING_STOCKS": {
+                "base": 2150000000.0,
+                "unit": "BU",
+                "drift_step": 35000000.0,
+                "pub_hour": 17,
+                "pub_min": 0,
+                "endpoint": "USDA_QUICKSTATS_DATA",
+            },
+            "WASDE_SOYBEANS_US_ENDING_STOCKS": {
+                "base": 345000000.0,
+                "unit": "BU",
+                "drift_step": 9500000.0,
+                "pub_hour": 17,
+                "pub_min": 0,
+                "endpoint": "USDA_QUICKSTATS_DATA",
+            },
+            "WASDE_WHEAT_US_ENDING_STOCKS": {
+                "base": 685000000.0,
+                "unit": "BU",
+                "drift_step": 15000000.0,
+                "pub_hour": 17,
+                "pub_min": 0,
+                "endpoint": "USDA_QUICKSTATS_DATA",
+            },
+            "LME_COPPER_ON_WARRANT_STOCKS": {
+                "base": 182500.0,
+                "unit": "MT",
+                "drift_step": 3800.0,
+                "pub_hour": 16,
+                "pub_min": 0,
+                "endpoint": "LME_NONFERROUS_OFFICIAL",
+            },
+            "LME_ALUMINUM_TOTAL_STOCKS": {
+                "base": 485000.0,
+                "unit": "MT",
+                "drift_step": 6200.0,
+                "pub_hour": 16,
+                "pub_min": 0,
+                "endpoint": "LME_NONFERROUS_OFFICIAL",
             },
         }
 
         cfg = configs.get(
             canonical_code,
-            {"base": 1000.0, "unit": "MBBL", "drift_step": 10.0, "pub_hour": 14, "pub_min": 30},
+            {"base": 1000.0, "unit": "MBBL", "drift_step": 10.0, "pub_hour": 14, "pub_min": 30, "endpoint": "EIA_CRUDE_STOCKS_WEEKLY"},
         )
 
         observations: list[RawFundamentalObservation] = []
@@ -335,7 +397,7 @@ class StaticFundamentalProvider(BaseFundamentalProvider):
                         period_start=period_start,
                         period_end=period_end,
                         publication_time=pub_time,
-                        source_endpoint_code="EIA_V2_PETROLEUM",
+                        source_endpoint_code=cfg.get("endpoint", "EIA_CRUDE_STOCKS_WEEKLY"),
                     )
                 )
                 week_idx += 1
