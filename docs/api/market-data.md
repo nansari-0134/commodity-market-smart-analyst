@@ -474,3 +474,162 @@ Retrieve prompt futures quotes, real-time intraday OHLCV metrics, 52-week statis
     }
     ```
 
+---
+
+## 8. Forward Curve Term Structure & Options Surface Analytics
+
+Retrieve the complete 24-contract forward strip (M1 to M24), annualized roll yields, term structure shape regime, multi-tenor comparison curves (Current vs 1 Week Ago vs 1 Month Ago vs 1 Year Ago), and delivery-specific options volatility surface.
+
+* **Endpoint**: `GET /api/market-data/forward-curve/analytics/`
+* **Query Parameters**:
+  - `commodity`: Canonical commodity code (e.g. `CL`, `BRENT`, `NG`, `GOLD`, `CORN`).
+
+=== "cURL"
+    ```bash
+    # Query 24-month forward curve and options skew for Crude Oil (CL)
+    curl -X GET "http://127.0.0.1:8000/api/market-data/forward-curve/analytics/?commodity=CL" \
+         -H "Accept: application/json"
+    ```
+
+=== "Python (requests)"
+    ```python
+    import requests
+
+    response = requests.get(
+        "http://127.0.0.1:8000/api/market-data/forward-curve/analytics/",
+        params={"commodity": "CL"}
+    )
+    fc = response.json()
+    print(f"Commodity: {fc['commodity_name']} ({fc['commodity_code']})")
+    print(f"Regime: {fc['curve_state']} | 1M Slope: {fc['slope_1m']} | 12M Slope: {fc['slope_12m']}")
+    for c in fc['contracts'][:5]:
+        print(f"Tenor {c['tenor']}: ${c['settlement_price']} (Spread: {c['spread_to_prompt']:+} | Roll Yield: {c['annualized_roll_yield_pct']}%) | ATM IV: {c['atm_iv']}%")
+    ```
+
+=== "JSON Response (200 OK)"
+    ```json
+    {
+      "status": "ok",
+      "commodity_code": "CL",
+      "commodity_name": "Light Sweet Crude Oil (WTI)",
+      "observation_date": "2026-10-26",
+      "spot_price": 76.50,
+      "curve_state": "STRONG_BACKWARDATION",
+      "slope_1m": 0.54,
+      "slope_12m": 4.90,
+      "contracts": [
+        {
+          "tenor": "M1",
+          "month_idx": 1,
+          "settlement_price": 76.50,
+          "spread_to_prompt": 0.0,
+          "annualized_roll_yield_pct": 0.0,
+          "volume": 312450,
+          "atm_iv": 28.5,
+          "skew_25d": 2.1,
+          "put_call_volume_ratio": 0.85,
+          "put_call_oi_ratio": 0.88
+        },
+        {
+          "tenor": "M2",
+          "month_idx": 2,
+          "settlement_price": 75.96,
+          "spread_to_prompt": -0.54,
+          "annualized_roll_yield_pct": 8.47,
+          "volume": 268900,
+          "atm_iv": 27.8,
+          "skew_25d": 1.95,
+          "put_call_volume_ratio": 0.85,
+          "put_call_oi_ratio": 0.88
+        }
+      ],
+      "comparisons": {
+        "current": {"date": "2026-10-26", "prices": [76.50, 75.96, 75.44]},
+        "week_ago": {"date": "2026-10-19", "prices": [76.20, 75.68, 75.18]},
+        "month_ago": {"date": "2026-09-26", "prices": [75.80, 75.30, 74.82]},
+        "year_ago": {"date": "2025-10-26", "prices": [82.40, 81.75, 81.10]}
+      }
+    }
+    ```
+
+---
+
+## 9. Processing Margins & Spreads Analytics
+
+Access multi-decade point-in-time time series and 20-year weekly seasonality profiles for energy cracking, agricultural crushing, power spark generation, and calendar roll spreads.
+
+* **Endpoint**: `GET /api/market-data/spreads/analytics/`
+* **Query Parameters**:
+  - `spread_type`: Required spread type. Supported values:
+    - `crack_321`: 3:2:1 Refinery Crack Margin ($/bbl)
+    - `brent_wti`: Brent vs WTI Transatlantic Arbitrage ($/bbl)
+    - `crush`: Soybean Processing Margin ($/bushel)
+    - `spark`: Gas-to-Power Thermal Spark Margin ($/MWh)
+    - `calendar`: Prompt Front-Month vs 2nd-Month Roll Spread (M1 - M2)
+  - `commodity`: Canonical commodity code (only required when `spread_type=calendar`, defaults to `CL`).
+
+=== "cURL"
+    ```bash
+    # Query 3:2:1 Refinery Crack Margin history and seasonality
+    curl -X GET "http://127.0.0.1:8000/api/market-data/spreads/analytics/?spread_type=crack_321" \
+         -H "Accept: application/json"
+    ```
+
+=== "Python (requests)"
+    ```python
+    import requests
+
+    response = requests.get(
+        "http://127.0.0.1:8000/api/market-data/spreads/analytics/",
+        params={"spread_type": "crack_321"}
+    )
+    data = response.json()
+    latest = data['latest']
+    print(f"Spread: {data['name']} ({data['formula']})")
+    print(f"Latest: ${latest['value']} {data['unit']} ({latest['point_change']:+} / {latest['pct_change']:+}%)")
+    print(f"20D MA: ${latest['ma_20']} | 52W Range: ${latest['low_52w']} - ${latest['high_52w']} | Z-Score: {latest['zscore_1y']}")
+    print(f"Current Regime: {latest['regime']}")
+    ```
+
+=== "JSON Response (200 OK)"
+    ```json
+    {
+      "status": "ok",
+      "spread_type": "crack_321",
+      "name": "3:2:1 Refinery Crack Margin",
+      "unit": "$/bbl",
+      "formula": "(2 × RBOB Gasoline + 1 × Heating Oil - 3 × WTI Crude) / 3",
+      "total_observations": 5215,
+      "latest": {
+        "date": "2026-10-26",
+        "value": 30.78,
+        "point_change": -0.04,
+        "pct_change": -0.13,
+        "ma_20": 30.13,
+        "high_52w": 38.50,
+        "low_52w": 18.20,
+        "zscore_1y": 1.25,
+        "regime": "ELEVATED_MARGIN",
+        "legs": {
+          "cl": 82.48,
+          "rb": 2.65,
+          "ho": 2.79
+        }
+      },
+      "time_series": [
+        {
+          "date": "2026-10-26",
+          "year": 2026,
+          "week": 44,
+          "value": 30.78,
+          "legs": {"cl": 82.48, "rb": 2.65, "ho": 2.79}
+        }
+      ],
+      "seasonality_weekly": {
+        "1": {"week": 1, "mean": 18.5, "min": 12.1, "max": 26.4},
+        "44": {"week": 44, "mean": 24.2, "min": 16.8, "max": 33.1}
+      }
+    }
+    ```
+
+

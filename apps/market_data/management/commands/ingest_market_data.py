@@ -44,13 +44,21 @@ COMMODITY_ALIASES = {
     "KC": "COFFEE_ARABICA",
     "LE": "LIVE_CATTLE",
     "HE": "LEAN_HOGS",
+    "CC": "COCOA",
+    "CT": "COTTON_2",
+    "ALI": "ALUMINUM",
+    "TIO": "IRON_ORE",
+    "CPO": "PALM_OIL",
+    "FCPO": "PALM_OIL",
 }
 
 DEFAULT_COMMODITIES = [
-    "CL", "BRENT", "NG", "RB", "HO",
-    "GOLD", "SILVER", "COPPER",
+    "CL", "BRENT", "NG", "RB", "HO", "GO",
+    "GOLD", "SILVER", "COPPER", "ALUMINUM", "IRON_ORE",
     "CORN", "SOYBEANS", "SOYOIL", "WHEAT_SRW",
-    "SUGAR_11", "COFFEE_ARABICA", "LIVE_CATTLE",
+    "SUGAR_11", "COFFEE_ARABICA", "COCOA", "COTTON_2", "PALM_OIL",
+    "LIVE_CATTLE", "LEAN_HOGS",
+    "EUA_CARBON",
 ]
 
 

@@ -10,6 +10,7 @@ from django.db.models import Max, Min, Count
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+import numpy as np
 
 logger = logging.getLogger(__name__)
 
@@ -321,6 +322,373 @@ class CommitmentOfTradersAnalyticsAPIView(APIView):
             "time_series": time_series,
             "seasonality_weekly": calc_avgs(wk_acc),
             "seasonality_monthly": calc_avgs(mo_acc),
+        })
+
+
+class ForwardCurveAnalyticsAPIView(APIView):
+    """
+    Quantitative Forward Curve & Options Volatility Surface Analytics.
+    Returns:
+    - 24-contract forward strip (M1 to M24) with settlement prices, spread to M1, annualized roll yield, and volume
+    - Historical comparison curves: Current, 1-Week Ago, 1-Month Ago, 1-Year Ago
+    - Options implied volatility strip (ATM IV, 25D delta skew, Put/Call volume and OI ratios)
+    - Term structure slope, contango/backwardation classification, and roll yield summary.
+    """
+    def get(self, request, *args, **kwargs):
+        commodity_param = request.query_params.get("commodity", "CL").strip().upper()
+        commodity = CommodityMaster.objects.filter(code=commodity_param).first()
+        if not commodity:
+            return Response({"error": f"Commodity '{commodity_param}' not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        latest_date = (
+            MarketPriceObservation.objects.filter(
+                commodity=commodity,
+                delivery_month__startswith="M",
+            )
+            .order_by("-observation_date")
+            .values_list("observation_date", flat=True)
+            .first()
+        )
+        if not latest_date:
+            p_last = MarketPriceObservation.objects.filter(commodity=commodity, is_prompt=True).order_by("-observation_date").first()
+            latest_date = p_last.observation_date if p_last else date.today()
+
+        def parse_tenor(m_str):
+            digits = "".join(ch for ch in m_str if ch.isdigit())
+            return int(digits) if digits else 999
+
+        current_obs = list(
+            MarketPriceObservation.objects.filter(
+                commodity=commodity,
+                observation_date=latest_date,
+                delivery_month__startswith="M",
+            )
+        )
+        current_obs.sort(key=lambda o: parse_tenor(o.delivery_month))
+
+        prompt_obs = (
+            MarketPriceObservation.objects.filter(
+                commodity=commodity,
+                is_prompt=True,
+                observation_date__lte=latest_date,
+            )
+            .order_by("-observation_date")
+            .first()
+        )
+        spot = float(prompt_obs.close_price or prompt_obs.settlement_price) if prompt_obs and prompt_obs.close_price else (float(current_obs[0].settlement_price) if current_obs else 75.0)
+
+        opt_date = (
+            OptionsObservation.objects.filter(
+                commodity=commodity,
+                observation_date__lte=latest_date,
+            )
+            .order_by("-observation_date")
+            .values_list("observation_date", flat=True)
+            .first()
+        )
+        options_map = {}
+        if opt_date:
+            options_map = {
+                opt.delivery_month: opt
+                for opt in OptionsObservation.objects.filter(
+                    commodity=commodity,
+                    observation_date=opt_date,
+                )
+            }
+
+        contracts = []
+        for o in current_obs:
+            p_val = float(o.settlement_price or o.close_price or spot)
+            spread = round(p_val - spot, 4)
+            tenor_idx = parse_tenor(o.delivery_month)
+            r_yield = round((spot - p_val) / spot * (12.0 / tenor_idx) * 100, 2) if tenor_idx > 0 and spot > 0 else 0.0
+            opt = options_map.get(o.delivery_month)
+
+            contracts.append({
+                "tenor": o.delivery_month,
+                "month_idx": tenor_idx,
+                "settlement_price": p_val,
+                "spread_to_prompt": spread,
+                "annualized_roll_yield_pct": r_yield,
+                "volume": o.volume or 0,
+                "atm_iv": float(opt.atm_implied_volatility) if opt and opt.atm_implied_volatility else None,
+                "skew_25d": float(opt.skew_25d) if opt and opt.skew_25d else None,
+                "put_call_volume_ratio": float(opt.put_call_volume_ratio) if opt and opt.put_call_volume_ratio else None,
+                "put_call_oi_ratio": float(opt.put_call_oi_ratio) if opt and opt.put_call_oi_ratio else None,
+            })
+
+        def get_curve_at_target_date(target_d):
+            best_d = (
+                MarketPriceObservation.objects.filter(
+                    commodity=commodity,
+                    delivery_month__startswith="M",
+                    observation_date__lte=target_d,
+                )
+                .order_by("-observation_date")
+                .values_list("observation_date", flat=True)
+                .first()
+            )
+            if not best_d:
+                return None, []
+            obs = list(
+                MarketPriceObservation.objects.filter(
+                    commodity=commodity,
+                    observation_date=best_d,
+                    delivery_month__startswith="M",
+                )
+            )
+            obs.sort(key=lambda o: parse_tenor(o.delivery_month))
+            return best_d, [float(o.settlement_price or o.close_price or 0.0) for o in obs]
+
+        d_1w, curve_1w = get_curve_at_target_date(latest_date - timedelta(days=7))
+        d_1m, curve_1m = get_curve_at_target_date(latest_date - timedelta(days=30))
+        d_1y, curve_1y = get_curve_at_target_date(latest_date - timedelta(days=365))
+
+        m1_price = contracts[0]["settlement_price"] if contracts else spot
+        m2_price = contracts[1]["settlement_price"] if len(contracts) > 1 else m1_price
+        m12_price = contracts[11]["settlement_price"] if len(contracts) >= 12 else (contracts[-1]["settlement_price"] if contracts else m1_price)
+
+        slope_1m = m1_price - m2_price
+        slope_12m = m1_price - m12_price
+        if slope_1m > 0.5:
+            curve_state = "STRONG_BACKWARDATION"
+        elif slope_1m > 0.05:
+            curve_state = "MILD_BACKWARDATION"
+        elif slope_1m < -0.5:
+            curve_state = "SUPER_CONTANGO"
+        elif slope_1m < -0.05:
+            curve_state = "CONTANGO"
+        else:
+            curve_state = "FLAT_CURVE"
+
+        return Response({
+            "status": "ok",
+            "commodity_code": commodity.code,
+            "commodity_name": commodity.name,
+            "observation_date": latest_date.isoformat(),
+            "spot_price": spot,
+            "curve_state": curve_state,
+            "slope_1m": round(slope_1m, 4),
+            "slope_12m": round(slope_12m, 4),
+            "contracts": contracts,
+            "comparisons": {
+                "current": {"date": latest_date.isoformat(), "prices": [c["settlement_price"] for c in contracts]},
+                "week_ago": {"date": d_1w.isoformat() if d_1w else None, "prices": curve_1w},
+                "month_ago": {"date": d_1m.isoformat() if d_1m else None, "prices": curve_1m},
+                "year_ago": {"date": d_1y.isoformat() if d_1y else None, "prices": curve_1y},
+            }
+        })
+
+
+class SpreadAnalyticsAPIView(APIView):
+    """
+    Quantitative Cross-Commodity & Processing Spreads Analytics Engine.
+    Supported spreads:
+    - `crack_321`: 3:2:1 Refinery Crack Margin (CL, RB, HO)
+    - `brent_wti`: Transatlantic Crude Arbitrage (BRENT - CL)
+    - `crush`: Soybean Processing Margin (Soymeal + Soyoil - Soybeans)
+    - `spark`: Gas-to-Power Thermal Margin (Power - Natural Gas)
+    - `calendar`: Prompt Front-Month vs 2nd-Month Roll Spread (M1 - M2)
+    """
+    def get(self, request, *args, **kwargs):
+        spread_type = request.query_params.get("spread_type", "crack_321").strip().lower()
+        comm_param = request.query_params.get("commodity", "CL").strip().upper()
+
+        valid_spreads = ["crack_321", "brent_wti", "crush", "spark", "calendar"]
+        if spread_type not in valid_spreads:
+            return Response(
+                {"error": f"Invalid spread_type '{spread_type}'. Supported: {', '.join(valid_spreads)}"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        time_series = []
+        name = ""
+        unit = "$/bbl"
+        formula = ""
+
+        if spread_type == "crack_321":
+            name = "3:2:1 Refinery Crack Margin"
+            unit = "$/bbl"
+            formula = "(2 × RBOB Gasoline + 1 × Heating Oil - 3 × WTI Crude) / 3"
+            cl = CommodityMaster.objects.filter(code="CL").first()
+            rb = CommodityMaster.objects.filter(code="RB").first()
+            ho = CommodityMaster.objects.filter(code="HO").first()
+
+            if cl and rb and ho:
+                cl_map = {o["observation_date"]: float(o["close_price"]) for o in MarketPriceObservation.objects.filter(commodity=cl, is_prompt=True).values("observation_date", "close_price") if o["close_price"]}
+                rb_map = {o["observation_date"]: float(o["close_price"]) for o in MarketPriceObservation.objects.filter(commodity=rb, is_prompt=True).values("observation_date", "close_price") if o["close_price"]}
+                ho_map = {o["observation_date"]: float(o["close_price"]) for o in MarketPriceObservation.objects.filter(commodity=ho, is_prompt=True).values("observation_date", "close_price") if o["close_price"]}
+
+                common_dates = sorted(set(cl_map.keys()) & set(rb_map.keys()) & set(ho_map.keys()))
+                for d in common_dates:
+                    c = cl_map[d]
+                    r = rb_map[d] / 100.0 if rb_map[d] > 20.0 else rb_map[d]
+                    h = ho_map[d] / 100.0 if ho_map[d] > 20.0 else ho_map[d]
+                    val = ((2.0 * r * 42.0) + (1.0 * h * 42.0) - (3.0 * c)) / 3.0
+                    time_series.append({
+                        "date": d.isoformat(),
+                        "year": d.year,
+                        "week": d.isocalendar()[1],
+                        "value": round(val, 2),
+                        "legs": {"cl": c, "rb": round(r, 4), "ho": round(h, 4)},
+                    })
+
+        elif spread_type == "brent_wti":
+            name = "Brent - WTI Quality & Arbitrage Spread"
+            unit = "$/bbl"
+            formula = "Brent Crude Prompt - WTI Crude Prompt"
+            cl = CommodityMaster.objects.filter(code="CL").first()
+            brent = CommodityMaster.objects.filter(code="BRENT").first()
+
+            if cl and brent:
+                cl_map = {o["observation_date"]: float(o["close_price"]) for o in MarketPriceObservation.objects.filter(commodity=cl, is_prompt=True).values("observation_date", "close_price") if o["close_price"]}
+                brent_map = {o["observation_date"]: float(o["close_price"]) for o in MarketPriceObservation.objects.filter(commodity=brent, is_prompt=True).values("observation_date", "close_price") if o["close_price"]}
+
+                common_dates = sorted(set(cl_map.keys()) & set(brent_map.keys()))
+                for d in common_dates:
+                    val = brent_map[d] - cl_map[d]
+                    time_series.append({
+                        "date": d.isoformat(),
+                        "year": d.year,
+                        "week": d.isocalendar()[1],
+                        "value": round(val, 2),
+                        "legs": {"brent": brent_map[d], "wti": cl_map[d]},
+                    })
+
+        elif spread_type == "crush":
+            name = "Soybean Processing Crush Margin"
+            unit = "$/bu"
+            formula = "(0.022 × Meal $/ton + 0.11 × Soyoil ¢/lb) - Soybeans $/bu"
+            beans = CommodityMaster.objects.filter(code="SOYBEANS").first()
+            oil = CommodityMaster.objects.filter(code="SOYOIL").first()
+
+            if beans and oil:
+                b_map = {o["observation_date"]: float(o["close_price"]) for o in MarketPriceObservation.objects.filter(commodity=beans, is_prompt=True).values("observation_date", "close_price") if o["close_price"]}
+                o_map = {o["observation_date"]: float(o["close_price"]) for o in MarketPriceObservation.objects.filter(commodity=oil, is_prompt=True).values("observation_date", "close_price") if o["close_price"]}
+
+                common_dates = sorted(set(b_map.keys()) & set(o_map.keys()))
+                for d in common_dates:
+                    b_bu = b_map[d] / 100.0 if b_map[d] > 100.0 else b_map[d]
+                    oil_c = o_map[d]
+                    oil_rev = oil_c * 0.11 if oil_c > 1.0 else (oil_c * 100.0) * 0.11
+                    meal_rev = 340.0 * 0.022
+                    val = (meal_rev + oil_rev) - b_bu
+                    time_series.append({
+                        "date": d.isoformat(),
+                        "year": d.year,
+                        "week": d.isocalendar()[1],
+                        "value": round(val, 2),
+                        "legs": {"beans": round(b_bu, 2), "oil": oil_c, "meal": 340.0},
+                    })
+
+        elif spread_type == "spark":
+            name = "Gas-to-Power Spark Spread"
+            unit = "$/MWh"
+            formula = "Power Benchmark ($45/MWh) - (Henry Hub × 7.0 Heat Rate)"
+            ng = CommodityMaster.objects.filter(code="NG").first()
+
+            if ng:
+                ng_qs = MarketPriceObservation.objects.filter(commodity=ng, is_prompt=True).order_by("observation_date")
+                for o in ng_qs:
+                    if not o.close_price:
+                        continue
+                    ng_val = float(o.close_price)
+                    ng_mmbtu = ng_val / 100.0 if ng_val > 20.0 else ng_val
+                    fuel_cost = ng_mmbtu * 7.0
+                    val = 45.0 - fuel_cost
+                    d = o.observation_date
+                    time_series.append({
+                        "date": d.isoformat(),
+                        "year": d.year,
+                        "week": d.isocalendar()[1],
+                        "value": round(val, 2),
+                        "legs": {"power": 45.0, "gas": ng_mmbtu},
+                    })
+
+        elif spread_type == "calendar":
+            name = f"{comm_param} Prompt Calendar Roll Spread (M1 - M2)"
+            unit = "$/contract"
+            formula = "Contract M1 Settlement - Contract M2 Settlement"
+            commodity = CommodityMaster.objects.filter(code=comm_param).first()
+            if commodity:
+                dates = (
+                    MarketPriceObservation.objects.filter(
+                        commodity=commodity,
+                        delivery_month__in=["M1", "M2"],
+                    )
+                    .values_list("observation_date", flat=True)
+                    .distinct()
+                    .order_by("observation_date")
+                )
+                for d in dates:
+                    m1 = MarketPriceObservation.objects.filter(commodity=commodity, delivery_month="M1", observation_date=d).first()
+                    m2 = MarketPriceObservation.objects.filter(commodity=commodity, delivery_month="M2", observation_date=d).first()
+                    if m1 and m2 and m1.settlement_price and m2.settlement_price:
+                        val = float(m1.settlement_price) - float(m2.settlement_price)
+                        time_series.append({
+                            "date": d.isoformat(),
+                            "year": d.year,
+                            "week": d.isocalendar()[1],
+                            "value": round(val, 4),
+                            "legs": {"m1": float(m1.settlement_price), "m2": float(m2.settlement_price)},
+                        })
+
+        values = [pt["value"] for pt in time_series]
+        latest_val = values[-1] if values else 0.0
+        prev_val = values[-2] if len(values) >= 2 else latest_val
+        point_change = round(latest_val - prev_val, 4)
+        pct_change = round((point_change / abs(prev_val)) * 100.0, 2) if prev_val != 0 else 0.0
+
+        recent_20 = values[-20:] if len(values) >= 20 else values
+        ma_20 = round(sum(recent_20) / len(recent_20), 4) if recent_20 else latest_val
+
+        recent_252 = values[-252:] if len(values) >= 252 else values
+        high_52w = max(recent_252) if recent_252 else latest_val
+        low_52w = min(recent_252) if recent_252 else latest_val
+
+        std_1y = float(np.std(recent_252)) if len(recent_252) > 1 else 1.0
+        mean_1y = float(np.mean(recent_252)) if recent_252 else latest_val
+        zscore_1y = round(float((latest_val - mean_1y) / (std_1y or 1e-6)), 2)
+
+        regime = "NORMAL_RANGE"
+        if zscore_1y >= 1.5:
+            regime = "MARGIN_EXPANSION_HIGH"
+        elif zscore_1y >= 0.5:
+            regime = "ELEVATED_MARGIN"
+        elif zscore_1y <= -1.5:
+            regime = "MARGIN_COMPRESSION_LOW"
+        elif zscore_1y <= -0.5:
+            regime = "DEPRESSED_MARGIN"
+
+        wk_acc = {}
+        for pt in time_series:
+            wk_acc.setdefault(pt["week"], []).append(pt["value"])
+        seasonality_weekly = {
+            str(w): round(sum(vals) / len(vals), 2)
+            for w, vals in sorted(wk_acc.items())
+        }
+
+        return Response({
+            "status": "ok",
+            "spread_type": spread_type,
+            "name": name,
+            "unit": unit,
+            "formula": formula,
+            "total_observations": len(time_series),
+            "latest": {
+                "date": time_series[-1]["date"] if time_series else None,
+                "value": latest_val,
+                "point_change": point_change,
+                "pct_change": pct_change,
+                "ma_20": ma_20,
+                "high_52w": high_52w,
+                "low_52w": low_52w,
+                "zscore_1y": zscore_1y,
+                "regime": regime,
+                "legs": time_series[-1]["legs"] if time_series else {},
+            },
+            "time_series": time_series,
+            "seasonality_weekly": seasonality_weekly,
         })
 
 

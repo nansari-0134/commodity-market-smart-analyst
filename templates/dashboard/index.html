@@ -904,45 +904,89 @@
             <span class="tm-module-badge">MODULE 2</span>
             <div>
                 <h2 class="tm-module-title">Forward Curve Term Structure Strip (M1–M24) & Options Volatility Surface</h2>
-                <p class="tm-module-desc">Continuous settlement price strip across all 24 contract delivery months, annualized roll yield, ATM implied volatility, 25D delta skew, and put/call volume flow ratios.</p>
+                <p class="tm-module-desc">Continuous settlement price strip across all 24 contract delivery months, annualized roll yield, historical curve comparison overlays, ATM implied volatility, and delta skew surfaces.</p>
             </div>
         </div>
         <div class="tm-header-right">
-            <span class="badge-tag tag-exchange">24 TENORS • SPREAD TO PROMPT</span>
+            <span class="badge-tag tag-exchange">24 TENORS • PCHIP HERMITE SPLINE</span>
         </div>
     </div>
 
     <div style="display: flex; flex-direction: column; gap: 1.5rem;">
-        <!-- Forward Curve SVG Chart -->
-        <div class="glass-panel" style="padding: 1.5rem;">
-            <div class="chart-header-bar">
-                <div>
-                    <h2 style="font-size: 1.15rem; font-weight: 700; color: #ffffff; display: flex; align-items: center; gap: 0.6rem;">
-                        <span>Forward Curve Term Structure Strip (M1 through M24)</span>
-                        <span class="badge-tag tag-exchange">24 TENORS</span>
-                    </h2>
-                    <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.2rem;">
-                        Continuous settlement price strip across all 24 contract delivery months. Identifies term slope, convenience yield, and roll return.
-                    </p>
+        <!-- Forward Curve Key Telemetry Strip -->
+        <div class="cot-stats-ribbon">
+            <div class="cot-stat-card">
+                <div class="cot-stat-label">Prompt M1 Price</div>
+                <div class="cot-stat-val" id="fcStatM1" style="color: var(--accent-cyan);">${{ commodity_detail.current_price|floatformat:2 }}</div>
+                <div class="cot-stat-sub">Front Month Benchmark</div>
+            </div>
+            <div class="cot-stat-card">
+                <div class="cot-stat-label">1Y Slope (M1 - M12)</div>
+                <div class="cot-stat-val" id="fcStatSlope" style="color: var(--accent-emerald);">--</div>
+                <div class="cot-stat-sub">Annualized Term Slope</div>
+            </div>
+            <div class="cot-stat-card">
+                <div class="cot-stat-label">Annualized Roll Yield</div>
+                <div class="cot-stat-val" id="fcStatRoll" style="color: var(--accent-emerald);">+{{ commodity_detail.market_state.roll_yield_1y }}%/YR</div>
+                <div class="cot-stat-sub">Convenience Yield Carry</div>
+            </div>
+            <div class="cot-stat-card">
+                <div class="cot-stat-label">Curve Structure Regime</div>
+                <div class="cot-stat-val" id="fcStatRegime" style="color: var(--accent-violet); font-size: 1.1rem; text-transform: uppercase;">
+                    {{ commodity_detail.market_state.curve_state|default:"BACKWARDATION" }}
                 </div>
+                <div class="cot-stat-sub">Physical Inventory Balance</div>
+            </div>
+            <div class="cot-stat-card">
+                <div class="cot-stat-label">Front Month ATM Vol</div>
+                <div class="cot-stat-val" id="fcStatIv" style="color: #a855f7;">--</div>
+                <div class="cot-stat-sub">M1 Implied Volatility</div>
+            </div>
+        </div>
 
-                <div style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent-cyan); background: rgba(0, 242, 254, 0.08); padding: 0.4rem 0.85rem; border-radius: 6px; border: 1px solid rgba(0, 242, 254, 0.25);">
-                    CURVE STATE: <strong style="color: #ffffff;">{{ commodity_detail.market_state.curve_state }}</strong> • ROLL YIELD: <strong style="color: var(--accent-emerald);">+{{ commodity_detail.market_state.roll_yield_1y }}%/YR</strong>
+        <!-- 2 Columns: Forward Curve Comparison + Options Volatility Surface -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <!-- Left: Forward Curve Term Structure & Overlays -->
+            <div class="cot-chart-card">
+                <div class="cot-card-header">
+                    <div>
+                        <h3 class="cot-card-title">Forward Curve Term Structure (M1 through M24)</h3>
+                        <div class="cot-card-subtitle">Current settlement curve plotted against 1-month and 1-year historical baseline curves</div>
+                    </div>
+                    <div class="cot-btn-group" id="fcCompBtnGroup">
+                        <button type="button" class="cot-btn fc-comp-btn active" data-comp="all" onclick="toggleFcComparison('all')">All Curves</button>
+                        <button type="button" class="cot-btn fc-comp-btn" data-comp="current" onclick="toggleFcComparison('current')">Current Only</button>
+                    </div>
+                </div>
+                <div style="position: relative; height: 340px;">
+                    <canvas id="fcTermChart"></canvas>
                 </div>
             </div>
 
-            <div class="svg-chart-container">
-                <svg id="forwardCurveSvgChart" class="chart-svg" viewBox="0 0 960 300" preserveAspectRatio="none"></svg>
+            <!-- Right: Options Implied Volatility Surface & 25D Skew -->
+            <div class="cot-chart-card">
+                <div class="cot-card-header">
+                    <div>
+                        <h3 class="cot-card-title">Options Volatility Surface & 25D Delta Skew</h3>
+                        <div class="cot-card-subtitle">ATM Implied Volatility % (line) and 25-Delta Skew (bars) across contract maturities</div>
+                    </div>
+                </div>
+                <div style="position: relative; height: 340px;">
+                    <canvas id="fcOptionsVolChart"></canvas>
+                </div>
             </div>
         </div>
 
         <!-- 24-Contract Full Data Table -->
         <div class="glass-panel" style="padding: 1.5rem;">
-            <h3 style="font-size: 1rem; font-weight: 700; color: #ffffff; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.85rem; font-family: var(--font-mono);">
-                Forward Contracts & Options Surface Matrix (M1–M24)
-            </h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem;">
+                <h3 style="font-size: 1rem; font-weight: 700; color: #ffffff; text-transform: uppercase; letter-spacing: 0.04em; font-family: var(--font-mono);">
+                    Forward Contracts & Options Surface Matrix (M1–M24)
+                </h3>
+                <span class="badge-tag tag-exchange" id="fcTableAsOf">24 TENORS</span>
+            </div>
             <div class="explorer-table-wrap">
-                <table class="data-table">
+                <table class="data-table" id="fcContractsTable">
                     <thead>
                         <tr>
                             <th>Tenor</th>
@@ -955,7 +999,7 @@
                             <th>Volume</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="fcContractsTableBody">
                         {% for contract in commodity_detail.contracts %}
                         <tr>
                             <td style="font-family: var(--font-mono); font-weight: 700; color: var(--accent-cyan);">{{ contract.tenor }}</td>
@@ -994,91 +1038,107 @@
         <div class="tm-header-left">
             <span class="tm-module-badge">MODULE 3</span>
             <div>
-                <h2 class="tm-module-title">Cross-Commodity Transformations & Processing Spreads</h2>
-                <p class="tm-module-desc">Deterministic chemical and refinery transformations: 3:2:1 crack spread, soybean crush margin, gas-to-power spark spread, and macro cross-market sensitivity correlations.</p>
+                <h2 class="tm-module-title">Cross-Commodity Transformations & Processing Spreads Studio</h2>
+                <p class="tm-module-desc">Deterministic chemical and refinery transformations: 3:2:1 crack spread, Brent-WTI quality arbitrage, soybean crush margin, gas-to-power spark spread, and multi-decade spread seasonality.</p>
             </div>
         </div>
         <div class="tm-header-right">
-            <span class="badge-tag tag-comm">PROCESSING MARGINS • MACRO TRANSMISSION</span>
+            <span class="badge-tag tag-comm">20Y SPREAD DEPTH • TRANSFORMATION MARGINS</span>
         </div>
     </div>
+
     <div style="display: flex; flex-direction: column; gap: 1.5rem;">
-        <div class="glass-panel" style="padding: 1.5rem;">
-            <h2 style="font-size: 1.15rem; font-weight: 700; color: #ffffff; display: flex; align-items: center; gap: 0.6rem;">
-                <span>Cross-Commodity Transformation Margins & Processing Spreads</span>
-                <span class="badge-tag tag-comm">{{ commodity_detail.cross_commodity.primary_complex|default:"PRIMARY COMPLEX" }}</span>
-            </h2>
-            <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.2rem;">
-                Deterministic chemical and industrial transformation calculations.
-            </p>
+        <!-- Spread Selector Tabs -->
+        <div class="cot-btn-group" id="spreadTypeBtnGroup" style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+            <button type="button" class="cot-btn spread-type-btn active" data-spread="crack_321" onclick="switchSpreadType('crack_321')">3:2:1 Refinery Crack Margin</button>
+            <button type="button" class="cot-btn spread-type-btn" data-spread="brent_wti" onclick="switchSpreadType('brent_wti')">Brent - WTI Arbitrage</button>
+            <button type="button" class="cot-btn spread-type-btn" data-spread="crush" onclick="switchSpreadType('crush')">Soybean Crush Margin</button>
+            <button type="button" class="cot-btn spread-type-btn" data-spread="spark" onclick="switchSpreadType('spark')">Gas-to-Power Spark Spread</button>
+            <button type="button" class="cot-btn spread-type-btn" data-spread="calendar" onclick="switchSpreadType('calendar')">Calendar Roll Spread (M1 - M2)</button>
+        </div>
 
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin-top: 1.25rem;">
-                <!-- 3:2:1 Crack Spread -->
-                <div class="pulse-card">
-                    <div class="pulse-title">3:2:1 Refinery Crack Spread</div>
-                    <div class="pulse-value" style="color: var(--accent-cyan); margin-top: 0.4rem;">
-                        {% if commodity_detail.spreads.crack_321 is not None %}
-                            ${{ commodity_detail.spreads.crack_321|floatformat:2 }} / BBL
-                        {% else %}
-                            <span style="color: var(--text-muted); font-size: 1.1rem;">N/A</span>
-                        {% endif %}
-                    </div>
-                    <div class="pulse-subtext">Formula: (2 × RBOB + 1 × Heating Oil - 3 × Crude) / 3</div>
+        <!-- 5-Metric Telemetry Ribbon for Active Spread -->
+        <div class="cot-stats-ribbon">
+            <div class="cot-stat-card">
+                <div class="cot-stat-label">Current Spread Value</div>
+                <div class="cot-stat-val" id="spreadStatVal" style="color: var(--accent-cyan);">--</div>
+                <div class="cot-stat-sub" id="spreadStatUnit">$/bbl</div>
+            </div>
+            <div class="cot-stat-card">
+                <div class="cot-stat-label">1D Point Change</div>
+                <div class="cot-stat-val" id="spreadStatChange" style="color: var(--accent-emerald);">--</div>
+                <div class="cot-stat-sub" id="spreadStatPct">--% 1D</div>
+            </div>
+            <div class="cot-stat-card">
+                <div class="cot-stat-label">20-Day Moving Average</div>
+                <div class="cot-stat-val" id="spreadStatMa20" style="color: var(--accent-amber);">--</div>
+                <div class="cot-stat-sub">Short-Term Baseline</div>
+            </div>
+            <div class="cot-stat-card">
+                <div class="cot-stat-label">52-Week Range</div>
+                <div class="cot-stat-val" id="spreadStatRange" style="color: #ffffff; font-size: 1.15rem;">--</div>
+                <div class="cot-stat-sub">1Y Low - High</div>
+            </div>
+            <div class="cot-stat-card">
+                <div class="cot-stat-label">1Y Z-Score & Regime</div>
+                <div class="cot-stat-val" id="spreadStatRegime" style="color: var(--accent-violet); font-size: 1.05rem; text-transform: uppercase;">
+                    NORMAL
                 </div>
-
-                <!-- Soybean Crush Spread -->
-                <div class="pulse-card">
-                    <div class="pulse-title">Soybean Crush Margin</div>
-                    <div class="pulse-value" style="color: var(--accent-emerald); margin-top: 0.4rem;">
-                        {% if commodity_detail.spreads.crush_spread is not None %}
-                            ${{ commodity_detail.spreads.crush_spread|floatformat:2 }} / BU
-                        {% else %}
-                            <span style="color: var(--text-muted); font-size: 1.1rem;">N/A</span>
-                        {% endif %}
-                    </div>
-                    <div class="pulse-subtext">Formula: Meal + Oil product value vs raw Soybeans</div>
-                </div>
-
-                <!-- Spark Spread -->
-                <div class="pulse-card">
-                    <div class="pulse-title">Gas-to-Power Spark Spread</div>
-                    <div class="pulse-value" style="color: var(--accent-amber); margin-top: 0.4rem;">
-                        {% if commodity_detail.spreads.spark_spread is not None %}
-                            ${{ commodity_detail.spreads.spark_spread|floatformat:2 }} / MWh
-                        {% else %}
-                            <span style="color: var(--text-muted); font-size: 1.1rem;">N/A</span>
-                        {% endif %}
-                    </div>
-                    <div class="pulse-subtext">Thermal power conversion margin vs Henry Hub</div>
-                </div>
+                <div class="cot-stat-sub">Z-Score: <strong id="spreadStatZscore" style="color: #ffffff;">0.00</strong></div>
             </div>
         </div>
 
-        <!-- Macro Factor Sensitivities -->
-        <div class="glass-panel" style="padding: 1.5rem;">
-            <h3 style="font-size: 1rem; font-weight: 700; color: #ffffff; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.85rem; font-family: var(--font-mono);">
-                Macro Factor Sensitivities & Cross-Market Transmission
-            </h3>
-            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;">
-                <div class="tenure-card">
-                    <div class="tenure-title">USD Index (DXY) Correlation</div>
-                    <div style="font-size: 1.35rem; font-family: var(--font-mono); font-weight: 800; color: var(--accent-rose);">-0.68</div>
-                    <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.3rem;">Inverse currency transmission</div>
+        <!-- Chart 1: Historical Spread Time Series -->
+        <div class="cot-chart-card">
+            <div class="cot-card-header">
+                <div>
+                    <h3 class="cot-card-title" id="spreadChartTitle">Historical 3:2:1 Refinery Crack Margin Over Time</h3>
+                    <div class="cot-card-subtitle" id="spreadChartSubtitle">Gross refining margin: (2 × RBOB + 1 × Heating Oil - 3 × WTI) / 3</div>
                 </div>
-                <div class="tenure-card">
-                    <div class="tenure-title">Real 10Y Yields (TIPS)</div>
-                    <div style="font-size: 1.35rem; font-family: var(--font-mono); font-weight: 800; color: var(--accent-rose);">-0.74</div>
-                    <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.3rem;">Opportunity cost of carry</div>
+            </div>
+            <div style="position: relative; height: 340px;">
+                <canvas id="spreadHistoryChart"></canvas>
+            </div>
+        </div>
+
+        <!-- 2 Columns: Spread Seasonality Studio + Component Legs Matrix -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <!-- Left: Spread Seasonality Studio -->
+            <div class="cot-chart-card">
+                <div class="cot-card-header">
+                    <div>
+                        <h3 class="cot-card-title">Spread Seasonality Studio (20Y Depth)</h3>
+                        <div class="cot-card-subtitle">Empirical weekly (W1–W52) multi-year annual trajectory overlays and historical benchmark average</div>
+                    </div>
                 </div>
-                <div class="tenure-card">
-                    <div class="tenure-title">Crude ➔ Sugar Transmission</div>
-                    <div style="font-size: 1.35rem; font-family: var(--font-mono); font-weight: 800; color: var(--accent-emerald);">+0.62</div>
-                    <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.3rem;">Brazilian ethanol parity link</div>
+                <div style="position: relative; height: 320px;">
+                    <canvas id="spreadSeasonalityChart"></canvas>
                 </div>
-                <div class="tenure-card">
-                    <div class="tenure-title">Crude ➔ Corn Transmission</div>
-                    <div style="font-size: 1.35rem; font-family: var(--font-mono); font-weight: 800; color: var(--accent-emerald);">+0.55</div>
-                    <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.3rem;">US ethanol blending mandate</div>
+            </div>
+
+            <!-- Right: Component Legs & Economic Transmission -->
+            <div class="glass-panel" style="padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                    <h3 style="font-size: 1rem; font-weight: 700; color: #ffffff; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.85rem; font-family: var(--font-mono);">
+                        Transformation Formula & Leg Values
+                    </h3>
+                    <div style="background: rgba(0, 0, 0, 0.35); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+                        <div style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.4rem;">Deterministic Formula</div>
+                        <div id="spreadFormulaBox" style="font-family: var(--font-mono); font-size: 0.95rem; font-weight: 700; color: var(--accent-cyan);">
+                            (2 × RBOB + 1 × Heating Oil - 3 × WTI Crude) / 3
+                        </div>
+                    </div>
+
+                    <div id="spreadLegsContainer" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                        <!-- Dynamic leg items populated via JS -->
+                    </div>
+                </div>
+
+                <div style="margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.08);">
+                    <div style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.3rem;">Macro Transmission & Parity Link</div>
+                    <p id="spreadMacroDesc" style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.5; margin: 0;">
+                        Refining crack margins determine refinery utilization run incentives. Negative or compressed crack spreads prompt global refinery maintenance and run cuts, reducing crude demand while tightening product balances.
+                    </p>
                 </div>
             </div>
         </div>

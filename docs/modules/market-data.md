@@ -195,3 +195,25 @@ graph TD
 
 This guarantees that quantitative models, TradingView charting overlays, and divergence algorithms always receive verified institutional positioning depth.
 
+---
+
+## 7. Forward Curve & Processing Margin Spreads Studio
+
+The Market Data architecture provides end-to-end quantitative models for term structures and processing crack/crush/spark spreads:
+
+### Forward Curve & Volatility Analytics (`ForwardCurveAnalyticsAPIView`)
+1. **24-Month Forward Strip (M1 to M24)**: Synchronizes prompt through 2-year forward settlements with spreads to prompt, annualized roll yields, and volume.
+2. **Curve Regime Classification**: Classifies prompt backwardation/contango into `STRONG_BACKWARDATION`, `MILD_BACKWARDATION`, `FLAT_CURVE`, `CONTANGO`, or `SUPER_CONTANGO` using prompt roll slope ($/bbl or relevant unit).
+3. **Multi-Tenor Overlays**: Compares current term structure against historical baselines: Current vs 1 Week Ago vs 1 Month Ago vs 1 Year Ago.
+4. **Options Implied Volatility Surface**: Calculates ATM implied volatility (%) and 25-delta put/call skew across all 24 tenors.
+
+### Processing Margins & Spreads Studio (`SpreadAnalyticsAPIView`)
+1. **Synthetic Processing Margins**:
+   - **3:2:1 Refinery Crack Margin**: `(2 × RBOB Gasoline + 1 × Heating Oil - 3 × WTI Crude) / 3` with unit conversions ($/gal to $/bbl).
+   - **Brent - WTI Transatlantic Arbitrage**: `Brent Settlement - WTI Settlement` in $/bbl.
+   - **Soybean Processing Crush Margin**: `(Soybean Meal × 0.022) + (Soybean Oil × 0.11) - Soybeans` in $/bushel.
+   - **Gas-to-Power Spark Spread**: `Power Price - (Natural Gas Price × Heat Rate / 1000)` in $/MWh.
+   - **Prompt Calendar Roll Spread**: `Contract M1 - Contract M2` roll spread across any commodity.
+2. **20-Year Empirical Weekly Seasonality Studio**: Computes historical multi-decade distribution (min, 25th percentile, median, 75th percentile, max) across ISO weeks 1 through 52 to identify cyclical margin expansion/compression patterns.
+
+

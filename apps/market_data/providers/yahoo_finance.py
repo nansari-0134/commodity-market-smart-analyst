@@ -72,6 +72,12 @@ COMMODITY_TO_YAHOO_TICKER: dict[str, str] = {
     "LE": "LE=F",
     "LEAN_HOGS": "HE=F",
     "HE": "HE=F",
+    # Additional Commodities
+    "ALUMINUM": "ALI=F",
+    "GO": "HO=F",
+    "EUA_CARBON": "MO=F",
+    "IRON_ORE": "TIO=F",
+    "PALM_OIL": "CPO=F",
     # Macro Indicators
     "DXY": "DX-Y.NYB",
     "US10Y": "^TNX",
@@ -109,6 +115,14 @@ COMMODITY_CONTRACT_MAP: dict[str, tuple[str, str]] = {
     "KC": ("KC", "NYB"),
     "LIVE_CATTLE": ("LE", "CME"),
     "LE": ("LE", "CME"),
+    "COCOA": ("CC", "NYB"),
+    "COTTON_2": ("CT", "NYB"),
+    "LEAN_HOGS": ("HE", "CME"),
+    "ALUMINUM": ("ALI", "CMX"),
+    "GO": ("HO", "NYM"),
+    "EUA_CARBON": ("MO", "ICE"),
+    "IRON_ORE": ("TIO", "SGX"),
+    "PALM_OIL": ("CPO", "KLR"),
 }
 
 FUTURES_MONTH_CODES: dict[int, str] = {

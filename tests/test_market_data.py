@@ -12,6 +12,7 @@ Covers:
 
 from datetime import date, datetime, time, timedelta, timezone
 from decimal import Decimal
+from unittest.mock import patch
 import pytest
 from django.core.management import call_command
 from django.db import IntegrityError
@@ -262,7 +263,9 @@ class TestPluggableProviders:
 
         cftc_prov = get_cot_provider("cftc")
         assert cftc_prov.name == "CFTC Official Disaggregated COT Provider"
-        assert cftc_prov.is_healthy() is True
+        with patch("requests.get") as mock_get:
+            mock_get.return_value.status_code = 200
+            assert cftc_prov.is_healthy() is True
 
         # Test registering a mock provider
         class MockProvider(BaseMarketDataProvider):
@@ -419,3 +422,63 @@ class TestMarketDataAPI:
         assert data[0]["commodity_code"] == "CL"
         assert data[0]["delivery_month"] == "M1"
         assert float(data[0]["atm_implied_volatility"]) == pytest.approx(30.25, rel=1e-3)
+
+    def test_forward_curve_analytics_api(self):
+        res = self.client.get("/api/market-data/forward-curve/analytics/?commodity=CL")
+        assert res.status_code == 200
+        data = res.json()
+        assert data["status"] == "ok"
+        assert data["commodity_code"] == "CL"
+        assert "contracts" in data
+        assert len(data["contracts"]) == 24
+        assert "comparisons" in data
+        assert "curve_state" in data
+        assert "spot_price" in data
+        assert "slope_1m" in data
+        assert "slope_12m" in data
+        # Check first contract has options vol telemetry
+        first_c = data["contracts"][0]
+        assert "atm_iv" in first_c
+        assert "skew_25d" in first_c
+        assert "spread_to_prompt" in first_c
+
+        # Test non-existent commodity code
+        err_res = self.client.get("/api/market-data/forward-curve/analytics/?commodity=NONEXISTENT")
+        assert err_res.status_code == 404
+
+    def test_spread_analytics_api(self):
+        # 1. 3:2:1 Crack Spread
+        res_crack = self.client.get("/api/market-data/spreads/analytics/?spread_type=crack_321")
+        assert res_crack.status_code == 200
+        data_crack = res_crack.json()
+        assert data_crack["status"] == "ok"
+        assert data_crack["spread_type"] == "crack_321"
+        assert "formula" in data_crack
+        assert "latest" in data_crack
+        assert "time_series" in data_crack
+        assert "seasonality_weekly" in data_crack
+        assert len(data_crack["time_series"]) > 0
+
+        # 2. Brent-WTI Spread
+        res_bw = self.client.get("/api/market-data/spreads/analytics/?spread_type=brent_wti")
+        assert res_bw.status_code == 200
+        assert res_bw.json()["spread_type"] == "brent_wti"
+
+        # 3. Soybean Crush Spread
+        res_crush = self.client.get("/api/market-data/spreads/analytics/?spread_type=crush")
+        assert res_crush.status_code == 200
+        assert res_crush.json()["spread_type"] == "crush"
+
+        # 4. Spark Spread
+        res_spark = self.client.get("/api/market-data/spreads/analytics/?spread_type=spark")
+        assert res_spark.status_code == 200
+        assert res_spark.json()["spread_type"] == "spark"
+
+        # 5. Calendar Spread
+        res_cal = self.client.get("/api/market-data/spreads/analytics/?spread_type=calendar&commodity=CL")
+        assert res_cal.status_code == 200
+        assert res_cal.json()["spread_type"] == "calendar"
+
+        # 6. Invalid spread type
+        res_bad = self.client.get("/api/market-data/spreads/analytics/?spread_type=invalid_type")
+        assert res_bad.status_code == 400

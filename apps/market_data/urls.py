@@ -13,6 +13,8 @@ from apps.market_data.views import (
     CommitmentOfTradersDetailAPIView,
     CommitmentOfTradersAnalyticsAPIView,
     OptionsObservationListAPIView,
+    ForwardCurveAnalyticsAPIView,
+    SpreadAnalyticsAPIView,
     MarketDataSummaryAPIView,
     LiveMarketQuoteAPIView,
 )
@@ -26,7 +28,10 @@ urlpatterns = [
     path("prices/", MarketPriceListAPIView.as_view(), name="price-list"),
     path("prices/<uuid:pk>/", MarketPriceDetailAPIView.as_view(), name="price-detail"),
     # Forward Curve & Options Surfaces (M1-M24)
+    path("forward-curve/analytics/", ForwardCurveAnalyticsAPIView.as_view(), name="forward-curve-analytics"),
     path("options/", OptionsObservationListAPIView.as_view(), name="options-list"),
+    # Cross-Commodity & Processing Spreads
+    path("spreads/analytics/", SpreadAnalyticsAPIView.as_view(), name="spreads-analytics"),
     # Fundamentals
     path("fundamentals/", FundamentalObservationListAPIView.as_view(), name="fundamental-list"),
     path("fundamentals/<uuid:pk>/", FundamentalObservationDetailAPIView.as_view(), name="fundamental-detail"),

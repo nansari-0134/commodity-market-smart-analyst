@@ -84,6 +84,10 @@ function openProductDetail(commodityCode) {
         const activeTabEl = document.querySelector(".detail-tab-btn.active")?.getAttribute("data-tab");
         if (activeTabEl === "tab-positioning" && typeof loadAndRenderCotAnalytics === "function") {
             loadAndRenderCotAnalytics();
+        } else if (activeTabEl === "tab-forward-curve" && typeof loadAndRenderForwardCurveAnalytics === "function") {
+            loadAndRenderForwardCurveAnalytics();
+        } else if (activeTabEl === "tab-spreads" && typeof loadAndRenderSpreadsAnalytics === "function") {
+            loadAndRenderSpreadsAnalytics();
         }
         window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
@@ -119,8 +123,14 @@ function switchDetailTab(targetTabId) {
             }, 50);
         }
     } else if (targetTabId === "tab-forward-curve") {
-        if (typeof renderForwardCurveSvgChart === "function" && dashboardData && dashboardData.contracts) {
+        if (typeof loadAndRenderForwardCurveAnalytics === "function") {
+            loadAndRenderForwardCurveAnalytics();
+        } else if (typeof renderForwardCurveSvgChart === "function" && dashboardData && dashboardData.contracts) {
             renderForwardCurveSvgChart(dashboardData.contracts);
+        }
+    } else if (targetTabId === "tab-spreads") {
+        if (typeof loadAndRenderSpreadsAnalytics === "function") {
+            loadAndRenderSpreadsAnalytics();
         }
     } else if (targetTabId === "tab-positioning") {
         if (typeof loadAndRenderCotAnalytics === "function") {
@@ -2478,6 +2488,525 @@ window.renderCotSeasonalityChart = renderCotSeasonalityChart;
 window.renderCotOiSeasonalityChart = renderCotOiSeasonalityChart;
 window.renderCotOiChart = renderCotOiChart;
 window.setCotSeaType = setCotSeaType;
+
+/* =========================================================================
+   FORWARD CURVE (M1-M24) & OPTIONS VOLATILITY SURFACE STUDIO
+   ========================================================================= */
+
+let fcDataCache = {};
+let fcTermChartInst = null;
+let fcOptionsVolChartInst = null;
+let fcCompMode = "all";
+
+async function loadAndRenderForwardCurveAnalytics(forceReload = false) {
+    const commCode = currentCommodityCode || (dashboardData && (dashboardData.code || dashboardData.commodity?.code)) || "CL";
+
+    if (!forceReload && fcDataCache[commCode]) {
+        updateFcStatsRibbon(fcDataCache[commCode]);
+        renderForwardCurveTermChart();
+        renderForwardCurveOptionsVolChart();
+        populateFcContractsTable(fcDataCache[commCode].contracts);
+        return;
+    }
+
+    try {
+        const url = `/api/market-data/forward-curve/analytics/?commodity=${encodeURIComponent(commCode)}`;
+        const resp = await fetch(url);
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const data = await resp.json();
+        fcDataCache[commCode] = data;
+
+        updateFcStatsRibbon(data);
+        renderForwardCurveTermChart();
+        renderForwardCurveOptionsVolChart();
+        populateFcContractsTable(data.contracts);
+    } catch (err) {
+        console.warn("Failed to load forward curve analytics:", err);
+    }
+}
+
+function updateFcStatsRibbon(data) {
+    if (!data) return;
+    const elM1 = document.getElementById("fcStatM1");
+    const elSlope = document.getElementById("fcStatSlope");
+    const elRoll = document.getElementById("fcStatRoll");
+    const elRegime = document.getElementById("fcStatRegime");
+    const elIv = document.getElementById("fcStatIv");
+
+    const m1Price = data.contracts && data.contracts.length > 0 ? data.contracts[0].settlement_price : data.spot_price;
+    if (elM1) elM1.textContent = "$" + Number(m1Price).toFixed(2);
+
+    if (elSlope) {
+        const slope = data.slope_12m || 0;
+        elSlope.textContent = (slope >= 0 ? "+" : "") + slope.toFixed(2);
+        elSlope.style.color = slope >= 0 ? "var(--accent-emerald)" : "var(--accent-rose)";
+    }
+
+    if (elRoll && data.contracts && data.contracts.length > 0) {
+        const roll = data.contracts[0].annualized_roll_yield_pct || 0;
+        elRoll.textContent = (roll >= 0 ? "+" : "") + roll.toFixed(1) + "%/YR";
+        elRoll.style.color = roll >= 0 ? "var(--accent-emerald)" : "var(--accent-rose)";
+    }
+
+    if (elRegime) {
+        elRegime.textContent = (data.curve_state || "BACKWARDATION").replace("_", " ");
+        elRegime.style.color = data.curve_state?.includes("BACKWARD") ? "var(--accent-emerald)" : "var(--accent-rose)";
+    }
+
+    if (elIv && data.contracts && data.contracts.length > 0) {
+        const iv = data.contracts[0].atm_iv;
+        elIv.textContent = iv ? iv.toFixed(1) + "%" : "--";
+    }
+
+    const elAsOf = document.getElementById("fcTableAsOf");
+    if (elAsOf && data.observation_date) {
+        elAsOf.textContent = `24 TENORS • AS OF ${data.observation_date}`;
+    }
+}
+
+function toggleFcComparison(mode) {
+    fcCompMode = mode;
+    document.querySelectorAll(".fc-comp-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.getAttribute("data-comp") === mode);
+    });
+    renderForwardCurveTermChart();
+}
+
+function renderForwardCurveTermChart() {
+    const canvas = document.getElementById("fcTermChart");
+    if (!canvas) return;
+
+    const commCode = currentCommodityCode || "CL";
+    const data = fcDataCache[commCode];
+    if (!data || !data.contracts) return;
+
+    const labels = data.contracts.map(c => c.tenor);
+    let datasets = [
+        {
+            label: `Current Curve (${data.observation_date || 'Today'})`,
+            data: data.contracts.map(c => c.settlement_price),
+            borderColor: "#00f2fe",
+            backgroundColor: "rgba(0, 242, 254, 0.08)",
+            borderWidth: 2.8,
+            pointRadius: 3,
+            pointHoverRadius: 5,
+            pointBackgroundColor: "#00f2fe",
+            tension: 0.25,
+            fill: true,
+        }
+    ];
+
+    if (fcCompMode === "all" && data.comparisons) {
+        if (data.comparisons.month_ago && data.comparisons.month_ago.prices.length > 0) {
+            datasets.push({
+                label: `1 Month Ago (${data.comparisons.month_ago.date || ''})`,
+                data: data.comparisons.month_ago.prices,
+                borderColor: "#f9d423",
+                borderDash: [5, 4],
+                borderWidth: 2,
+                pointRadius: 0,
+                tension: 0.25,
+            });
+        }
+        if (data.comparisons.year_ago && data.comparisons.year_ago.prices.length > 0) {
+            datasets.push({
+                label: `1 Year Ago (${data.comparisons.year_ago.date || ''})`,
+                data: data.comparisons.year_ago.prices,
+                borderColor: "#64748b",
+                borderDash: [3, 3],
+                borderWidth: 1.5,
+                pointRadius: 0,
+                tension: 0.25,
+            });
+        }
+    }
+
+    if (fcTermChartInst) {
+        fcTermChartInst.destroy();
+        fcTermChartInst = null;
+    }
+
+    fcTermChartInst = new Chart(canvas, {
+        type: "line",
+        data: { labels, datasets },
+        options: getCotBaseChartOptions({ unit: " $/unit", maxXTicks: 12 }),
+    });
+}
+
+function renderForwardCurveOptionsVolChart() {
+    const canvas = document.getElementById("fcOptionsVolChart");
+    if (!canvas) return;
+
+    const commCode = currentCommodityCode || "CL";
+    const data = fcDataCache[commCode];
+    if (!data || !data.contracts) return;
+
+    const labels = data.contracts.map(c => c.tenor);
+    const ivData = data.contracts.map(c => c.atm_iv);
+    const skewData = data.contracts.map(c => c.skew_25d);
+
+    if (fcOptionsVolChartInst) {
+        fcOptionsVolChartInst.destroy();
+        fcOptionsVolChartInst = null;
+    }
+
+    fcOptionsVolChartInst = new Chart(canvas, {
+        type: "bar",
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    type: "line",
+                    label: "ATM Implied Volatility (%)",
+                    data: ivData,
+                    borderColor: "#a855f7",
+                    borderWidth: 2.5,
+                    pointRadius: 2.5,
+                    pointBackgroundColor: "#a855f7",
+                    tension: 0.2,
+                    yAxisID: "yIv",
+                    order: 1,
+                },
+                {
+                    type: "bar",
+                    label: "25D Delta Skew",
+                    data: skewData,
+                    backgroundColor: "rgba(16, 185, 129, 0.4)",
+                    borderColor: "#10b981",
+                    borderWidth: 1,
+                    borderRadius: 4,
+                    yAxisID: "ySkew",
+                    order: 2,
+                }
+            ],
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: { duration: 250 },
+            interaction: { mode: "index", intersect: false },
+            plugins: {
+                legend: {
+                    position: "top",
+                    labels: {
+                        color: "#94a3b8",
+                        boxWidth: 12,
+                        padding: 10,
+                        font: { family: "'JetBrains Mono', monospace", size: 11 },
+                    },
+                },
+                tooltip: {
+                    backgroundColor: "rgba(10, 15, 30, 0.95)",
+                    borderColor: "rgba(255, 255, 255, 0.15)",
+                    borderWidth: 1,
+                    titleFont: { family: "'JetBrains Mono', monospace", size: 12 },
+                    bodyFont: { family: "'JetBrains Mono', monospace", size: 11 },
+                },
+            },
+            scales: {
+                x: {
+                    grid: { color: "rgba(255, 255, 255, 0.04)" },
+                    ticks: { color: "#64748b", font: { family: "'JetBrains Mono', monospace", size: 10 } },
+                },
+                yIv: {
+                    type: "linear",
+                    position: "left",
+                    title: { display: true, text: "Implied Vol %", color: "#a855f7", font: { size: 10 } },
+                    grid: { color: "rgba(255, 255, 255, 0.04)" },
+                    ticks: { color: "#a855f7", callback: (v) => v + "%" },
+                },
+                ySkew: {
+                    type: "linear",
+                    position: "right",
+                    title: { display: true, text: "25D Skew", color: "#10b981", font: { size: 10 } },
+                    grid: { drawOnChartArea: false },
+                    ticks: { color: "#10b981" },
+                },
+            },
+        },
+    });
+}
+
+function populateFcContractsTable(contracts) {
+    const tbody = document.getElementById("fcContractsTableBody");
+    if (!tbody || !contracts || contracts.length === 0) return;
+
+    let html = "";
+    contracts.forEach(c => {
+        const spreadCls = c.spread_to_prompt >= 0 ? "var(--accent-rose)" : "var(--accent-emerald)";
+        const spreadSign = c.spread_to_prompt >= 0 ? "+" : "";
+        const rollCls = c.annualized_roll_yield_pct >= 0 ? "var(--accent-emerald)" : "var(--accent-rose)";
+        const rollSign = c.annualized_roll_yield_pct >= 0 ? "+" : "";
+        const ivText = c.atm_iv ? c.atm_iv.toFixed(1) + "%" : "-";
+        const skewText = c.skew_25d ? c.skew_25d.toFixed(2) : "-";
+        const pcText = c.put_call_volume_ratio ? c.put_call_volume_ratio.toFixed(2) : "-";
+
+        html += `<tr>
+            <td style="font-family: var(--font-mono); font-weight: 700; color: var(--accent-cyan);">${c.tenor}</td>
+            <td style="font-family: var(--font-mono); font-weight: 600;">$${Number(c.settlement_price).toFixed(2)}</td>
+            <td style="font-family: var(--font-mono); color: ${spreadCls};">${spreadSign}${Number(c.spread_to_prompt).toFixed(2)}</td>
+            <td style="font-family: var(--font-mono); font-weight: 600; color: ${rollCls};">${rollSign}${Number(c.annualized_roll_yield_pct).toFixed(1)}%</td>
+            <td style="font-family: var(--font-mono);">${ivText}</td>
+            <td style="font-family: var(--font-mono);">${skewText}</td>
+            <td style="font-family: var(--font-mono);">${pcText}</td>
+            <td style="font-family: var(--font-mono); color: var(--text-secondary);">${Number(c.volume || 0).toLocaleString()}</td>
+        </tr>`;
+    });
+    tbody.innerHTML = html;
+}
+
+/* =========================================================================
+   CROSS-COMMODITY & PROCESSING SPREADS STUDIO
+   ========================================================================= */
+
+let spreadsDataCache = {};
+let spreadHistoryChartInst = null;
+let spreadSeasonalityChartInst = null;
+let activeSpreadType = "crack_321";
+
+async function loadAndRenderSpreadsAnalytics(spreadType = null, forceReload = false) {
+    if (spreadType) activeSpreadType = spreadType;
+    const currentSpread = activeSpreadType;
+
+    document.querySelectorAll(".spread-type-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.getAttribute("data-spread") === currentSpread);
+    });
+
+    const commCode = currentCommodityCode || "CL";
+    const cacheKey = `${currentSpread}_${commCode}`;
+
+    if (!forceReload && spreadsDataCache[cacheKey]) {
+        updateSpreadUI(spreadsDataCache[cacheKey]);
+        renderSpreadHistoryChart();
+        renderSpreadSeasonalityChart();
+        return;
+    }
+
+    try {
+        const url = `/api/market-data/spreads/analytics/?spread_type=${encodeURIComponent(currentSpread)}&commodity=${encodeURIComponent(commCode)}`;
+        const resp = await fetch(url);
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const data = await resp.json();
+        spreadsDataCache[cacheKey] = data;
+
+        updateSpreadUI(data);
+        renderSpreadHistoryChart();
+        renderSpreadSeasonalityChart();
+    } catch (err) {
+        console.warn("Failed to load spreads analytics:", err);
+    }
+}
+
+function switchSpreadType(spreadType) {
+    loadAndRenderSpreadsAnalytics(spreadType);
+}
+
+function updateSpreadUI(data) {
+    if (!data) return;
+
+    const elVal = document.getElementById("spreadStatVal");
+    const elUnit = document.getElementById("spreadStatUnit");
+    const elChange = document.getElementById("spreadStatChange");
+    const elPct = document.getElementById("spreadStatPct");
+    const elMa20 = document.getElementById("spreadStatMa20");
+    const elRange = document.getElementById("spreadStatRange");
+    const elRegime = document.getElementById("spreadStatRegime");
+    const elZscore = document.getElementById("spreadStatZscore");
+    const elTitle = document.getElementById("spreadChartTitle");
+    const elSubtitle = document.getElementById("spreadChartSubtitle");
+    const elFormula = document.getElementById("spreadFormulaBox");
+    const elLegs = document.getElementById("spreadLegsContainer");
+    const elMacro = document.getElementById("spreadMacroDesc");
+
+    const latest = data.latest || {};
+    const val = latest.value || 0;
+    const ptChg = latest.point_change || 0;
+    const pctChg = latest.pct_change || 0;
+
+    if (elVal) {
+        elVal.textContent = (val >= 0 ? "+" : "") + Number(val).toFixed(2);
+        elVal.style.color = val >= 0 ? "var(--accent-cyan)" : "var(--accent-rose)";
+    }
+    if (elUnit) elUnit.textContent = data.unit || "$/unit";
+    if (elChange) {
+        elChange.textContent = (ptChg >= 0 ? "+" : "") + Number(ptChg).toFixed(2);
+        elChange.style.color = ptChg >= 0 ? "var(--accent-emerald)" : "var(--accent-rose)";
+    }
+    if (elPct) elPct.textContent = `${pctChg >= 0 ? "+" : ""}${Number(pctChg).toFixed(1)}% 1D`;
+    if (elMa20) elMa20.textContent = (latest.ma_20 !== undefined ? Number(latest.ma_20).toFixed(2) : "--") + " " + (data.unit || "");
+    if (elRange) elRange.textContent = `${Number(latest.low_52w || 0).toFixed(2)} - ${Number(latest.high_52w || 0).toFixed(2)}`;
+    if (elRegime) elRegime.textContent = (latest.regime || "NORMAL").replace(/_/g, " ");
+    if (elZscore) elZscore.textContent = (latest.zscore_1y !== undefined ? Number(latest.zscore_1y).toFixed(2) : "0.00");
+
+    if (elTitle) elTitle.textContent = `${data.name || 'Spread'} Over Time`;
+    if (elSubtitle) elSubtitle.textContent = `Formula: ${data.formula || ''}`;
+    if (elFormula) elFormula.textContent = data.formula || '--';
+
+    if (elLegs && latest.legs) {
+        let legsHtml = "";
+        for (const [k, v] of Object.entries(latest.legs)) {
+            legsHtml += `<div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); padding: 0.45rem 0.75rem; border-radius: 6px;">
+                <span style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">${k}</span>
+                <span style="font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700; color: #ffffff;">${Number(v).toFixed(2)}</span>
+            </div>`;
+        }
+        elLegs.innerHTML = legsHtml;
+    }
+
+    if (elMacro) {
+        if (data.spread_type === "crack_321") {
+            elMacro.textContent = "Refining crack margins determine refinery utilization run incentives. Negative or compressed crack spreads prompt global refinery maintenance and run cuts, reducing crude demand while tightening product balances.";
+        } else if (data.spread_type === "brent_wti") {
+            elMacro.textContent = "The Brent-WTI spread governs trans-Atlantic physical crude oil arbitrage. A widening premium incentivizes US Gulf Coast crude exports to European and Asian refiners.";
+        } else if (data.spread_type === "crush") {
+            elMacro.textContent = "The Board Crush margin reflects agricultural processing economics. Higher crush margins stimulate commercial crushing volume of raw soybeans into meal and oil products.";
+        } else if (data.spread_type === "spark") {
+            elMacro.textContent = "The spark spread indicates power generation margins for natural gas-fired plants. Higher spreads drive gas dispatch over coal and renewables.";
+        } else {
+            elMacro.textContent = "Front-month calendar spreads measure physical inventory pressure and convenience yield. Backwardation (M1 > M2) signals immediate supply tightness.";
+        }
+    }
+}
+
+function renderSpreadHistoryChart() {
+    const canvas = document.getElementById("spreadHistoryChart");
+    if (!canvas) return;
+
+    const commCode = currentCommodityCode || "CL";
+    const cacheKey = `${activeSpreadType}_${commCode}`;
+    const data = spreadsDataCache[cacheKey];
+    if (!data || !data.time_series) return;
+
+    const ts = data.time_series;
+    const labels = ts.map(d => d.date);
+    const values = ts.map(d => d.value);
+
+    let ma20Data = [];
+    let sum = 0;
+    for (let i = 0; i < values.length; i++) {
+        sum += values[i];
+        if (i >= 20) sum -= values[i - 20];
+        const count = Math.min(i + 1, 20);
+        ma20Data.push(Math.round((sum / count) * 100) / 100);
+    }
+
+    if (spreadHistoryChartInst) {
+        spreadHistoryChartInst.destroy();
+        spreadHistoryChartInst = null;
+    }
+
+    spreadHistoryChartInst = new Chart(canvas, {
+        type: "line",
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: data.name || "Spread",
+                    data: values,
+                    borderColor: "#00f2fe",
+                    backgroundColor: "rgba(0, 242, 254, 0.08)",
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    pointHoverRadius: 4,
+                    tension: 0.1,
+                    fill: true,
+                },
+                {
+                    label: "20-Day Moving Average",
+                    data: ma20Data,
+                    borderColor: "#f9d423",
+                    borderWidth: 1.5,
+                    borderDash: [4, 4],
+                    pointRadius: 0,
+                    tension: 0.15,
+                }
+            ],
+        },
+        options: getCotBaseChartOptions({ unit: " " + (data.unit || ""), showPlusSign: true, maxXTicks: 16 }),
+    });
+}
+
+function renderSpreadSeasonalityChart() {
+    const canvas = document.getElementById("spreadSeasonalityChart");
+    if (!canvas) return;
+
+    const commCode = currentCommodityCode || "CL";
+    const cacheKey = `${activeSpreadType}_${commCode}`;
+    const data = spreadsDataCache[cacheKey];
+    if (!data || !data.time_series) return;
+
+    const labels = Array.from({ length: 52 }, (_, i) => `W${i + 1}`);
+
+    const wkAvgs = data.seasonality_weekly || {};
+    let avgSpread = [];
+    for (let w = 1; w <= 52; w++) {
+        avgSpread.push(wkAvgs[String(w)] !== undefined ? wkAvgs[String(w)] : null);
+    }
+
+    let datasets = [
+        {
+            label: "20Y AVG Benchmark",
+            data: avgSpread,
+            borderColor: "#00f2fe",
+            borderDash: [5, 4],
+            borderWidth: 2.5,
+            pointRadius: 0,
+            pointHoverRadius: 4,
+            tension: 0.25,
+            order: 1,
+        }
+    ];
+
+    const allYears = Array.from(new Set(data.time_series.map(d => d.year))).sort((a, b) => a - b);
+    const maxYear = allYears.length > 0 ? allYears[allYears.length - 1] : 2026;
+    const targetYears = [maxYear, maxYear - 1, maxYear - 2].filter(y => allYears.includes(y));
+
+    targetYears.forEach(yr => {
+        let yrData = new Array(52).fill(null);
+        data.time_series.forEach(item => {
+            if (item.year === yr) {
+                const idx = item.week - 1;
+                if (idx >= 0 && idx < 52) {
+                    yrData[idx] = item.value;
+                }
+            }
+        });
+
+        const style = getCotYearStyle(yr, maxYear);
+        datasets.push({
+            label: yr === maxYear ? `${yr} (Current)` : String(yr),
+            data: yrData,
+            borderColor: style.border,
+            borderWidth: style.width,
+            pointRadius: style.pointRadius,
+            pointHoverRadius: 4,
+            tension: 0.2,
+            order: yr === maxYear ? 2 : 10,
+        });
+    });
+
+    if (spreadSeasonalityChartInst) {
+        spreadSeasonalityChartInst.destroy();
+        spreadSeasonalityChartInst = null;
+    }
+
+    spreadSeasonalityChartInst = new Chart(canvas, {
+        type: "line",
+        data: { labels, datasets },
+        options: getCotBaseChartOptions({ unit: " " + (data.unit || ""), showPlusSign: true, maxXTicks: 13 }),
+    });
+}
+
+// Global exports
+window.loadAndRenderForwardCurveAnalytics = loadAndRenderForwardCurveAnalytics;
+window.renderForwardCurveTermChart = renderForwardCurveTermChart;
+window.renderForwardCurveOptionsVolChart = renderForwardCurveOptionsVolChart;
+window.toggleFcComparison = toggleFcComparison;
+window.loadAndRenderSpreadsAnalytics = loadAndRenderSpreadsAnalytics;
+window.switchSpreadType = switchSpreadType;
+window.renderSpreadHistoryChart = renderSpreadHistoryChart;
+window.renderSpreadSeasonalityChart = renderSpreadSeasonalityChart;
+
 
 
 

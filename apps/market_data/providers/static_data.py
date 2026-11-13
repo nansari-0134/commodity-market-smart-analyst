@@ -53,6 +53,14 @@ BENCHMARK_CONFIGS = {
     "SUGAR_11": {"base": 22.50, "amp": 1.20, "vol": 130000, "oi": 720000},
     "COFFEE_ARABICA": {"base": 255.00, "amp": 15.00, "vol": 65000, "oi": 320000},
     "LIVE_CATTLE": {"base": 185.00, "amp": 8.00, "vol": 55000, "oi": 310000},
+    "COCOA": {"base": 5500.00, "amp": 450.00, "vol": 45000, "oi": 220000},
+    "COTTON_2": {"base": 78.50, "amp": 4.50, "vol": 38000, "oi": 210000},
+    "PALM_OIL": {"base": 850.00, "amp": 45.00, "vol": 52000, "oi": 260000},
+    "GO": {"base": 690.00, "amp": 35.00, "vol": 78000, "oi": 320000},
+    "LEAN_HOGS": {"base": 75.00, "amp": 6.00, "vol": 42000, "oi": 280000},
+    "ALUMINUM": {"base": 2480.00, "amp": 90.00, "vol": 68000, "oi": 460000},
+    "EUA_CARBON": {"base": 65.50, "amp": 5.00, "vol": 28000, "oi": 190000},
+    "IRON_ORE": {"base": 110.00, "amp": 8.50, "vol": 82000, "oi": 490000},
 }
 
 
