@@ -112,8 +112,10 @@ DATABASES = {
     )
 }
 
-# Ensure connection health check age
+# Ensure connection health check age and robust SQLite concurrency
 DATABASES["default"]["CONN_MAX_AGE"] = env.int("CONN_MAX_AGE", default=60)
+if "sqlite" in DATABASES["default"].get("ENGINE", ""):
+    DATABASES["default"].setdefault("OPTIONS", {})["timeout"] = 30
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [

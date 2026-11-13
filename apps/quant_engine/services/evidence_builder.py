@@ -79,7 +79,7 @@ class EvidencePackageBuilder:
             base_qs = base_qs.filter(delivery_month="PROMPT")
 
         price_qs = (
-            base_qs.order_by("observation_date")
+            base_qs.order_by("observation_date", "-revision_number", "-publication_time")
             .values_list(
                 "observation_date",
                 "open_price",

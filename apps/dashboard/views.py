@@ -18,16 +18,17 @@ from apps.quant_engine.core import compute_comprehensive_seasonality_profile
 from apps.quant_engine.core.seasonality_methods import evaluate_40_seasonality_methods
 
 
-def get_dashboard_product_cards(active_commodities):
+def get_dashboard_product_cards(active_commodities, force_refresh=False):
     """
     Computes and caches high-density summary metrics for each commodity product card:
     Current Price, 1D Return %, 20D Price Z-Score & Regime, Next 30D Seasonal Median Return & Win Rate,
     and 15-day SVG Sparkline trajectory.
     """
     cache_key = f"dashboard_product_cards_v3_{len(active_commodities)}"
-    cached_cards = cache.get(cache_key)
-    if cached_cards:
-        return cached_cards
+    if not force_refresh:
+        cached_cards = cache.get(cache_key)
+        if cached_cards:
+            return cached_cards
 
     cards = []
     for c in active_commodities:
@@ -255,7 +256,8 @@ def index(request):
             commodity_lookup[c.code] = ticker_item
 
     # 2.5 Compute / Retrieve Product Cards for Tier-1 Card Grid
-    product_cards = get_dashboard_product_cards(active_commodities)
+    force_refresh = request.GET.get("refresh", "false").lower() in ["true", "1"]
+    product_cards = get_dashboard_product_cards(active_commodities, force_refresh=force_refresh)
 
     # 3. View Mode and Selected Commodity Resolution
     req_view = request.GET.get("view", "").lower()
@@ -308,7 +310,7 @@ def index(request):
             obs_qs = obs_qs.filter(delivery_month="PROMPT")
 
         raw_candle_obs = list(
-            obs_qs.order_by("observation_date")
+            obs_qs.order_by("observation_date", "-revision_number", "-publication_time")
             .values(
                 "observation_date",
                 "open_price",

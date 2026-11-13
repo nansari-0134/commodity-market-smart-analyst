@@ -72,10 +72,14 @@ function openProductDetail(commodityCode) {
         url.searchParams.set("commodity", commodityCode);
         url.searchParams.set("view", "detail");
         window.history.pushState({}, "", url.toString());
-        // Trigger chart fit
+        // Trigger chart fit with selected timeframe
         if (typeof tvChart !== "undefined" && tvChart && tvChart.timeScale) {
             setTimeout(() => {
-                tvChart.timeScale().fitContent();
+                if (typeof applyTimeframe === "function") {
+                    applyTimeframe(tvActiveTimeframe || "1Y");
+                } else {
+                    tvChart.timeScale().fitContent();
+                }
                 if (typeof tvVolumeChart !== "undefined" && tvVolumeChart && tvVolumeChart.timeScale) {
                     tvVolumeChart.timeScale().fitContent();
                 }
@@ -116,7 +120,11 @@ function switchDetailTab(targetTabId) {
     if (targetTabId === "tab-chart") {
         if (typeof tvChart !== "undefined" && tvChart && tvChart.timeScale) {
             setTimeout(() => {
-                tvChart.timeScale().fitContent();
+                if (typeof applyTimeframe === "function") {
+                    applyTimeframe(tvActiveTimeframe || "1Y");
+                } else {
+                    tvChart.timeScale().fitContent();
+                }
                 if (typeof tvVolumeChart !== "undefined" && tvVolumeChart && tvVolumeChart.timeScale) {
                     tvVolumeChart.timeScale().fitContent();
                 }
@@ -1178,27 +1186,50 @@ function applyTimeframe(tf) {
     }
 
     const lastCandle = tvCandleData[tvCandleData.length - 1];
-    const lastDate = new Date(lastCandle.time);
-    const fromDate = new Date(lastDate);
+    if (!lastCandle || !lastCandle.time) {
+        tvChart.timeScale().fitContent();
+        return;
+    }
 
-    if (tf === "1M") fromDate.setMonth(fromDate.getMonth() - 1);
-    else if (tf === "3M") fromDate.setMonth(fromDate.getMonth() - 3);
-    else if (tf === "6M") fromDate.setMonth(fromDate.getMonth() - 6);
-    else if (tf === "1Y") fromDate.setFullYear(fromDate.getFullYear() - 1);
-    else if (tf === "5Y") fromDate.setFullYear(fromDate.getFullYear() - 5);
+    const parts = String(lastCandle.time).split("-").map(Number);
+    if (parts.length < 3 || isNaN(parts[0])) {
+        tvChart.timeScale().fitContent();
+        return;
+    }
 
-    const fromStr = fromDate.toISOString().split("T")[0];
+    let [y, m, d] = parts;
+    if (tf === "1M") {
+        m -= 1;
+        if (m < 1) { m += 12; y -= 1; }
+    } else if (tf === "3M") {
+        m -= 3;
+        if (m < 1) { m += 12; y -= 1; }
+    } else if (tf === "6M") {
+        m -= 6;
+        if (m < 1) { m += 12; y -= 1; }
+    } else if (tf === "1Y") {
+        y -= 1;
+    } else if (tf === "5Y") {
+        y -= 5;
+    }
+
+    const fromStr = `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
     const toStr = lastCandle.time;
 
-    tvChart.timeScale().setVisibleRange({
-        from: fromStr,
-        to: toStr
-    });
-    if (tvVolumeChart) {
-        tvVolumeChart.timeScale().setVisibleRange({
+    try {
+        tvChart.timeScale().setVisibleRange({
             from: fromStr,
             to: toStr
         });
+        if (tvVolumeChart) {
+            tvVolumeChart.timeScale().setVisibleRange({
+                from: fromStr,
+                to: toStr
+            });
+        }
+    } catch (e) {
+        console.warn("Timeframe range notice:", e);
+        tvChart.timeScale().fitContent();
     }
 }
 
@@ -1324,6 +1355,7 @@ function initLightweightChart() {
             timeVisible: false,
             secondsVisible: false,
             visible: true,
+            rightOffset: 6,
         },
     });
 
@@ -1851,8 +1883,8 @@ function getCotBaseChartOptions(options = {}) {
 function updateCotStatsRibbon(latest) {
     if (!latest) return;
 
-    const elSpecNet = document.getElementById("cotStatSpecNet");
-    const elSpecPct = document.getElementById("cotStatSpecPct");
+    const elSpecNet = document.getElementById("cotStatSpecNet") || document.getElementById("cotStatMmNet");
+    const elSpecPct = document.getElementById("cotStatSpecPct") || document.getElementById("cotStatMmPct");
     const elCommNet = document.getElementById("cotStatCommNet");
     const elCommPct = document.getElementById("cotStatCommPct");
     const elRetailNet = document.getElementById("cotStatRetailNet");
