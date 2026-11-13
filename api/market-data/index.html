@@ -1280,6 +1280,28 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#8-forward-curve-term-structure-options-surface-analytics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Forward Curve Term Structure &amp; Options Surface Analytics
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-processing-margins-spreads-analytics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Processing Margins &amp; Spreads Analytics
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1645,6 +1667,28 @@
     <span class="md-ellipsis">
       
         6. Live Market Quote &amp; Real-Time Telemetry
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-forward-curve-term-structure-options-surface-analytics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Forward Curve Term Structure &amp; Options Surface Analytics
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-processing-margins-spreads-analytics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Processing Margins &amp; Spreads Analytics
       
     </span>
   </a>
@@ -2134,6 +2178,164 @@
 </span><span id="__span-20-35"><a id="__codelineno-20-35" name="__codelineno-20-35" href="#__codelineno-20-35"></a><span class="w">    </span><span class="nt">"open_interest"</span><span class="p">:</span><span class="w"> </span><span class="mi">1820000</span>
 </span><span id="__span-20-36"><a id="__codelineno-20-36" name="__codelineno-20-36" href="#__codelineno-20-36"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-20-37"><a id="__codelineno-20-37" name="__codelineno-20-37" href="#__codelineno-20-37"></a><span class="p">}</span>
+</span></code></pre></div>
+</div>
+</div>
+</div>
+<hr />
+<h2 id="8-forward-curve-term-structure-options-surface-analytics">8. Forward Curve Term Structure &amp; Options Surface Analytics</h2>
+<p>Retrieve the complete 24-contract forward strip (M1 to M24), annualized roll yields, term structure shape regime, multi-tenor comparison curves (Current vs 1 Week Ago vs 1 Month Ago vs 1 Year Ago), and delivery-specific options volatility surface.</p>
+<ul>
+<li><strong>Endpoint</strong>: <code>GET /api/market-data/forward-curve/analytics/</code></li>
+<li><strong>Query Parameters</strong>:</li>
+<li><code>commodity</code>: Canonical commodity code (e.g. <code>CL</code>, <code>BRENT</code>, <code>NG</code>, <code>GOLD</code>, <code>CORN</code>).</li>
+</ul>
+<div class="tabbed-set tabbed-alternate" data-tabs="8:3"><input checked="checked" id="__tabbed_8_1" name="__tabbed_8" type="radio" /><input id="__tabbed_8_2" name="__tabbed_8" type="radio" /><input id="__tabbed_8_3" name="__tabbed_8" type="radio" /><div class="tabbed-labels"><label for="__tabbed_8_1">cURL</label><label for="__tabbed_8_2">Python (requests)</label><label for="__tabbed_8_3">JSON Response (200 OK)</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="c1"># Query 24-month forward curve and options skew for Crude Oil (CL)</span>
+</span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s2">"http://127.0.0.1:8000/api/market-data/forward-curve/analytics/?commodity=CL"</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-21-3"><a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a><span class="w">     </span>-H<span class="w"> </span><span class="s2">"Accept: application/json"</span>
+</span></code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="language-python highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
+</span><span id="__span-22-2"><a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>
+</span><span id="__span-22-3"><a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a><span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+</span><span id="__span-22-4"><a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a>    <span class="s2">"http://127.0.0.1:8000/api/market-data/forward-curve/analytics/"</span><span class="p">,</span>
+</span><span id="__span-22-5"><a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a>    <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">"commodity"</span><span class="p">:</span> <span class="s2">"CL"</span><span class="p">}</span>
+</span><span id="__span-22-6"><a id="__codelineno-22-6" name="__codelineno-22-6" href="#__codelineno-22-6"></a><span class="p">)</span>
+</span><span id="__span-22-7"><a id="__codelineno-22-7" name="__codelineno-22-7" href="#__codelineno-22-7"></a><span class="n">fc</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+</span><span id="__span-22-8"><a id="__codelineno-22-8" name="__codelineno-22-8" href="#__codelineno-22-8"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Commodity: </span><span class="si">{</span><span class="n">fc</span><span class="p">[</span><span class="s1">'commodity_name'</span><span class="p">]</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">fc</span><span class="p">[</span><span class="s1">'commodity_code'</span><span class="p">]</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
+</span><span id="__span-22-9"><a id="__codelineno-22-9" name="__codelineno-22-9" href="#__codelineno-22-9"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Regime: </span><span class="si">{</span><span class="n">fc</span><span class="p">[</span><span class="s1">'curve_state'</span><span class="p">]</span><span class="si">}</span><span class="s2"> | 1M Slope: </span><span class="si">{</span><span class="n">fc</span><span class="p">[</span><span class="s1">'slope_1m'</span><span class="p">]</span><span class="si">}</span><span class="s2"> | 12M Slope: </span><span class="si">{</span><span class="n">fc</span><span class="p">[</span><span class="s1">'slope_12m'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</span><span id="__span-22-10"><a id="__codelineno-22-10" name="__codelineno-22-10" href="#__codelineno-22-10"></a><span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">fc</span><span class="p">[</span><span class="s1">'contracts'</span><span class="p">][:</span><span class="mi">5</span><span class="p">]:</span>
+</span><span id="__span-22-11"><a id="__codelineno-22-11" name="__codelineno-22-11" href="#__codelineno-22-11"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Tenor </span><span class="si">{</span><span class="n">c</span><span class="p">[</span><span class="s1">'tenor'</span><span class="p">]</span><span class="si">}</span><span class="s2">: $</span><span class="si">{</span><span class="n">c</span><span class="p">[</span><span class="s1">'settlement_price'</span><span class="p">]</span><span class="si">}</span><span class="s2"> (Spread: </span><span class="si">{</span><span class="n">c</span><span class="p">[</span><span class="s1">'spread_to_prompt'</span><span class="p">]</span><span class="si">:</span><span class="s2">+</span><span class="si">}</span><span class="s2"> | Roll Yield: </span><span class="si">{</span><span class="n">c</span><span class="p">[</span><span class="s1">'annualized_roll_yield_pct'</span><span class="p">]</span><span class="si">}</span><span class="s2">%) | ATM IV: </span><span class="si">{</span><span class="n">c</span><span class="p">[</span><span class="s1">'atm_iv'</span><span class="p">]</span><span class="si">}</span><span class="s2">%"</span><span class="p">)</span>
+</span></code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="language-json highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="p">{</span>
+</span><span id="__span-23-2"><a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="w">  </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ok"</span><span class="p">,</span>
+</span><span id="__span-23-3"><a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a><span class="w">  </span><span class="nt">"commodity_code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CL"</span><span class="p">,</span>
+</span><span id="__span-23-4"><a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a><span class="w">  </span><span class="nt">"commodity_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Light Sweet Crude Oil (WTI)"</span><span class="p">,</span>
+</span><span id="__span-23-5"><a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a><span class="w">  </span><span class="nt">"observation_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-10-26"</span><span class="p">,</span>
+</span><span id="__span-23-6"><a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a><span class="w">  </span><span class="nt">"spot_price"</span><span class="p">:</span><span class="w"> </span><span class="mf">76.50</span><span class="p">,</span>
+</span><span id="__span-23-7"><a id="__codelineno-23-7" name="__codelineno-23-7" href="#__codelineno-23-7"></a><span class="w">  </span><span class="nt">"curve_state"</span><span class="p">:</span><span class="w"> </span><span class="s2">"STRONG_BACKWARDATION"</span><span class="p">,</span>
+</span><span id="__span-23-8"><a id="__codelineno-23-8" name="__codelineno-23-8" href="#__codelineno-23-8"></a><span class="w">  </span><span class="nt">"slope_1m"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.54</span><span class="p">,</span>
+</span><span id="__span-23-9"><a id="__codelineno-23-9" name="__codelineno-23-9" href="#__codelineno-23-9"></a><span class="w">  </span><span class="nt">"slope_12m"</span><span class="p">:</span><span class="w"> </span><span class="mf">4.90</span><span class="p">,</span>
+</span><span id="__span-23-10"><a id="__codelineno-23-10" name="__codelineno-23-10" href="#__codelineno-23-10"></a><span class="w">  </span><span class="nt">"contracts"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-23-11"><a id="__codelineno-23-11" name="__codelineno-23-11" href="#__codelineno-23-11"></a><span class="w">    </span><span class="p">{</span>
+</span><span id="__span-23-12"><a id="__codelineno-23-12" name="__codelineno-23-12" href="#__codelineno-23-12"></a><span class="w">      </span><span class="nt">"tenor"</span><span class="p">:</span><span class="w"> </span><span class="s2">"M1"</span><span class="p">,</span>
+</span><span id="__span-23-13"><a id="__codelineno-23-13" name="__codelineno-23-13" href="#__codelineno-23-13"></a><span class="w">      </span><span class="nt">"month_idx"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+</span><span id="__span-23-14"><a id="__codelineno-23-14" name="__codelineno-23-14" href="#__codelineno-23-14"></a><span class="w">      </span><span class="nt">"settlement_price"</span><span class="p">:</span><span class="w"> </span><span class="mf">76.50</span><span class="p">,</span>
+</span><span id="__span-23-15"><a id="__codelineno-23-15" name="__codelineno-23-15" href="#__codelineno-23-15"></a><span class="w">      </span><span class="nt">"spread_to_prompt"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span>
+</span><span id="__span-23-16"><a id="__codelineno-23-16" name="__codelineno-23-16" href="#__codelineno-23-16"></a><span class="w">      </span><span class="nt">"annualized_roll_yield_pct"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span>
+</span><span id="__span-23-17"><a id="__codelineno-23-17" name="__codelineno-23-17" href="#__codelineno-23-17"></a><span class="w">      </span><span class="nt">"volume"</span><span class="p">:</span><span class="w"> </span><span class="mi">312450</span><span class="p">,</span>
+</span><span id="__span-23-18"><a id="__codelineno-23-18" name="__codelineno-23-18" href="#__codelineno-23-18"></a><span class="w">      </span><span class="nt">"atm_iv"</span><span class="p">:</span><span class="w"> </span><span class="mf">28.5</span><span class="p">,</span>
+</span><span id="__span-23-19"><a id="__codelineno-23-19" name="__codelineno-23-19" href="#__codelineno-23-19"></a><span class="w">      </span><span class="nt">"skew_25d"</span><span class="p">:</span><span class="w"> </span><span class="mf">2.1</span><span class="p">,</span>
+</span><span id="__span-23-20"><a id="__codelineno-23-20" name="__codelineno-23-20" href="#__codelineno-23-20"></a><span class="w">      </span><span class="nt">"put_call_volume_ratio"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.85</span><span class="p">,</span>
+</span><span id="__span-23-21"><a id="__codelineno-23-21" name="__codelineno-23-21" href="#__codelineno-23-21"></a><span class="w">      </span><span class="nt">"put_call_oi_ratio"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.88</span>
+</span><span id="__span-23-22"><a id="__codelineno-23-22" name="__codelineno-23-22" href="#__codelineno-23-22"></a><span class="w">    </span><span class="p">},</span>
+</span><span id="__span-23-23"><a id="__codelineno-23-23" name="__codelineno-23-23" href="#__codelineno-23-23"></a><span class="w">    </span><span class="p">{</span>
+</span><span id="__span-23-24"><a id="__codelineno-23-24" name="__codelineno-23-24" href="#__codelineno-23-24"></a><span class="w">      </span><span class="nt">"tenor"</span><span class="p">:</span><span class="w"> </span><span class="s2">"M2"</span><span class="p">,</span>
+</span><span id="__span-23-25"><a id="__codelineno-23-25" name="__codelineno-23-25" href="#__codelineno-23-25"></a><span class="w">      </span><span class="nt">"month_idx"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+</span><span id="__span-23-26"><a id="__codelineno-23-26" name="__codelineno-23-26" href="#__codelineno-23-26"></a><span class="w">      </span><span class="nt">"settlement_price"</span><span class="p">:</span><span class="w"> </span><span class="mf">75.96</span><span class="p">,</span>
+</span><span id="__span-23-27"><a id="__codelineno-23-27" name="__codelineno-23-27" href="#__codelineno-23-27"></a><span class="w">      </span><span class="nt">"spread_to_prompt"</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.54</span><span class="p">,</span>
+</span><span id="__span-23-28"><a id="__codelineno-23-28" name="__codelineno-23-28" href="#__codelineno-23-28"></a><span class="w">      </span><span class="nt">"annualized_roll_yield_pct"</span><span class="p">:</span><span class="w"> </span><span class="mf">8.47</span><span class="p">,</span>
+</span><span id="__span-23-29"><a id="__codelineno-23-29" name="__codelineno-23-29" href="#__codelineno-23-29"></a><span class="w">      </span><span class="nt">"volume"</span><span class="p">:</span><span class="w"> </span><span class="mi">268900</span><span class="p">,</span>
+</span><span id="__span-23-30"><a id="__codelineno-23-30" name="__codelineno-23-30" href="#__codelineno-23-30"></a><span class="w">      </span><span class="nt">"atm_iv"</span><span class="p">:</span><span class="w"> </span><span class="mf">27.8</span><span class="p">,</span>
+</span><span id="__span-23-31"><a id="__codelineno-23-31" name="__codelineno-23-31" href="#__codelineno-23-31"></a><span class="w">      </span><span class="nt">"skew_25d"</span><span class="p">:</span><span class="w"> </span><span class="mf">1.95</span><span class="p">,</span>
+</span><span id="__span-23-32"><a id="__codelineno-23-32" name="__codelineno-23-32" href="#__codelineno-23-32"></a><span class="w">      </span><span class="nt">"put_call_volume_ratio"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.85</span><span class="p">,</span>
+</span><span id="__span-23-33"><a id="__codelineno-23-33" name="__codelineno-23-33" href="#__codelineno-23-33"></a><span class="w">      </span><span class="nt">"put_call_oi_ratio"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.88</span>
+</span><span id="__span-23-34"><a id="__codelineno-23-34" name="__codelineno-23-34" href="#__codelineno-23-34"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-23-35"><a id="__codelineno-23-35" name="__codelineno-23-35" href="#__codelineno-23-35"></a><span class="w">  </span><span class="p">],</span>
+</span><span id="__span-23-36"><a id="__codelineno-23-36" name="__codelineno-23-36" href="#__codelineno-23-36"></a><span class="w">  </span><span class="nt">"comparisons"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-23-37"><a id="__codelineno-23-37" name="__codelineno-23-37" href="#__codelineno-23-37"></a><span class="w">    </span><span class="nt">"current"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-10-26"</span><span class="p">,</span><span class="w"> </span><span class="nt">"prices"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mf">76.50</span><span class="p">,</span><span class="w"> </span><span class="mf">75.96</span><span class="p">,</span><span class="w"> </span><span class="mf">75.44</span><span class="p">]},</span>
+</span><span id="__span-23-38"><a id="__codelineno-23-38" name="__codelineno-23-38" href="#__codelineno-23-38"></a><span class="w">    </span><span class="nt">"week_ago"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-10-19"</span><span class="p">,</span><span class="w"> </span><span class="nt">"prices"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mf">76.20</span><span class="p">,</span><span class="w"> </span><span class="mf">75.68</span><span class="p">,</span><span class="w"> </span><span class="mf">75.18</span><span class="p">]},</span>
+</span><span id="__span-23-39"><a id="__codelineno-23-39" name="__codelineno-23-39" href="#__codelineno-23-39"></a><span class="w">    </span><span class="nt">"month_ago"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-09-26"</span><span class="p">,</span><span class="w"> </span><span class="nt">"prices"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mf">75.80</span><span class="p">,</span><span class="w"> </span><span class="mf">75.30</span><span class="p">,</span><span class="w"> </span><span class="mf">74.82</span><span class="p">]},</span>
+</span><span id="__span-23-40"><a id="__codelineno-23-40" name="__codelineno-23-40" href="#__codelineno-23-40"></a><span class="w">    </span><span class="nt">"year_ago"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2025-10-26"</span><span class="p">,</span><span class="w"> </span><span class="nt">"prices"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mf">82.40</span><span class="p">,</span><span class="w"> </span><span class="mf">81.75</span><span class="p">,</span><span class="w"> </span><span class="mf">81.10</span><span class="p">]}</span>
+</span><span id="__span-23-41"><a id="__codelineno-23-41" name="__codelineno-23-41" href="#__codelineno-23-41"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-23-42"><a id="__codelineno-23-42" name="__codelineno-23-42" href="#__codelineno-23-42"></a><span class="p">}</span>
+</span></code></pre></div>
+</div>
+</div>
+</div>
+<hr />
+<h2 id="9-processing-margins-spreads-analytics">9. Processing Margins &amp; Spreads Analytics</h2>
+<p>Access multi-decade point-in-time time series and 20-year weekly seasonality profiles for energy cracking, agricultural crushing, power spark generation, and calendar roll spreads.</p>
+<ul>
+<li><strong>Endpoint</strong>: <code>GET /api/market-data/spreads/analytics/</code></li>
+<li><strong>Query Parameters</strong>:</li>
+<li><code>spread_type</code>: Required spread type. Supported values:<ul>
+<li><code>crack_321</code>: 3:2:1 Refinery Crack Margin ($/bbl)</li>
+<li><code>brent_wti</code>: Brent vs WTI Transatlantic Arbitrage ($/bbl)</li>
+<li><code>crush</code>: Soybean Processing Margin ($/bushel)</li>
+<li><code>spark</code>: Gas-to-Power Thermal Spark Margin ($/MWh)</li>
+<li><code>calendar</code>: Prompt Front-Month vs 2nd-Month Roll Spread (M1 - M2)</li>
+</ul>
+</li>
+<li><code>commodity</code>: Canonical commodity code (only required when <code>spread_type=calendar</code>, defaults to <code>CL</code>).</li>
+</ul>
+<div class="tabbed-set tabbed-alternate" data-tabs="9:3"><input checked="checked" id="__tabbed_9_1" name="__tabbed_9" type="radio" /><input id="__tabbed_9_2" name="__tabbed_9" type="radio" /><input id="__tabbed_9_3" name="__tabbed_9" type="radio" /><div class="tabbed-labels"><label for="__tabbed_9_1">cURL</label><label for="__tabbed_9_2">Python (requests)</label><label for="__tabbed_9_3">JSON Response (200 OK)</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="c1"># Query 3:2:1 Refinery Crack Margin history and seasonality</span>
+</span><span id="__span-24-2"><a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s2">"http://127.0.0.1:8000/api/market-data/spreads/analytics/?spread_type=crack_321"</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-24-3"><a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a><span class="w">     </span>-H<span class="w"> </span><span class="s2">"Accept: application/json"</span>
+</span></code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="language-python highlight"><pre><span></span><code><span id="__span-25-1"><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
+</span><span id="__span-25-2"><a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a>
+</span><span id="__span-25-3"><a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a><span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+</span><span id="__span-25-4"><a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a>    <span class="s2">"http://127.0.0.1:8000/api/market-data/spreads/analytics/"</span><span class="p">,</span>
+</span><span id="__span-25-5"><a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a>    <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">"spread_type"</span><span class="p">:</span> <span class="s2">"crack_321"</span><span class="p">}</span>
+</span><span id="__span-25-6"><a id="__codelineno-25-6" name="__codelineno-25-6" href="#__codelineno-25-6"></a><span class="p">)</span>
+</span><span id="__span-25-7"><a id="__codelineno-25-7" name="__codelineno-25-7" href="#__codelineno-25-7"></a><span class="n">data</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+</span><span id="__span-25-8"><a id="__codelineno-25-8" name="__codelineno-25-8" href="#__codelineno-25-8"></a><span class="n">latest</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">'latest'</span><span class="p">]</span>
+</span><span id="__span-25-9"><a id="__codelineno-25-9" name="__codelineno-25-9" href="#__codelineno-25-9"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Spread: </span><span class="si">{</span><span class="n">data</span><span class="p">[</span><span class="s1">'name'</span><span class="p">]</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">data</span><span class="p">[</span><span class="s1">'formula'</span><span class="p">]</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
+</span><span id="__span-25-10"><a id="__codelineno-25-10" name="__codelineno-25-10" href="#__codelineno-25-10"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Latest: $</span><span class="si">{</span><span class="n">latest</span><span class="p">[</span><span class="s1">'value'</span><span class="p">]</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">data</span><span class="p">[</span><span class="s1">'unit'</span><span class="p">]</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">latest</span><span class="p">[</span><span class="s1">'point_change'</span><span class="p">]</span><span class="si">:</span><span class="s2">+</span><span class="si">}</span><span class="s2"> / </span><span class="si">{</span><span class="n">latest</span><span class="p">[</span><span class="s1">'pct_change'</span><span class="p">]</span><span class="si">:</span><span class="s2">+</span><span class="si">}</span><span class="s2">%)"</span><span class="p">)</span>
+</span><span id="__span-25-11"><a id="__codelineno-25-11" name="__codelineno-25-11" href="#__codelineno-25-11"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"20D MA: $</span><span class="si">{</span><span class="n">latest</span><span class="p">[</span><span class="s1">'ma_20'</span><span class="p">]</span><span class="si">}</span><span class="s2"> | 52W Range: $</span><span class="si">{</span><span class="n">latest</span><span class="p">[</span><span class="s1">'low_52w'</span><span class="p">]</span><span class="si">}</span><span class="s2"> - $</span><span class="si">{</span><span class="n">latest</span><span class="p">[</span><span class="s1">'high_52w'</span><span class="p">]</span><span class="si">}</span><span class="s2"> | Z-Score: </span><span class="si">{</span><span class="n">latest</span><span class="p">[</span><span class="s1">'zscore_1y'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</span><span id="__span-25-12"><a id="__codelineno-25-12" name="__codelineno-25-12" href="#__codelineno-25-12"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Current Regime: </span><span class="si">{</span><span class="n">latest</span><span class="p">[</span><span class="s1">'regime'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</span></code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="language-json highlight"><pre><span></span><code><span id="__span-26-1"><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="p">{</span>
+</span><span id="__span-26-2"><a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a><span class="w">  </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ok"</span><span class="p">,</span>
+</span><span id="__span-26-3"><a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a><span class="w">  </span><span class="nt">"spread_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"crack_321"</span><span class="p">,</span>
+</span><span id="__span-26-4"><a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a><span class="w">  </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"3:2:1 Refinery Crack Margin"</span><span class="p">,</span>
+</span><span id="__span-26-5"><a id="__codelineno-26-5" name="__codelineno-26-5" href="#__codelineno-26-5"></a><span class="w">  </span><span class="nt">"unit"</span><span class="p">:</span><span class="w"> </span><span class="s2">"$/bbl"</span><span class="p">,</span>
+</span><span id="__span-26-6"><a id="__codelineno-26-6" name="__codelineno-26-6" href="#__codelineno-26-6"></a><span class="w">  </span><span class="nt">"formula"</span><span class="p">:</span><span class="w"> </span><span class="s2">"(2 × RBOB Gasoline + 1 × Heating Oil - 3 × WTI Crude) / 3"</span><span class="p">,</span>
+</span><span id="__span-26-7"><a id="__codelineno-26-7" name="__codelineno-26-7" href="#__codelineno-26-7"></a><span class="w">  </span><span class="nt">"total_observations"</span><span class="p">:</span><span class="w"> </span><span class="mi">5215</span><span class="p">,</span>
+</span><span id="__span-26-8"><a id="__codelineno-26-8" name="__codelineno-26-8" href="#__codelineno-26-8"></a><span class="w">  </span><span class="nt">"latest"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-26-9"><a id="__codelineno-26-9" name="__codelineno-26-9" href="#__codelineno-26-9"></a><span class="w">    </span><span class="nt">"date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-10-26"</span><span class="p">,</span>
+</span><span id="__span-26-10"><a id="__codelineno-26-10" name="__codelineno-26-10" href="#__codelineno-26-10"></a><span class="w">    </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mf">30.78</span><span class="p">,</span>
+</span><span id="__span-26-11"><a id="__codelineno-26-11" name="__codelineno-26-11" href="#__codelineno-26-11"></a><span class="w">    </span><span class="nt">"point_change"</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.04</span><span class="p">,</span>
+</span><span id="__span-26-12"><a id="__codelineno-26-12" name="__codelineno-26-12" href="#__codelineno-26-12"></a><span class="w">    </span><span class="nt">"pct_change"</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.13</span><span class="p">,</span>
+</span><span id="__span-26-13"><a id="__codelineno-26-13" name="__codelineno-26-13" href="#__codelineno-26-13"></a><span class="w">    </span><span class="nt">"ma_20"</span><span class="p">:</span><span class="w"> </span><span class="mf">30.13</span><span class="p">,</span>
+</span><span id="__span-26-14"><a id="__codelineno-26-14" name="__codelineno-26-14" href="#__codelineno-26-14"></a><span class="w">    </span><span class="nt">"high_52w"</span><span class="p">:</span><span class="w"> </span><span class="mf">38.50</span><span class="p">,</span>
+</span><span id="__span-26-15"><a id="__codelineno-26-15" name="__codelineno-26-15" href="#__codelineno-26-15"></a><span class="w">    </span><span class="nt">"low_52w"</span><span class="p">:</span><span class="w"> </span><span class="mf">18.20</span><span class="p">,</span>
+</span><span id="__span-26-16"><a id="__codelineno-26-16" name="__codelineno-26-16" href="#__codelineno-26-16"></a><span class="w">    </span><span class="nt">"zscore_1y"</span><span class="p">:</span><span class="w"> </span><span class="mf">1.25</span><span class="p">,</span>
+</span><span id="__span-26-17"><a id="__codelineno-26-17" name="__codelineno-26-17" href="#__codelineno-26-17"></a><span class="w">    </span><span class="nt">"regime"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ELEVATED_MARGIN"</span><span class="p">,</span>
+</span><span id="__span-26-18"><a id="__codelineno-26-18" name="__codelineno-26-18" href="#__codelineno-26-18"></a><span class="w">    </span><span class="nt">"legs"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-26-19"><a id="__codelineno-26-19" name="__codelineno-26-19" href="#__codelineno-26-19"></a><span class="w">      </span><span class="nt">"cl"</span><span class="p">:</span><span class="w"> </span><span class="mf">82.48</span><span class="p">,</span>
+</span><span id="__span-26-20"><a id="__codelineno-26-20" name="__codelineno-26-20" href="#__codelineno-26-20"></a><span class="w">      </span><span class="nt">"rb"</span><span class="p">:</span><span class="w"> </span><span class="mf">2.65</span><span class="p">,</span>
+</span><span id="__span-26-21"><a id="__codelineno-26-21" name="__codelineno-26-21" href="#__codelineno-26-21"></a><span class="w">      </span><span class="nt">"ho"</span><span class="p">:</span><span class="w"> </span><span class="mf">2.79</span>
+</span><span id="__span-26-22"><a id="__codelineno-26-22" name="__codelineno-26-22" href="#__codelineno-26-22"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-26-23"><a id="__codelineno-26-23" name="__codelineno-26-23" href="#__codelineno-26-23"></a><span class="w">  </span><span class="p">},</span>
+</span><span id="__span-26-24"><a id="__codelineno-26-24" name="__codelineno-26-24" href="#__codelineno-26-24"></a><span class="w">  </span><span class="nt">"time_series"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="__span-26-25"><a id="__codelineno-26-25" name="__codelineno-26-25" href="#__codelineno-26-25"></a><span class="w">    </span><span class="p">{</span>
+</span><span id="__span-26-26"><a id="__codelineno-26-26" name="__codelineno-26-26" href="#__codelineno-26-26"></a><span class="w">      </span><span class="nt">"date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-10-26"</span><span class="p">,</span>
+</span><span id="__span-26-27"><a id="__codelineno-26-27" name="__codelineno-26-27" href="#__codelineno-26-27"></a><span class="w">      </span><span class="nt">"year"</span><span class="p">:</span><span class="w"> </span><span class="mi">2026</span><span class="p">,</span>
+</span><span id="__span-26-28"><a id="__codelineno-26-28" name="__codelineno-26-28" href="#__codelineno-26-28"></a><span class="w">      </span><span class="nt">"week"</span><span class="p">:</span><span class="w"> </span><span class="mi">44</span><span class="p">,</span>
+</span><span id="__span-26-29"><a id="__codelineno-26-29" name="__codelineno-26-29" href="#__codelineno-26-29"></a><span class="w">      </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mf">30.78</span><span class="p">,</span>
+</span><span id="__span-26-30"><a id="__codelineno-26-30" name="__codelineno-26-30" href="#__codelineno-26-30"></a><span class="w">      </span><span class="nt">"legs"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"cl"</span><span class="p">:</span><span class="w"> </span><span class="mf">82.48</span><span class="p">,</span><span class="w"> </span><span class="nt">"rb"</span><span class="p">:</span><span class="w"> </span><span class="mf">2.65</span><span class="p">,</span><span class="w"> </span><span class="nt">"ho"</span><span class="p">:</span><span class="w"> </span><span class="mf">2.79</span><span class="p">}</span>
+</span><span id="__span-26-31"><a id="__codelineno-26-31" name="__codelineno-26-31" href="#__codelineno-26-31"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-26-32"><a id="__codelineno-26-32" name="__codelineno-26-32" href="#__codelineno-26-32"></a><span class="w">  </span><span class="p">],</span>
+</span><span id="__span-26-33"><a id="__codelineno-26-33" name="__codelineno-26-33" href="#__codelineno-26-33"></a><span class="w">  </span><span class="nt">"seasonality_weekly"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-26-34"><a id="__codelineno-26-34" name="__codelineno-26-34" href="#__codelineno-26-34"></a><span class="w">    </span><span class="nt">"1"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"week"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">"mean"</span><span class="p">:</span><span class="w"> </span><span class="mf">18.5</span><span class="p">,</span><span class="w"> </span><span class="nt">"min"</span><span class="p">:</span><span class="w"> </span><span class="mf">12.1</span><span class="p">,</span><span class="w"> </span><span class="nt">"max"</span><span class="p">:</span><span class="w"> </span><span class="mf">26.4</span><span class="p">},</span>
+</span><span id="__span-26-35"><a id="__codelineno-26-35" name="__codelineno-26-35" href="#__codelineno-26-35"></a><span class="w">    </span><span class="nt">"44"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"week"</span><span class="p">:</span><span class="w"> </span><span class="mi">44</span><span class="p">,</span><span class="w"> </span><span class="nt">"mean"</span><span class="p">:</span><span class="w"> </span><span class="mf">24.2</span><span class="p">,</span><span class="w"> </span><span class="nt">"min"</span><span class="p">:</span><span class="w"> </span><span class="mf">16.8</span><span class="p">,</span><span class="w"> </span><span class="nt">"max"</span><span class="p">:</span><span class="w"> </span><span class="mf">33.1</span><span class="p">}</span>
+</span><span id="__span-26-36"><a id="__codelineno-26-36" name="__codelineno-26-36" href="#__codelineno-26-36"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-26-37"><a id="__codelineno-26-37" name="__codelineno-26-37" href="#__codelineno-26-37"></a><span class="p">}</span>
 </span></code></pre></div>
 </div>
 </div>

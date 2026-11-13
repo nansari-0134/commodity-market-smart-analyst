@@ -654,6 +654,45 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#7-forward-curve-processing-margin-spreads-studio" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Forward Curve &amp; Processing Margin Spreads Studio
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Forward Curve &amp; Processing Margin Spreads Studio">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#forward-curve-volatility-analytics-forwardcurveanalyticsapiview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Forward Curve &amp; Volatility Analytics (ForwardCurveAnalyticsAPIView)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#processing-margins-spreads-studio-spreadanalyticsapiview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Processing Margins &amp; Spreads Studio (SpreadAnalyticsAPIView)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1875,6 +1914,45 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#7-forward-curve-processing-margin-spreads-studio" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Forward Curve &amp; Processing Margin Spreads Studio
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Forward Curve &amp; Processing Margin Spreads Studio">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#forward-curve-volatility-analytics-forwardcurveanalyticsapiview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Forward Curve &amp; Volatility Analytics (ForwardCurveAnalyticsAPIView)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#processing-margins-spreads-studio-spreadanalyticsapiview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Processing Margins &amp; Spreads Studio (SpreadAnalyticsAPIView)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2265,6 +2343,26 @@
 <li><strong>Tier 3 (Exchange Listing Master Baseline)</strong>: Resolves the certified contract baseline from <code>CommodityExchangeListing.typical_open_interest</code> for the primary benchmark venue.</li>
 </ol>
 <p>This guarantees that quantitative models, TradingView charting overlays, and divergence algorithms always receive verified institutional positioning depth.</p>
+<hr />
+<h2 id="7-forward-curve-processing-margin-spreads-studio">7. Forward Curve &amp; Processing Margin Spreads Studio</h2>
+<p>The Market Data architecture provides end-to-end quantitative models for term structures and processing crack/crush/spark spreads:</p>
+<h3 id="forward-curve-volatility-analytics-forwardcurveanalyticsapiview">Forward Curve &amp; Volatility Analytics (<code>ForwardCurveAnalyticsAPIView</code>)</h3>
+<ol>
+<li><strong>24-Month Forward Strip (M1 to M24)</strong>: Synchronizes prompt through 2-year forward settlements with spreads to prompt, annualized roll yields, and volume.</li>
+<li><strong>Curve Regime Classification</strong>: Classifies prompt backwardation/contango into <code>STRONG_BACKWARDATION</code>, <code>MILD_BACKWARDATION</code>, <code>FLAT_CURVE</code>, <code>CONTANGO</code>, or <code>SUPER_CONTANGO</code> using prompt roll slope ($/bbl or relevant unit).</li>
+<li><strong>Multi-Tenor Overlays</strong>: Compares current term structure against historical baselines: Current vs 1 Week Ago vs 1 Month Ago vs 1 Year Ago.</li>
+<li><strong>Options Implied Volatility Surface</strong>: Calculates ATM implied volatility (%) and 25-delta put/call skew across all 24 tenors.</li>
+</ol>
+<h3 id="processing-margins-spreads-studio-spreadanalyticsapiview">Processing Margins &amp; Spreads Studio (<code>SpreadAnalyticsAPIView</code>)</h3>
+<ol>
+<li><strong>Synthetic Processing Margins</strong>:</li>
+<li><strong>3:2:1 Refinery Crack Margin</strong>: <code>(2 × RBOB Gasoline + 1 × Heating Oil - 3 × WTI Crude) / 3</code> with unit conversions ($/gal to $/bbl).</li>
+<li><strong>Brent - WTI Transatlantic Arbitrage</strong>: <code>Brent Settlement - WTI Settlement</code> in $/bbl.</li>
+<li><strong>Soybean Processing Crush Margin</strong>: <code>(Soybean Meal × 0.022) + (Soybean Oil × 0.11) - Soybeans</code> in $/bushel.</li>
+<li><strong>Gas-to-Power Spark Spread</strong>: <code>Power Price - (Natural Gas Price × Heat Rate / 1000)</code> in $/MWh.</li>
+<li><strong>Prompt Calendar Roll Spread</strong>: <code>Contract M1 - Contract M2</code> roll spread across any commodity.</li>
+<li><strong>20-Year Empirical Weekly Seasonality Studio</strong>: Computes historical multi-decade distribution (min, 25th percentile, median, 75th percentile, max) across ISO weeks 1 through 52 to identify cyclical margin expansion/compression patterns.</li>
+</ol>
 
 
 
