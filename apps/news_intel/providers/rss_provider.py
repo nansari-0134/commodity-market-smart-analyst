@@ -3,12 +3,14 @@ RSS / Atom Feed News Provider for live governmental and agency market news inges
 Includes graceful fallback to StaticNewsProvider when offline or during air-gapped test runs.
 """
 
+import email.utils
 import logging
-import urllib.request
 import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
 from decimal import Decimal
 from typing import List, Optional
+
+import requests
 
 from .base import (
     BaseNewsProvider,
@@ -17,10 +19,21 @@ from .base import (
     RawNewsCommodityTagDTO,
 )
 from .static_data import StaticNewsProvider
+from ..services.entity_linker import CommodityEntityLinker
 
 logger = logging.getLogger(__name__)
 
 DEFAULT_RSS_FEEDS = [
+    {
+        "name": "CNBC Commodities Wire",
+        "url": "https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=19836768",
+        "primary_commodity": "CL",
+    },
+    {
+        "name": "OilPrice.com Energy Intelligence",
+        "url": "https://oilprice.com/rss/main",
+        "primary_commodity": "CL",
+    },
     {
         "name": "EIA Petroleum Highlights",
         "url": "https://www.eia.gov/petroleum/supply/weekly/rss/petroleum.xml",
@@ -40,10 +53,11 @@ class RSSNewsProvider(BaseNewsProvider):
     Gracefully falls back to static benchmark seeds if network is unavailable or times out.
     """
 
-    def __init__(self, feeds: Optional[List[dict]] = None, timeout_seconds: int = 4):
+    def __init__(self, feeds: Optional[List[dict]] = None, timeout_seconds: int = 5):
         self._feeds = feeds or DEFAULT_RSS_FEEDS
         self._timeout_seconds = timeout_seconds
         self._fallback_provider = StaticNewsProvider()
+        self._entity_linker = CommodityEntityLinker()
 
     def get_catalyst_events(
         self,
@@ -65,6 +79,10 @@ class RSSNewsProvider(BaseNewsProvider):
     ) -> List[RawNewsArticleDTO]:
         """Fetch RSS feeds and parse XML items into RawNewsArticleDTO instances."""
         parsed_articles: List[RawNewsArticleDTO] = []
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) CommodityMarketSmartAnalyst/1.0",
+            "Accept": "application/rss+xml, application/xml, text/xml, */*",
+        }
 
         for feed_config in self._feeds:
             feed_url = feed_config.get("url")
@@ -72,48 +90,86 @@ class RSSNewsProvider(BaseNewsProvider):
             default_commodity = feed_config.get("primary_commodity", "CL")
 
             try:
-                req = urllib.request.Request(
-                    feed_url,
-                    headers={"User-Agent": "CommoditySmartAnalyst/1.0 (+https://github.com/nansari-0134/commodity-market-smart-analyst)"},
-                )
-                with urllib.request.urlopen(req, timeout=self._timeout_seconds) as response:
-                    content = response.read()
-                    root = ET.fromstring(content)
+                resp = requests.get(feed_url, headers=headers, timeout=self._timeout_seconds)
+                if resp.status_code != 200:
+                    continue
 
-                    # Support both standard RSS 2.0 and Atom feeds
-                    channel = root.find("channel")
-                    items = channel.findall("item") if channel is not None else root.findall("{http://www.w3.org/2005/Atom}entry")
+                content = resp.content
+                root = ET.fromstring(content)
 
-                    for item in items[:15]:
-                        title = item.findtext("title") or item.findtext("{http://www.w3.org/2005/Atom}title") or "Untitled"
-                        summary = item.findtext("description") or item.findtext("{http://www.w3.org/2005/Atom}summary") or title
-                        link = item.findtext("link") or ""
+                # Support both standard RSS 2.0 and Atom feeds
+                channel = root.find("channel")
+                items = channel.findall("item") if channel is not None else root.findall("{http://www.w3.org/2005/Atom}entry")
 
-                        article_dto = RawNewsArticleDTO(
-                            title=title.strip(),
-                            summary=summary.strip()[:600],
-                            published_at_utc=datetime.now(timezone.utc),
-                            source_name=source_name,
-                            source_url=link.strip(),
-                            primary_commodity_code=default_commodity,
-                            tags=[
-                                RawNewsCommodityTagDTO(
-                                    commodity_code=default_commodity,
-                                    relevance_score=Decimal("1.000"),
-                                    is_primary=True,
-                                    commodity_sentiment="NEUTRAL",
-                                    commodity_sentiment_score=Decimal("0.000"),
-                                    matched_keywords=[default_commodity.lower()],
-                                )
-                            ],
-                        )
-                        parsed_articles.append(article_dto)
+                for item in items[:20]:
+                    title = item.findtext("title") or item.findtext("{http://www.w3.org/2005/Atom}title") or "Untitled"
+                    summary = item.findtext("description") or item.findtext("{http://www.w3.org/2005/Atom}summary") or title
+                    link = item.findtext("link") or ""
+
+                    # Parse publication date
+                    pub_str = (
+                        item.findtext("pubDate")
+                        or item.findtext("{http://www.w3.org/2005/Atom}published")
+                        or item.findtext("{http://www.w3.org/2005/Atom}updated")
+                    )
+                    pub_dt = datetime.now(timezone.utc)
+                    if pub_str:
+                        try:
+                            parsed_dt = email.utils.parsedate_to_datetime(pub_str)
+                            if parsed_dt:
+                                pub_dt = parsed_dt if parsed_dt.tzinfo else parsed_dt.replace(tzinfo=timezone.utc)
+                        except Exception:
+                            pass
+
+                    # Extract multi-commodity linkages dynamically
+                    combined_text = f"{title} {summary}"
+                    matched_entities = self._entity_linker.link_entities(combined_text)
+
+                    if matched_entities:
+                        primary_code = matched_entities[0].commodity_code
+                        tags = [
+                            RawNewsCommodityTagDTO(
+                                commodity_code=e.commodity_code,
+                                relevance_score=e.relevance_score,
+                                is_primary=e.is_primary,
+                                commodity_sentiment="NEUTRAL",
+                                commodity_sentiment_score=Decimal("0.000"),
+                                matched_keywords=e.matched_keywords,
+                            )
+                            for e in matched_entities
+                        ]
+                    else:
+                        primary_code = default_commodity
+                        tags = [
+                            RawNewsCommodityTagDTO(
+                                commodity_code=default_commodity,
+                                relevance_score=Decimal("1.000"),
+                                is_primary=True,
+                                commodity_sentiment="NEUTRAL",
+                                commodity_sentiment_score=Decimal("0.000"),
+                                matched_keywords=[default_commodity.lower()],
+                            )
+                        ]
+
+                    article_dto = RawNewsArticleDTO(
+                        title=title.strip(),
+                        summary=summary.strip()[:600],
+                        published_at_utc=pub_dt,
+                        source_name=source_name,
+                        source_url=link.strip(),
+                        primary_commodity_code=primary_code,
+                        tags=tags,
+                    )
+                    parsed_articles.append(article_dto)
             except Exception as exc:
                 logger.info("RSS feed fetch failed for %s (%s): %s. Falling back to static data.", feed_url, source_name, exc)
 
         if not parsed_articles:
             # Fallback to static seeds for offline reliability
             return self._fallback_provider.get_news_articles(limit=limit, commodity_code=commodity_code)
+
+        # Sort by publication date descending
+        parsed_articles.sort(key=lambda a: a.published_at_utc, reverse=True)
 
         if commodity_code:
             code_upper = commodity_code.upper()

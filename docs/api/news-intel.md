@@ -245,3 +245,46 @@ Aggregates tagged news volume, average sentiment scores, and upcoming macroecono
   }
 ]
 ```
+
+---
+
+## 4. Live News Wire Feed Synchronization (`/api/news/refresh/`)
+
+On-demand trigger to query configured live RSS news feeds (CNBC Commodities, OilPrice.com Energy, EIA Weekly, USDA News Releases), deduplicate wire articles using SHA-256 content hashes, perform automated entity linking and sentiment polarity scoring, and persist newly ingested records.
+
+=== "cURL"
+    ```bash
+    curl -X POST "http://localhost:8000/api/news/refresh/" \
+      -H "Accept: application/json"
+    ```
+
+=== "Python"
+    ```python
+    import requests
+
+    response = requests.post("http://localhost:8000/api/news/refresh/")
+    data = response.json()
+    print(f"Status: {data['status']}, Ingested: {data['created_count']}, Total in DB: {data['total_articles']}")
+    ```
+
+**Sample Response (`200 OK`):**
+```json
+{
+  "status": "ok",
+  "message": "Successfully ingested 44 new news wire articles.",
+  "created_count": 44,
+  "total_articles": 53,
+  "latest_articles": [
+    {
+      "id": "270db59d-648b-49ef-b5f7-41b9d42345e1",
+      "title": "China Turns to Iraqi Oil as U.S. Blockade Chokes Iranian Supply",
+      "summary": "China is increasingly turning to Iraqi crude oil barrels as tighter sanctions choke off Iranian deliveries.",
+      "published_at_utc": "2026-11-16T07:30:00Z",
+      "source_name": "OilPrice.com Energy Intelligence",
+      "overall_sentiment_label": "MODERATE_BULLISH",
+      "overall_sentiment_score": 0.350
+    }
+  ]
+}
+```
+

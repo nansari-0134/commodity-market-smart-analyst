@@ -396,12 +396,18 @@ class ForwardCurveAnalyticsAPIView(APIView):
                 )
             }
 
+        m1_base = float(current_obs[0].settlement_price or current_obs[0].close_price or spot) if current_obs else spot
+
         contracts = []
         for o in current_obs:
             p_val = float(o.settlement_price or o.close_price or spot)
-            spread = round(p_val - spot, 4)
             tenor_idx = parse_tenor(o.delivery_month)
-            r_yield = round((spot - p_val) / spot * (12.0 / tenor_idx) * 100, 2) if tenor_idx > 0 and spot > 0 else 0.0
+            if tenor_idx == 1:
+                spread = 0.0
+                r_yield = 0.0
+            else:
+                spread = round(p_val - m1_base, 4)
+                r_yield = round((m1_base - p_val) / m1_base * (12.0 / tenor_idx) * 100, 2) if tenor_idx > 0 and m1_base > 0 else 0.0
             opt = options_map.get(o.delivery_month)
 
             contracts.append({
@@ -467,6 +473,8 @@ class ForwardCurveAnalyticsAPIView(APIView):
             "commodity_name": commodity.name,
             "observation_date": latest_date.isoformat(),
             "spot_price": spot,
+            "pricing_unit": commodity.pricing_unit.symbol if commodity.pricing_unit else "$",
+            "currency_symbol": commodity.pricing_unit.symbol if commodity.pricing_unit else "$",
             "curve_state": curve_state,
             "slope_1m": round(slope_1m, 4),
             "slope_12m": round(slope_12m, 4),

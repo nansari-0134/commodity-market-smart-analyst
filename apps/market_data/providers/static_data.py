@@ -188,11 +188,38 @@ class StaticMarketDataProvider(BaseMarketDataProvider):
         base = cfg["base"]
 
         nodes = []
+        is_precious_metal = canonical_symbol in ["GOLD", "SILVER", "PLATINUM", "PALLADIUM"]
+        is_petroleum = canonical_symbol in ["CL", "BRENT", "HO", "RB", "GO"]
+        is_gas = canonical_symbol in ["NG", "NATURAL_GAS"]
+        is_grain = canonical_symbol in ["CORN", "SOYBEANS", "SOYOIL", "SOYMEAL", "WHEAT_SRW", "WHEAT_HRW"]
+        is_base_metal = canonical_symbol in ["COPPER", "ALUMINUM", "IRON_ORE"]
+
         for i in range(num_months):
             month_idx = i + 1
             m_label = f"M{month_idx}"
-            decay = math.exp(-0.04 * i)
-            p = round(Decimal(str(base * (0.82 + 0.18 * decay))), 2)
+
+            if is_precious_metal:
+                # Precious metals trade in cost-of-carry contango (financing SOFR ~4.2% + vaulting)
+                price_mult = 1.0 + 0.042 * (i / 12.0)
+            elif is_petroleum:
+                # Petroleum trades in realistic prompt backwardation that levels into marginal cost
+                price_mult = 1.0 - 0.007 * min(i, 8) - 0.0025 * max(0, i - 8)
+            elif is_gas:
+                # Natural gas reflects seasonal injection / withdrawal heating cycle
+                cycle_month = ((ref_date.month + i - 1) % 12) + 1
+                seasonal_factor = 0.15 if cycle_month in [12, 1, 2] else (-0.10 if cycle_month in [3, 4, 5] else 0.04)
+                price_mult = 1.0 + seasonal_factor + 0.01 * (i / 12.0)
+            elif is_grain:
+                # Grains trade in commercial grain elevator storage carry contango
+                price_mult = 1.0 + 0.024 * (i / 12.0)
+            elif is_base_metal:
+                # Base metals reflect balanced carry contango
+                price_mult = 1.0 + 0.018 * (i / 12.0)
+            else:
+                # Default balanced forward structure
+                price_mult = 1.0 + 0.012 * (i / 12.0)
+
+            p = round(Decimal(str(base * price_mult)), 2)
             vol = int(cfg["vol"] * math.exp(-0.15 * i))
             oi = int(cfg["oi"] * math.exp(-0.12 * i))
 

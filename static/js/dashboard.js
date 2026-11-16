@@ -540,9 +540,197 @@ function initSeasonality40Matrix() {
     document.addEventListener("keydown", (e) => {
         if (e.key === "Escape") {
             closeSeasonalityInspector();
+            closeMonthDetailModal();
         }
     });
 }
+
+const MONTH_NAMES = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+];
+
+const PHYSICAL_CATALYST_MAP = {
+    1: "New Year portfolio rebalancing & winter heating demand peak.",
+    2: "Late winter inventory draws and early pre-planting sentiment.",
+    3: "Spring refinery turnaround conclusion & shift to summer gasoline blending specs.",
+    4: "Spring agricultural planting ramp and South American harvest inflows.",
+    5: "Early summer power cooling load ramp and pre-summer driving season builds.",
+    6: "Peak summer gasoline demand and critical grain pollination weather windows.",
+    7: "North American peak cooling degree days (CDD) and Midwest weather volatility.",
+    8: "Late summer harvest forecasts, hurricane season risks, and storage builds.",
+    9: "Autumn grain harvest kickoff and US refinery turnaround season.",
+    10: "Peak agricultural harvest supply pressure and pre-winter heating oil stockpiling.",
+    11: "Winter heating demand onset and post-harvest grain export flows.",
+    12: "Peak winter heating degree days (HDD), holiday demand, and year-end inventory tax positioning."
+};
+
+function openMonthDetailModal(year, month, valStr, val) {
+    const modal = document.getElementById("monthDetailModal");
+    if (!modal) return;
+
+    const mName = MONTH_NAMES[month - 1] || `Month ${month}`;
+    const commCode = currentCommodityCode || (dashboardData && dashboardData.code) || "CL";
+    const commName = (dashboardData && dashboardData.name) || commCode;
+    const unit = (dashboardData && dashboardData.pricing_unit) || "$";
+
+    // Header
+    const titleEl = document.getElementById("mdmTitle");
+    if (titleEl) titleEl.textContent = `${mName} ${year} Return Drill-Down`;
+
+    const subEl = document.getElementById("mdmSubtitle");
+    if (subEl) subEl.textContent = `${commName} (${commCode}) • Point-in-Time 20-Year Empirical Analysis`;
+
+    // Realized Return
+    const retEl = document.getElementById("mdmReturn");
+    if (retEl) {
+        retEl.textContent = valStr || (val !== null ? `${val >= 0 ? '+' : ''}${Number(val).toFixed(1)}%` : '--');
+        const numVal = parseFloat(val);
+        retEl.style.color = !isNaN(numVal) && numVal >= 0 ? "var(--accent-emerald)" : "var(--accent-rose)";
+    }
+
+    // Historical Summary from 20Y monthly_matrix.summary
+    const summaryList = (dashboardData && dashboardData.monthly_matrix && dashboardData.monthly_matrix.summary) || [];
+    const stat = summaryList[month - 1] || {};
+
+    const wrEl = document.getElementById("mdmWinRate");
+    if (wrEl) wrEl.textContent = stat.win_rate !== undefined ? `${stat.win_rate}%` : '--';
+
+    const avgEl = document.getElementById("mdmAvgReturn");
+    if (avgEl) {
+        const avg = stat.avg_return;
+        avgEl.textContent = avg !== undefined ? `${avg >= 0 ? '+' : ''}${avg}%` : '--';
+        avgEl.style.color = avg !== undefined && avg >= 0 ? "var(--accent-emerald)" : "var(--accent-rose)";
+    }
+
+    const stdEl = document.getElementById("mdmStdDev");
+    if (stdEl) stdEl.textContent = stat.std_dev !== undefined ? `${stat.std_dev}%` : '--';
+
+    const posEl = document.getElementById("mdmPosRatio");
+    if (posEl) posEl.textContent = stat.positive_years !== undefined ? `${stat.positive_years} / ${stat.total_years}` : '--';
+
+    const bestEl = document.getElementById("mdmBestYear");
+    if (bestEl) {
+        if (stat.best_year && stat.best_year.val !== undefined) {
+            bestEl.textContent = `${stat.best_year.val >= 0 ? '+' : ''}${stat.best_year.val}% (${stat.best_year.year})`;
+        } else {
+            bestEl.textContent = '--';
+        }
+    }
+
+    const worstEl = document.getElementById("mdmWorstYear");
+    if (worstEl) {
+        if (stat.worst_year && stat.worst_year.val !== undefined) {
+            worstEl.textContent = `${stat.worst_year.val}% (${stat.worst_year.year})`;
+        } else {
+            worstEl.textContent = '--';
+        }
+    }
+
+    // Historical Percentile / Ranking within this month
+    const returnsMap = (dashboardData && dashboardData.monthly_matrix && dashboardData.monthly_matrix.returns) || {};
+    const historicalMonthReturns = [];
+    Object.keys(returnsMap).forEach(y => {
+        const mVal = returnsMap[y] && returnsMap[y][month];
+        if (mVal !== undefined && mVal !== null) {
+            historicalMonthReturns.push(Number(mVal));
+        }
+    });
+
+    const rankEl = document.getElementById("mdmPercentile");
+    if (rankEl) {
+        const numVal = parseFloat(val);
+        if (!isNaN(numVal) && historicalMonthReturns.length > 0) {
+            const countBelow = historicalMonthReturns.filter(v => v <= numVal).length;
+            const pct = Math.round((countBelow / historicalMonthReturns.length) * 100);
+            if (pct >= 80) rankEl.textContent = `Top Quintile (${pct}th Pct)`;
+            else if (pct >= 60) rankEl.textContent = `Above Average (${pct}th Pct)`;
+            else if (pct >= 40) rankEl.textContent = `Median Range (${pct}th Pct)`;
+            else if (pct >= 20) rankEl.textContent = `Below Average (${pct}th Pct)`;
+            else rankEl.textContent = `Bottom Quintile (${pct}th Pct)`;
+        } else {
+            rankEl.textContent = '--';
+        }
+    }
+
+    // Intra-month Price Trajectory from Candles
+    const monthPrefix = `${year}-${String(month).padStart(2, '0')}`;
+    const candles = (dashboardData.candles || []).filter(c => c.time && c.time.startsWith(monthPrefix));
+
+    const daysEl = document.getElementById("mdmTradingDays");
+    const startEl = document.getElementById("mdmStartPrice");
+    const endEl = document.getElementById("mdmEndPrice");
+    const highEl = document.getElementById("mdmHighPrice");
+    const lowEl = document.getElementById("mdmLowPrice");
+    const svgEl = document.getElementById("mdmSparklineSvg");
+
+    if (candles.length > 0) {
+        const startP = candles[0].open || candles[0].close;
+        const endP = candles[candles.length - 1].close;
+        const highP = Math.max(...candles.map(c => c.high || c.close));
+        const lowP = Math.min(...candles.map(c => c.low || c.close));
+
+        if (daysEl) daysEl.textContent = `${candles.length} Trading Sessions`;
+        if (startEl) startEl.textContent = `${unit}${startP.toFixed(2)}`;
+        if (endEl) endEl.textContent = `${unit}${endP.toFixed(2)}`;
+        if (highEl) highEl.textContent = `${unit}${highP.toFixed(2)}`;
+        if (lowEl) lowEl.textContent = `${unit}${lowP.toFixed(2)}`;
+
+        // Build SVG daily trajectory
+        if (svgEl) {
+            const span = (highP - lowP) > 0 ? (highP - lowP) : 1.0;
+            const pts = candles.map((c, idx) => {
+                const x = candles.length > 1 ? (idx / (candles.length - 1)) * 100 : 50;
+                const y = 52 - ((c.close - lowP) / span) * 44;
+                return `${x.toFixed(1)},${y.toFixed(1)}`;
+            });
+            const polylinePoints = pts.join(" ");
+            const isPos = endP >= startP;
+            const strokeColor = isPos ? "#10b981" : "#f43f5e";
+            const fillColor = isPos ? "rgba(16, 185, 129, 0.15)" : "rgba(244, 63, 94, 0.15)";
+
+            svgEl.innerHTML = `
+                <polygon points="0,58 ${polylinePoints} 100,58" fill="${fillColor}" />
+                <polyline points="${polylinePoints}" fill="none" stroke="${strokeColor}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+            `;
+        }
+    } else {
+        if (daysEl) daysEl.textContent = `Historical Matrix Record`;
+        if (startEl) startEl.textContent = `--`;
+        if (endEl) endEl.textContent = `--`;
+        if (highEl) highEl.textContent = `--`;
+        if (lowEl) lowEl.textContent = `--`;
+        if (svgEl) svgEl.innerHTML = ``;
+    }
+
+    // Contextual physical driver note
+    const driverEl = document.getElementById("mdmDriverText");
+    if (driverEl) {
+        const physicalInsight = PHYSICAL_CATALYST_MAP[month] || "Seasonal transition period.";
+        driverEl.innerHTML = `
+            <strong style="color: var(--accent-cyan);">Physical Structural Regime:</strong> 
+            ${physicalInsight} 
+            Across the 20-year sample, ${mName} generated positive returns in ${stat.positive_years || 0} of ${stat.total_years || 20} sessions (${stat.win_rate || 50}% win rate).
+        `;
+    }
+
+    modal.style.display = "flex";
+    document.body.style.overflow = "hidden";
+}
+
+function closeMonthDetailModal(event) {
+    if (event && event.target && event.target !== document.getElementById("monthDetailModal")) {
+        return;
+    }
+    const modal = document.getElementById("monthDetailModal");
+    if (modal) {
+        modal.style.display = "none";
+        document.body.style.overflow = "";
+    }
+}
+
+window.openMonthDetailModal = openMonthDetailModal;
+window.closeMonthDetailModal = closeMonthDetailModal;
 
 function openSeasonalityInspector(methodNumber) {
     const modal = document.getElementById("s40ModalBackdrop");
@@ -1170,6 +1358,28 @@ function updateCrosshairHud(candle) {
 }
 
 /**
+ * Smooth Interactive Zoom In / Zoom Out on TimeScale
+ */
+function zoomTvChart(factor) {
+    if (!tvChart) return;
+    const timeScale = tvChart.timeScale();
+    const range = timeScale.getVisibleLogicalRange();
+    if (!range) {
+        timeScale.fitContent();
+        return;
+    }
+    const span = range.to - range.from;
+    const center = (range.from + range.to) / 2;
+    const newSpan = Math.max(10, span * factor);
+    const newFrom = Math.max(0, center - newSpan / 2);
+    const newTo = newFrom + newSpan;
+    timeScale.setVisibleLogicalRange({ from: newFrom, to: newTo });
+    if (tvVolumeChart) {
+        tvVolumeChart.timeScale().setVisibleLogicalRange({ from: newFrom, to: newTo });
+    }
+}
+
+/**
  * Apply Timeframe Zoom Window
  */
 function applyTimeframe(tf) {
@@ -1357,6 +1567,17 @@ function initLightweightChart() {
             visible: true,
             rightOffset: 6,
         },
+        handleScroll: {
+            mouseWheel: true,
+            pressedMouseMove: true,
+            horzTouchDrag: true,
+            vertTouchDrag: true,
+        },
+        handleScale: {
+            axisPressedMouseMove: { time: true, price: true },
+            mouseWheel: true,
+            pinch: true,
+        },
     });
 
     // 2. Candlestick Series (Primary)
@@ -1451,6 +1672,17 @@ function initLightweightChart() {
                 borderColor: 'rgba(255, 255, 255, 0.08)',
                 timeVisible: true,
                 secondsVisible: false,
+            },
+            handleScroll: {
+                mouseWheel: true,
+                pressedMouseMove: true,
+                horzTouchDrag: true,
+                vertTouchDrag: true,
+            },
+            handleScale: {
+                axisPressedMouseMove: { time: true, price: false },
+                mouseWheel: true,
+                pinch: true,
             },
         });
 
@@ -1554,6 +1786,15 @@ function initLightweightChart() {
 
     const btnOi = document.getElementById("btnToggleOi");
     if (btnOi) btnOi.addEventListener("click", toggleOiOverlay);
+
+    const btnZoomIn = document.getElementById("btnZoomIn");
+    if (btnZoomIn) {
+        btnZoomIn.addEventListener("click", () => zoomTvChart(0.7));
+    }
+    const btnZoomOut = document.getElementById("btnZoomOut");
+    if (btnZoomOut) {
+        btnZoomOut.addEventListener("click", () => zoomTvChart(1.4));
+    }
 
     const btnFit = document.getElementById("btnResetScale");
     if (btnFit) {
@@ -2565,8 +2806,11 @@ function updateFcStatsRibbon(data) {
     const elRegime = document.getElementById("fcStatRegime");
     const elIv = document.getElementById("fcStatIv");
 
+    const commCode = currentCommodityCode || (dashboardData && dashboardData.code) || "CL";
+    const unit = (data && data.pricing_unit) || (fcDataCache[commCode] && fcDataCache[commCode].pricing_unit) || (dashboardData && dashboardData.pricing_unit) || "$";
+
     const m1Price = data.contracts && data.contracts.length > 0 ? data.contracts[0].settlement_price : data.spot_price;
-    if (elM1) elM1.textContent = "$" + Number(m1Price).toFixed(2);
+    if (elM1) elM1.textContent = unit + Number(m1Price).toFixed(2);
 
     if (elSlope) {
         const slope = data.slope_12m || 0;
@@ -2763,19 +3007,22 @@ function populateFcContractsTable(contracts) {
     const tbody = document.getElementById("fcContractsTableBody");
     if (!tbody || !contracts || contracts.length === 0) return;
 
+    const commCode = currentCommodityCode || (dashboardData && dashboardData.code) || "CL";
+    const unit = (fcDataCache[commCode] && fcDataCache[commCode].pricing_unit) || (dashboardData && dashboardData.pricing_unit) || "$";
+
     let html = "";
     contracts.forEach(c => {
-        const spreadCls = c.spread_to_prompt >= 0 ? "var(--accent-rose)" : "var(--accent-emerald)";
-        const spreadSign = c.spread_to_prompt >= 0 ? "+" : "";
-        const rollCls = c.annualized_roll_yield_pct >= 0 ? "var(--accent-emerald)" : "var(--accent-rose)";
-        const rollSign = c.annualized_roll_yield_pct >= 0 ? "+" : "";
+        const spreadCls = c.spread_to_prompt > 0 ? "var(--accent-rose)" : (c.spread_to_prompt < 0 ? "var(--accent-emerald)" : "var(--text-muted)");
+        const spreadSign = c.spread_to_prompt > 0 ? "+" : "";
+        const rollCls = c.annualized_roll_yield_pct > 0 ? "var(--accent-emerald)" : (c.annualized_roll_yield_pct < 0 ? "var(--accent-rose)" : "var(--text-muted)");
+        const rollSign = c.annualized_roll_yield_pct > 0 ? "+" : "";
         const ivText = c.atm_iv ? c.atm_iv.toFixed(1) + "%" : "-";
         const skewText = c.skew_25d ? c.skew_25d.toFixed(2) : "-";
         const pcText = c.put_call_volume_ratio ? c.put_call_volume_ratio.toFixed(2) : "-";
 
         html += `<tr>
             <td style="font-family: var(--font-mono); font-weight: 700; color: var(--accent-cyan);">${c.tenor}</td>
-            <td style="font-family: var(--font-mono); font-weight: 600;">$${Number(c.settlement_price).toFixed(2)}</td>
+            <td style="font-family: var(--font-mono); font-weight: 600;">${unit}${Number(c.settlement_price).toFixed(2)}</td>
             <td style="font-family: var(--font-mono); color: ${spreadCls};">${spreadSign}${Number(c.spread_to_prompt).toFixed(2)}</td>
             <td style="font-family: var(--font-mono); font-weight: 600; color: ${rollCls};">${rollSign}${Number(c.annualized_roll_yield_pct).toFixed(1)}%</td>
             <td style="font-family: var(--font-mono);">${ivText}</td>
@@ -3038,6 +3285,95 @@ window.loadAndRenderSpreadsAnalytics = loadAndRenderSpreadsAnalytics;
 window.switchSpreadType = switchSpreadType;
 window.renderSpreadHistoryChart = renderSpreadHistoryChart;
 window.renderSpreadSeasonalityChart = renderSpreadSeasonalityChart;
+
+/* =========================================================================
+   LIVE NEWS & CATALYST FEED REFRESH TRIGGER
+   ========================================================================= */
+
+async function refreshNewsWire() {
+    const btn = document.getElementById("btnRefreshNews");
+    const spinner = document.getElementById("newsRefreshSpinner");
+    const label = document.getElementById("newsRefreshLabel");
+
+    if (spinner) spinner.style.display = "inline-block";
+    if (label) label.textContent = "Syncing Feeds...";
+    if (btn) btn.disabled = true;
+
+    try {
+        const resp = await fetch("/api/news/refresh/", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+        });
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const data = await resp.json();
+
+        const container = document.getElementById("newsArticlesContainer");
+        if (container && data.latest_articles && data.latest_articles.length > 0) {
+            let html = "";
+            data.latest_articles.forEach(art => {
+                const sentimentCls = art.overall_sentiment_label?.includes("BULLISH")
+                    ? "background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: var(--accent-emerald);"
+                    : (art.overall_sentiment_label?.includes("BEARISH")
+                        ? "background: rgba(244, 63, 94, 0.15); border: 1px solid rgba(244, 63, 94, 0.4); color: var(--accent-rose);"
+                        : "background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2); color: var(--text-secondary);");
+                const arrow = art.overall_sentiment_label?.includes("BULLISH") ? "▲" : (art.overall_sentiment_label?.includes("BEARISH") ? "▼" : "●");
+
+                let tagsHtml = "";
+                if (art.commodity_tags) {
+                    tagsHtml = art.commodity_tags.map(t => `
+                        <div style="display: inline-flex; align-items: center; gap: 0.35rem; background: rgba(255, 255, 255, 0.04); border: 1px solid ${t.is_primary ? 'rgba(0, 242, 254, 0.4)' : 'rgba(255, 255, 255, 0.08)'}; border-radius: 4px; padding: 0.2rem 0.5rem; font-family: var(--font-mono); font-size: 0.7rem;">
+                            <strong style="color: ${t.is_primary ? 'var(--accent-cyan)' : '#ffffff'};">${t.is_primary ? '★ ' : ''}${t.commodity_code}</strong>
+                            <span style="color: var(--text-muted); font-size: 0.65rem;">w=${t.relevance_score}</span>
+                        </div>
+                    `).join("");
+                }
+
+                html += `
+                    <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.07); border-radius: 8px; padding: 1.15rem; transition: border-color 0.2s;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; flex-wrap: wrap;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                ${art.is_breaking ? '<span style="background: rgba(244, 63, 94, 0.2); border: 1px solid rgba(244, 63, 94, 0.5); color: #f43f5e; font-size: 0.68rem; font-weight: 800; padding: 0.15rem 0.5rem; border-radius: 4px; font-family: var(--font-mono);">⚡ BREAKING</span>' : ''}
+                                <span style="font-size: 0.74rem; font-weight: 600; color: var(--text-secondary);">${art.source_name}</span>
+                                <span style="color: var(--text-muted); font-size: 0.7rem;">• Just Now</span>
+                            </div>
+                            <span style="font-size: 0.7rem; font-family: var(--font-mono); font-weight: 700; padding: 0.2rem 0.55rem; border-radius: 4px; ${sentimentCls}">
+                                ${arrow} ${art.overall_sentiment_label} (${Number(art.overall_sentiment_score || 0).toFixed(3)})
+                            </span>
+                        </div>
+                        <div style="font-weight: 700; color: #ffffff; font-size: 0.96rem; line-height: 1.4; margin-bottom: 0.45rem;">
+                            ${art.source_url ? `<a href="${art.source_url}" target="_blank" style="color: inherit; text-decoration: none;" onmouseover="this.style.color='#00f2fe'" onmouseout="this.style.color='#fff'">${art.title}</a>` : art.title}
+                        </div>
+                        <div style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 0.85rem;">
+                            ${art.summary}
+                        </div>
+                        ${tagsHtml ? `
+                            <div style="background: rgba(0, 0, 0, 0.35); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 6px; padding: 0.6rem 0.85rem; margin-bottom: 0.4rem;">
+                                <div style="font-size: 0.68rem; font-family: var(--font-mono); color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.4rem; letter-spacing: 0.04em;">Multi-Commodity Impact Matrix:</div>
+                                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">${tagsHtml}</div>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        if (label) label.textContent = `✓ Synced (${data.created_count || 0} New)`;
+        setTimeout(() => {
+            if (label) label.textContent = "🔄 Sync Live Feeds";
+        }, 3000);
+    } catch (err) {
+        console.warn("Failed to refresh news wire:", err);
+        if (label) label.textContent = "❌ Sync Failed";
+        setTimeout(() => {
+            if (label) label.textContent = "🔄 Sync Live Feeds";
+        }, 3000);
+    } finally {
+        if (spinner) spinner.style.display = "none";
+        if (btn) btn.disabled = false;
+    }
+}
+window.refreshNewsWire = refreshNewsWire;
 
 
 

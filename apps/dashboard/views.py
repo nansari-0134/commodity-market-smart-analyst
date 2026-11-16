@@ -160,61 +160,7 @@ def index(request):
     except Exception:
         db_healthy = False
 
-    from apps.metadata.models import DataDomainMaster, UnitMaster, FrequencyMaster
-    from apps.exchanges.models import ExchangeMaster, ExchangeTradingSession, ExchangeHoliday
-    from apps.commodities.models import CommodityExchangeListing
-    from apps.contracts.models import ContractSpecification, ContractExpiry
-    from apps.datasets.models import DatasetMaster
-    from apps.variables.models import VariableMaster
-    from apps.providers.models import ProviderMaster
-    from apps.endpoints.models import EndpointMaster
-
-    phases = [
-        {"id": "Phase 1", "name": "Django + PostgreSQL Foundation", "status": "ACTIVE / VERIFIED"},
-        {"id": "Phase 2", "name": "Metadata Schema", "status": "ACTIVE / VERIFIED"},
-        {"id": "Phase 3", "name": "Exchange Master", "status": "ACTIVE / VERIFIED"},
-        {"id": "Phase 4", "name": "Commodity Master", "status": "ACTIVE / VERIFIED"},
-        {"id": "Phase 5", "name": "Product / Instrument / Contract Master", "status": "ACTIVE / VERIFIED"},
-        {"id": "Phase 6", "name": "Dataset Master", "status": "ACTIVE / VERIFIED"},
-        {"id": "Phase 7", "name": "Variable Master", "status": "ACTIVE / VERIFIED"},
-        {"id": "Phase 8", "name": "Source / Provider Master", "status": "ACTIVE / VERIFIED"},
-        {"id": "Phase 9", "name": "Endpoint & API Metadata", "status": "ACTIVE / VERIFIED"},
-        {"id": "Phase 10", "name": "Market Data & 20Y Observation Store", "status": "ACTIVE / VERIFIED"},
-        {"id": "Phase 11", "name": "Quant Engine & Forward Curves (M1-M24)", "status": "ACTIVE / VERIFIED"},
-        {"id": "Phase 12", "name": "News, Sentiment & Catalyst Calendar", "status": "ACTIVE / VERIFIED"},
-    ]
-
-    pipeline_stages = [
-        {"num": "01", "name": "RAW DATA", "desc": "Provider plugins, immutable raw captures, source hashing"},
-        {"num": "02", "name": "DATA INGESTION", "desc": "Failover priority, rate-limited adapters, schedulers"},
-        {"num": "03", "name": "NORMALIZATION", "desc": "Canonical schema mapping, point-in-time timestamping"},
-        {"num": "04", "name": "DATA QUALITY", "desc": "Deterministic rule engine (outliers, rolls, missingness)"},
-        {"num": "05", "name": "QUANT ENGINE", "desc": "Futures curves, spreads, carrying charges, momentum"},
-        {"num": "06", "name": "FUNDAMENTALS", "desc": "Supply/demand balances, trade flows, inventory regimes"},
-        {"num": "07", "name": "NEWS & EVENTS", "desc": "Market surprises, expectation revisions, sentiment"},
-        {"num": "08", "name": "KNOWLEDGE GRAPH", "desc": "Entity linkages, supply chains, cross-market flows"},
-        {"num": "09", "name": "HYBRID RAG", "desc": "SQL features + Vector docs + Graph traversal"},
-        {"num": "10", "name": "MARKET NARRATIVE", "desc": "LLM evidence-based reasoning, scenarios & trades"},
-    ]
-
-    domain_count = DataDomainMaster.objects.filter(is_active=True).count()
-    unit_count = UnitMaster.objects.filter(is_active=True).count()
-    freq_count = FrequencyMaster.objects.filter(is_active=True).count()
-    exchange_count = ExchangeMaster.objects.filter(is_active=True).count()
-    session_count = ExchangeTradingSession.objects.filter(is_active=True).count()
-    holiday_count = ExchangeHoliday.objects.filter(is_active=True).count()
-    commodity_count = CommodityMaster.objects.filter(is_active=True).count()
-    listing_count = CommodityExchangeListing.objects.filter(is_active=True).count()
-    contract_spec_count = ContractSpecification.objects.filter(is_active=True).count()
-    contract_expiry_count = ContractExpiry.objects.filter(is_active=True).count()
-    dataset_count = DatasetMaster.objects.filter(is_active=True).count()
-    variable_count = VariableMaster.objects.filter(is_active=True).count()
-    benchmark_variable_count = VariableMaster.objects.filter(is_active=True, is_benchmark=True).count()
-    provider_count = ProviderMaster.objects.filter(is_active=True).count()
-    provider_with_limits_count = ProviderMaster.objects.filter(is_active=True, rate_limit_requests__isnull=False).count()
-    endpoint_count = EndpointMaster.objects.filter(is_active=True).count()
-
-    # 2. Global Ticker Commodities
+    # 2. Global Ticker Commodities with In-Memory Caching
     active_commodities = list(
         CommodityMaster.objects.filter(price_observations__is_prompt=True)
         .select_related("primary_exchange", "pricing_unit")
@@ -222,38 +168,43 @@ def index(request):
         .order_by("sector", "code")
     )
 
-    ticker_commodities = []
+    ticker_commodities = cache.get("dashboard_ticker_commodities_v3")
     commodity_lookup = {}
-    for c in active_commodities:
-        latest_obs = (
-            MarketPriceObservation.objects.filter(commodity=c, is_prompt=True)
-            .order_by("-observation_date")
-            .first()
-        )
-        if latest_obs:
-            prev_obs = (
-                MarketPriceObservation.objects.filter(
-                    commodity=c, is_prompt=True, observation_date__lt=latest_obs.observation_date
-                )
+    if not ticker_commodities:
+        ticker_commodities = []
+        for c in active_commodities:
+            latest_obs = (
+                MarketPriceObservation.objects.filter(commodity=c, is_prompt=True)
                 .order_by("-observation_date")
                 .first()
             )
-            ret_1d = 0.0
-            if prev_obs and prev_obs.close_price and float(prev_obs.close_price) > 0:
-                ret_1d = round(((float(latest_obs.close_price) - float(prev_obs.close_price)) / float(prev_obs.close_price)) * 100.0, 2)
+            if latest_obs:
+                prev_obs = (
+                    MarketPriceObservation.objects.filter(
+                        commodity=c, is_prompt=True, observation_date__lt=latest_obs.observation_date
+                    )
+                    .order_by("-observation_date")
+                    .first()
+                )
+                ret_1d = 0.0
+                if prev_obs and prev_obs.close_price and float(prev_obs.close_price) > 0:
+                    ret_1d = round(((float(latest_obs.close_price) - float(prev_obs.close_price)) / float(prev_obs.close_price)) * 100.0, 2)
 
-            ticker_item = {
-                "code": c.code,
-                "name": c.name,
-                "sector": c.sector,
-                "price": float(latest_obs.close_price or latest_obs.settlement_price or 0.0),
-                "ret_1d": ret_1d,
-                "exchange": c.primary_exchange.code if c.primary_exchange else "EXCH",
-                "unit": c.pricing_unit.symbol if c.pricing_unit else "$",
-                "date": latest_obs.observation_date,
-            }
-            ticker_commodities.append(ticker_item)
-            commodity_lookup[c.code] = ticker_item
+                ticker_item = {
+                    "code": c.code,
+                    "name": c.name,
+                    "sector": c.sector,
+                    "price": float(latest_obs.close_price or latest_obs.settlement_price or 0.0),
+                    "ret_1d": ret_1d,
+                    "exchange": c.primary_exchange.code if c.primary_exchange else "EXCH",
+                    "unit": c.pricing_unit.symbol if c.pricing_unit else "$",
+                    "date": latest_obs.observation_date,
+                }
+                ticker_commodities.append(ticker_item)
+        cache.set("dashboard_ticker_commodities_v3", ticker_commodities, timeout=600)
+
+    for item in ticker_commodities:
+        commodity_lookup[item["code"]] = item
 
     # 2.5 Compute / Retrieve Product Cards for Tier-1 Card Grid
     force_refresh = request.GET.get("refresh", "false").lower() in ["true", "1"]
@@ -282,8 +233,6 @@ def index(request):
         "tab-positioning": "tab-positioning",
         "news": "tab-news-intel",
         "tab-news-intel": "tab-news-intel",
-        "architecture": "tab-architecture",
-        "tab-architecture": "tab-architecture",
     }
     active_tab = tab_mapping.get(raw_tab, "tab-chart")
 
@@ -394,20 +343,29 @@ def index(request):
                 day_oi_source = "Exchange Benchmark"
         point_change = round(spot - (prev_candle["close"] if prev_candle else spot), 4)
 
-        seasonality_profile = compute_comprehensive_seasonality_profile(
-            dates=dates,
-            prices=prices,
-            current_date=pkg.as_of.date(),
-            commodity_code=selected_code,
-        )
-
-        seasonality_40 = evaluate_40_seasonality_methods(
-            dates=dates,
-            prices=prices,
-            current_date=pkg.as_of.date(),
-            commodity_code=selected_code,
-            base_seasonality_profile=seasonality_profile,
-        )
+        prof_cache_key = f"dash_prof_s40_{selected_code}_{pkg.as_of.date().isoformat()}"
+        cached_seasonality = cache.get(prof_cache_key)
+        if cached_seasonality:
+            seasonality_profile = cached_seasonality["seasonality_profile"]
+            seasonality_40 = cached_seasonality["seasonality_40"]
+        else:
+            seasonality_profile = compute_comprehensive_seasonality_profile(
+                dates=dates,
+                prices=prices,
+                current_date=pkg.as_of.date(),
+                commodity_code=selected_code,
+            )
+            seasonality_40 = evaluate_40_seasonality_methods(
+                dates=dates,
+                prices=prices,
+                current_date=pkg.as_of.date(),
+                commodity_code=selected_code,
+                base_seasonality_profile=seasonality_profile,
+            )
+            cache.set(prof_cache_key, {
+                "seasonality_profile": seasonality_profile,
+                "seasonality_40": seasonality_40,
+            }, timeout=3600)
 
         # 24 Forward Curve Contracts & Options
         def parse_tenor(m_str):
@@ -450,12 +408,18 @@ def index(request):
             )
         } if latest_opt_date else {}
 
+        m1_curve_price = float(curve_obs[0].settlement_price or curve_obs[0].close_price or spot) if curve_obs else spot
+
         contracts_data = []
         for c_obs in curve_obs:
             p_val = float(c_obs.settlement_price or c_obs.close_price or spot)
-            spread = round(p_val - spot, 4)
             tenor_idx = parse_tenor(c_obs.delivery_month)
-            r_yield = round((spot - p_val) / spot * (12.0 / tenor_idx) * 100, 2) if tenor_idx > 0 and spot > 0 else 0.0
+            if tenor_idx == 1:
+                spread = 0.0
+                r_yield = 0.0
+            else:
+                spread = round(p_val - m1_curve_price, 4)
+                r_yield = round((m1_curve_price - p_val) / m1_curve_price * (12.0 / tenor_idx) * 100, 2) if tenor_idx > 0 and m1_curve_price > 0 else 0.0
             opt = options_map.get(c_obs.delivery_month)
 
             contracts_data.append({
@@ -495,6 +459,7 @@ def index(request):
             "day_oi_source": day_oi_source,
             "point_change": point_change,
             "current_price": spot,
+            "pricing_unit_symbol": selected_commodity.pricing_unit.symbol if selected_commodity.pricing_unit else "$",
             "change_1d": point_change,
             "return_1d": pkg.market_state.returns_1d,
             "high_52w": high_52w,
@@ -506,6 +471,8 @@ def index(request):
             "code": selected_code,
             "name": selected_commodity.name,
             "sector": selected_commodity.sector,
+            "pricing_unit": selected_commodity.pricing_unit.symbol if selected_commodity.pricing_unit else "$",
+            "currency_symbol": selected_commodity.pricing_unit.symbol if selected_commodity.pricing_unit else "$",
             "spot_price": spot,
             "point_change": point_change,
             "day_open": day_open,
@@ -589,26 +556,8 @@ def index(request):
         "db_healthy": db_healthy,
         "db_vendor": db_vendor.upper(),
         "server_time": timezone.now(),
-        "phases": phases,
-        "pipeline_stages": pipeline_stages,
         "app_name": getattr(settings, "APP_NAME", "Commodity Market Intelligence"),
         "version": getattr(settings, "APP_VERSION", "0.1.0-alpha"),
-        "domain_count": domain_count,
-        "unit_count": unit_count,
-        "freq_count": freq_count,
-        "exchange_count": exchange_count,
-        "session_count": session_count,
-        "holiday_count": holiday_count,
-        "commodity_count": commodity_count,
-        "listing_count": listing_count,
-        "contract_spec_count": contract_spec_count,
-        "contract_expiry_count": contract_expiry_count,
-        "dataset_count": dataset_count,
-        "variable_count": variable_count,
-        "benchmark_variable_count": benchmark_variable_count,
-        "provider_count": provider_count,
-        "provider_with_limits_count": provider_with_limits_count,
-        "endpoint_count": endpoint_count,
         "ticker_commodities": ticker_commodities,
         "selected_code": selected_code,
         "commodity_detail": commodity_detail,

@@ -9,6 +9,7 @@ from .views import (
     MarketCatalystEventViewSet,
     NewsArticleViewSet,
     NewsSentimentSummaryView,
+    NewsRefreshAPIView,
 )
 
 router = DefaultRouter()
@@ -16,6 +17,7 @@ router.register(r"catalysts", MarketCatalystEventViewSet, basename="catalyst-eve
 router.register(r"articles", NewsArticleViewSet, basename="news-articles")
 
 urlpatterns = [
+    path("refresh/", NewsRefreshAPIView.as_view(), name="news-refresh"),
     path("", include(router.urls)),
     path("summary/", NewsSentimentSummaryView.as_view(), name="news-sentiment-summary"),
 ]

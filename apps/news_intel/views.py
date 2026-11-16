@@ -215,3 +215,82 @@ class NewsSentimentSummaryView(APIView):
         summary_results.sort(key=lambda x: x["article_count"], reverse=True)
         serializer = NewsSentimentSummarySerializer(summary_results, many=True)
         return Response(serializer.data)
+
+
+class NewsRefreshAPIView(APIView):
+    """
+    On-demand or scheduled news wire refresh endpoint.
+    Queries active live RSS feeds (CNBC Commodities, OilPrice, EIA, USDA),
+    deduplicates against existing articles via SHA-256 hash or URL,
+    runs automated entity linking and sentiment classification,
+    and returns newly ingested items.
+    """
+    def post(self, request, *args, **kwargs):
+        return self._do_refresh(request)
+
+    def get(self, request, *args, **kwargs):
+        return self._do_refresh(request)
+
+    def _do_refresh(self, request):
+        import hashlib
+        from .providers.rss_provider import RSSNewsProvider
+        from .services.sentiment_engine import LexiconSentimentEngine
+
+        provider = RSSNewsProvider()
+        raw_articles = provider.get_news_articles(limit=50)
+        sentiment_engine = LexiconSentimentEngine()
+        commodity_cache = {c.code.upper(): c for c in CommodityMaster.objects.all()}
+
+        created_count = 0
+        existing_hashes = set(NewsArticle.objects.values_list("content_hash", flat=True))
+
+        for raw_art in raw_articles:
+            norm_str = f"{raw_art.title.strip()}|{raw_art.source_name.strip()}".lower()
+            chash = hashlib.sha256(norm_str.encode("utf-8")).hexdigest()
+            if chash in existing_hashes:
+                continue
+
+            sentiment_res = sentiment_engine.score_text(f"{raw_art.title} {raw_art.summary}")
+            primary_com = commodity_cache.get(raw_art.primary_commodity_code.upper()) if raw_art.primary_commodity_code else None
+
+            article = NewsArticle.objects.create(
+                title=raw_art.title,
+                summary=raw_art.summary,
+                source_name=raw_art.source_name,
+                source_url=raw_art.source_url,
+                published_at_utc=raw_art.published_at_utc,
+                is_breaking=raw_art.is_breaking,
+                primary_commodity=primary_com,
+                overall_sentiment_label=sentiment_res.label,
+                overall_sentiment_score=sentiment_res.score,
+                content_hash=chash,
+            )
+            existing_hashes.add(chash)
+            created_count += 1
+
+            for tag_dto in raw_art.tags:
+                com = commodity_cache.get(tag_dto.commodity_code.upper())
+                if not com:
+                    continue
+                tag_score, tag_label = sentiment_engine.score_commodity_sentiment(
+                    sentiment_res, com.code, f"{raw_art.title} {raw_art.summary}", tag_dto.relevance_score
+                )
+                NewsCommodityTag.objects.create(
+                    article=article,
+                    commodity=com,
+                    relevance_score=tag_dto.relevance_score,
+                    is_primary=tag_dto.is_primary,
+                    commodity_sentiment=tag_label,
+                    commodity_sentiment_score=tag_score,
+                    matched_keywords=tag_dto.matched_keywords,
+                )
+
+        recent_articles = NewsArticle.objects.select_related("primary_commodity").prefetch_related("commodity_tags__commodity").order_by("-published_at_utc")[:15]
+        serializer = NewsArticleSerializer(recent_articles, many=True)
+        return Response({
+            "status": "ok",
+            "message": f"Successfully ingested {created_count} new news wire articles.",
+            "created_count": created_count,
+            "total_articles": NewsArticle.objects.count(),
+            "latest_articles": serializer.data,
+        })

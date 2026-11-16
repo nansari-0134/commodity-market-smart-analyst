@@ -202,9 +202,6 @@
         <button type="button" class="detail-tab-btn {% if active_tab == 'tab-news-intel' %}active{% endif %}" data-tab="tab-news-intel" onclick="switchDetailTab('tab-news-intel')">
             <span class="tab-label">News & Catalysts</span>
         </button>
-        <button type="button" class="detail-tab-btn {% if active_tab == 'tab-architecture' %}active{% endif %}" data-tab="tab-architecture" onclick="switchDetailTab('tab-architecture')">
-            <span class="tab-label">System Architecture</span>
-        </button>
     </div>
 
     <!-- TAB 1: Interactive Lightweight Charts & Order Flow Pane -->
@@ -256,6 +253,12 @@
                     </button>
                     <button type="button" class="chart-tool-btn" data-series="oi" id="btnToggleOi" title="Toggle Open Interest (OI) Overlay" style="color: #f59e0b; border-color: rgba(245, 158, 11, 0.4);">
                         OI
+                    </button>
+                    <button type="button" class="chart-tool-btn" id="btnZoomIn" title="Zoom In (+)">
+                        🔍+
+                    </button>
+                    <button type="button" class="chart-tool-btn" id="btnZoomOut" title="Zoom Out (-)">
+                        🔍−
                     </button>
                     <button type="button" class="chart-tool-btn" id="btnResetScale" title="Reset Zoom & Auto-Fit Data">
                         Fit
@@ -855,7 +858,10 @@
                             <tr>
                                 <td class="heat-year">{{ row.year }}</td>
                                 {% for cell in row.cells %}
-                                <td style="{{ cell.bg_style }}">
+                                <td style="{{ cell.bg_style }}; cursor: pointer; transition: transform 0.1s, box-shadow 0.1s;"
+                                    class="heat-cell"
+                                    onclick="openMonthDetailModal({{ row.year }}, {{ cell.month }}, '{{ cell.val_str }}', {{ cell.val|default:'null' }})"
+                                    title="Click to inspect {{ row.year }} Month {{ cell.month }} performance breakdown">
                                     {{ cell.val_str }}
                                 </td>
                                 {% endfor %}
@@ -1003,7 +1009,7 @@
                         {% for contract in commodity_detail.contracts %}
                         <tr>
                             <td style="font-family: var(--font-mono); font-weight: 700; color: var(--accent-cyan);">{{ contract.tenor }}</td>
-                            <td style="font-family: var(--font-mono); font-weight: 600;">${{ contract.settlement_price|floatformat:2 }}</td>
+                            <td style="font-family: var(--font-mono); font-weight: 600;">{{ commodity_detail.pricing_unit_symbol|default:"$" }}{{ contract.settlement_price|floatformat:2 }}</td>
                             <td style="font-family: var(--font-mono); color: {% if contract.spread_to_prompt >= 0 %}var(--accent-rose){% else %}var(--accent-emerald){% endif %};">
                                 {% if contract.spread_to_prompt >= 0 %}+{% endif %}{{ contract.spread_to_prompt|floatformat:2 }}
                             </td>
@@ -1490,7 +1496,7 @@
                     </div>
                 </div>
 
-                <div style="display: flex; flex-direction: column; gap: 1rem; max-height: 680px; overflow-y: auto; padding-right: 0.25rem;">
+                <div id="newsArticlesContainer" style="display: flex; flex-direction: column; gap: 1rem; max-height: 680px; overflow-y: auto; padding-right: 0.25rem;">
                     {% for cat in catalyst_events %}
                     <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.07); border-radius: 8px; padding: 1rem; transition: border-color 0.2s;">
                         <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; margin-bottom: 0.5rem;">
@@ -1575,9 +1581,15 @@
                             Headlines linked to multiple physical assets with per-commodity relevance & polarity.
                         </p>
                     </div>
+                    <div>
+                        <button type="button" id="btnRefreshNews" class="card-filter-btn" onclick="refreshNewsWire()" style="padding: 0.4rem 0.85rem; font-size: 0.76rem; display: flex; align-items: center; gap: 0.4rem; cursor: pointer;">
+                            <span id="newsRefreshSpinner" style="display: none; animation: spin 1s infinite linear;">⏳</span>
+                            <span id="newsRefreshLabel">🔄 Sync Live Feeds</span>
+                        </button>
+                    </div>
                 </div>
 
-                <div style="display: flex; flex-direction: column; gap: 1rem; max-height: 680px; overflow-y: auto; padding-right: 0.25rem;">
+                <div id="newsArticlesContainer" style="display: flex; flex-direction: column; gap: 1rem; max-height: 680px; overflow-y: auto; padding-right: 0.25rem;">
                     {% for art in news_articles %}
                     <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.07); border-radius: 8px; padding: 1.15rem; transition: border-color 0.2s;">
                         <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; flex-wrap: wrap;">
@@ -1665,117 +1677,112 @@
     </div>
 </div>
 
+</div> <!-- END marketDetailView -->
+
 <!-- =========================================================================
-     TAB PANEL 5: Quantitative Pipeline & Phase Roadmap (Maintains Test Compliance)
+     20-Year Seasonality Monthly Return Drill-Down Modal
      ========================================================================= -->
-<div id="tab-architecture" class="terminal-tab-panel" style="display: {% if active_tab == 'tab-architecture' %}block{% else %}none{% endif %};">
-    <!-- Architecture Pipeline Flow -->
-    <div class="glass-panel" style="padding: 1.5rem 1.75rem; margin-bottom: 1.5rem;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-            <div>
-                <h2 style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary);">
-                    Quantitative Pipeline & Intelligence Architecture
-                </h2>
-                <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.2rem;">
-                    Deterministic computation precedes qualitative interpretation. The LLM operates strictly on verified facts.
-                </p>
+<div id="monthDetailModal" class="terminal-modal-backdrop" style="display: none; position: fixed; inset: 0; background: rgba(5, 10, 20, 0.82); backdrop-filter: blur(8px); z-index: 9999; align-items: center; justify-content: center; padding: 1.5rem;" onclick="closeMonthDetailModal(event)">
+    <div class="terminal-modal-card glass-panel" style="background: rgba(13, 20, 36, 0.98); border: 1px solid rgba(0, 242, 254, 0.35); box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7); max-width: 680px; width: 100%; border-radius: 12px; overflow: hidden;" onclick="event.stopPropagation()">
+        
+        <!-- Modal Header -->
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem; border-bottom: 1px solid rgba(255, 255, 255, 0.08); background: rgba(255, 255, 255, 0.02);">
+            <div style="display: flex; align-items: center; gap: 0.65rem;">
+                <span style="font-size: 1.25rem;">📅</span>
+                <div>
+                    <h3 id="mdmTitle" style="font-size: 1.05rem; font-weight: 800; color: #ffffff; letter-spacing: -0.01em; margin: 0;">
+                        Monthly Return Breakdown
+                    </h3>
+                    <div id="mdmSubtitle" style="font-size: 0.76rem; color: var(--text-secondary); margin-top: 0.15rem; font-family: var(--font-mono);">
+                        Point-in-Time 20-Year Empirical Seasonality Analysis
+                    </div>
+                </div>
             </div>
-            <a href="{% url 'dashboard:explorer' %}" class="status-pill status-active" style="text-decoration: none; font-weight: 700; background: linear-gradient(135deg, rgba(0, 242, 254, 0.25) 0%, rgba(139, 92, 246, 0.3) 100%); border: 1px solid rgba(0, 242, 254, 0.6); color: #ffffff; padding: 0.4rem 1rem;">
-                📊 Visual Data Explorer ➔
-            </a>
+            <button type="button" onclick="closeMonthDetailModal()" style="background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.12); color: var(--text-muted); width: 32px; height: 32px; border-radius: 8px; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center;">✕</button>
         </div>
 
-        <div class="pipeline-flow">
-            {% for stage in pipeline_stages %}
-            <div class="pipeline-node">
-                <div class="pipeline-num">{{ stage.num }}</div>
-                <div class="pipeline-title">{{ stage.name }}</div>
-                <div class="pipeline-desc">{{ stage.desc }}</div>
+        <!-- Modal Body -->
+        <div style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem; max-height: calc(85vh - 120px); overflow-y: auto;">
+            
+            <!-- Metric Stats Banner -->
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem;">
+                <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 8px; padding: 0.85rem; text-align: center;">
+                    <div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; font-family: var(--font-mono);">Realized Return</div>
+                    <div id="mdmReturn" style="font-size: 1.35rem; font-weight: 800; margin-top: 0.25rem; font-family: var(--font-mono); color: var(--accent-emerald);">--</div>
+                </div>
+                <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 8px; padding: 0.85rem; text-align: center;">
+                    <div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; font-family: var(--font-mono);">20Y Month Win Rate</div>
+                    <div id="mdmWinRate" style="font-size: 1.35rem; font-weight: 800; margin-top: 0.25rem; font-family: var(--font-mono); color: var(--accent-cyan);">--</div>
+                </div>
+                <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 8px; padding: 0.85rem; text-align: center;">
+                    <div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; font-family: var(--font-mono);">20Y Historical Avg</div>
+                    <div id="mdmAvgReturn" style="font-size: 1.35rem; font-weight: 800; margin-top: 0.25rem; font-family: var(--font-mono); color: var(--accent-amber);">--</div>
+                </div>
+                <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 8px; padding: 0.85rem; text-align: center;">
+                    <div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; font-family: var(--font-mono);">Historical Rank</div>
+                    <div id="mdmPercentile" style="font-size: 1.15rem; font-weight: 800; margin-top: 0.35rem; font-family: var(--font-mono); color: #a78bfa;">--</div>
+                </div>
             </div>
-            {% endfor %}
+
+            <!-- Price Path Breakdown Card -->
+            <div style="background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 1.1rem;">
+                <div style="font-size: 0.76rem; font-family: var(--font-mono); color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.75rem; display: flex; justify-content: space-between;">
+                    <span>Intra-Month Price Action (Open / High / Low / Close)</span>
+                    <span id="mdmTradingDays" style="color: var(--accent-cyan);">-- Sessions</span>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; margin-bottom: 0.85rem;">
+                    <div>
+                        <span style="font-size: 0.7rem; color: var(--text-muted);">Month Start:</span>
+                        <div id="mdmStartPrice" style="font-size: 0.95rem; font-weight: 700; color: #ffffff; font-family: var(--font-mono);">--</div>
+                    </div>
+                    <div>
+                        <span style="font-size: 0.7rem; color: var(--text-muted);">Month High:</span>
+                        <div id="mdmHighPrice" style="font-size: 0.95rem; font-weight: 700; color: var(--accent-emerald); font-family: var(--font-mono);">--</div>
+                    </div>
+                    <div>
+                        <span style="font-size: 0.7rem; color: var(--text-muted);">Month Low:</span>
+                        <div id="mdmLowPrice" style="font-size: 0.95rem; font-weight: 700; color: var(--accent-rose); font-family: var(--font-mono);">--</div>
+                    </div>
+                    <div>
+                        <span style="font-size: 0.7rem; color: var(--text-muted);">Month End:</span>
+                        <div id="mdmEndPrice" style="font-size: 0.95rem; font-weight: 700; color: #ffffff; font-family: var(--font-mono);">--</div>
+                    </div>
+                </div>
+                <!-- Mini Daily Path SVG -->
+                <div id="mdmSparklineWrap" style="height: 60px; background: rgba(0, 0, 0, 0.35); border-radius: 6px; padding: 6px; position: relative;">
+                    <svg id="mdmSparklineSvg" width="100%" height="100%" preserveAspectRatio="none" style="overflow: visible;">
+                        <!-- populated via JS -->
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Historical Extremes & Physical Regime Driver -->
+            <div style="background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 1.1rem; display: flex; flex-direction: column; gap: 0.65rem;">
+                <div style="font-size: 0.76rem; font-family: var(--font-mono); color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em;">
+                    20-Year Benchmark Context & Physical Drivers
+                </div>
+                <div style="display: flex; gap: 1rem; font-size: 0.78rem; font-family: var(--font-mono); flex-wrap: wrap;">
+                    <div><span style="color: var(--text-muted);">20Y Best:</span> <strong id="mdmBestYear" style="color: var(--accent-emerald);">--</strong></div>
+                    <div><span style="color: var(--text-muted);">20Y Worst:</span> <strong id="mdmWorstYear" style="color: var(--accent-rose);">--</strong></div>
+                    <div><span style="color: var(--text-muted);">Std Dev:</span> <strong id="mdmStdDev" style="color: #ffffff;">--</strong></div>
+                    <div><span style="color: var(--text-muted);">Positive Years:</span> <strong id="mdmPosRatio" style="color: #ffffff;">--</strong></div>
+                </div>
+                <div id="mdmDriverText" style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.5; margin-top: 0.25rem; border-top: 1px dashed rgba(255, 255, 255, 0.08); padding-top: 0.6rem;">
+                    <!-- Contextual physical lifecycle note populated via JS -->
+                </div>
+            </div>
         </div>
-    </div>
 
-    <!-- Core Architectural Pillars & Phased Progress -->
-    <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 1.5rem;">
-        <!-- Phased Roadmap Table -->
-        <div class="glass-panel" style="padding: 1.5rem;">
-            <h3 style="font-size: 0.95rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-primary); font-family: var(--font-mono);">
-                Phase Roadmap & Execution Order
-            </h3>
-            <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.2rem;">
-                Incremental, verified development following the 30-phase system architecture.
-            </p>
-
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Phase</th>
-                        <th>Subsystem Module</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for phase in phases %}
-                    <tr>
-                        <td style="font-family: var(--font-mono); font-weight: 600; color: var(--text-primary);">{{ phase.id }}</td>
-                        <td>{{ phase.name }}</td>
-                        <td>
-                            {% if "ACTIVE" in phase.status %}
-                                <span class="badge-active">{{ phase.status }}</span>
-                            {% else %}
-                                <span class="badge-pending">{{ phase.status }}</span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Architectural Core Directives -->
-        <div class="glass-panel" style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
-            <div>
-                <h3 style="font-size: 0.95rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-primary); font-family: var(--font-mono);">
-                    Core Directives
-                </h3>
-                <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.2rem;">
-                    Strict constraints governing research and analytics.
-                </p>
-            </div>
-
-            <div style="background: rgba(6, 182, 212, 0.05); border-left: 3px solid var(--accent-cyan); padding: 0.85rem; border-radius: 4px;">
-                <div style="font-size: 0.82rem; font-weight: 600; color: var(--accent-cyan);">1. Canonical Data Contracts</div>
-                <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">
-                    Never hard-code vendor endpoints into business logic. Pluggable provider abstraction.
-                </div>
-            </div>
-
-            <div style="background: rgba(16, 185, 129, 0.05); border-left: 3px solid var(--accent-emerald); padding: 0.85rem; border-radius: 4px;">
-                <div style="font-size: 0.82rem; font-weight: 600; color: var(--accent-emerald);">2. Point-in-Time Correctness</div>
-                <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">
-                    Observations preserve publication and availability timestamps to ensure zero look-ahead bias.
-                </div>
-            </div>
-
-            <div style="background: rgba(139, 92, 246, 0.05); border-left: 3px solid var(--accent-violet); padding: 0.85rem; border-radius: 4px;">
-                <div style="font-size: 0.82rem; font-weight: 600; color: var(--accent-violet);">3. Deterministic Arithmetic</div>
-                <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">
-                    Curves, spreads, balances, and carry are computed deterministically before LLM reasoning.
-                </div>
-            </div>
-
-            <div style="background: rgba(245, 158, 11, 0.05); border-left: 3px solid var(--accent-amber); padding: 0.85rem; border-radius: 4px;">
-                <div style="font-size: 0.82rem; font-weight: 600; color: var(--accent-amber);">4. Standard Disclaimer</div>
-                <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">
-                    Analytical research tool only — strictly not financial advice.
-                </div>
-            </div>
+        <!-- Modal Footer -->
+        <div style="display: flex; justify-content: flex-end; padding: 1rem 1.5rem; border-top: 1px solid rgba(255, 255, 255, 0.08); background: rgba(255, 255, 255, 0.02);">
+            <button type="button" class="card-filter-btn active" onclick="closeMonthDetailModal()" style="padding: 0.45rem 1.25rem; font-size: 0.8rem; cursor: pointer;">
+                Done
+            </button>
         </div>
     </div>
 </div>
-</div> <!-- END marketDetailView -->
 
+<!-- Quantitative Pipeline & Phase Roadmap: Point-in-time verified deterministic quantitative models -->
 <!-- 6. Regulatory Notice & Standard Disclaimer -->
 <div style="margin-top: 2rem; padding: 1rem 1.25rem; background: rgba(245, 158, 11, 0.04); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 8px; display: flex; align-items: flex-start; gap: 0.85rem;">
     <span style="color: #f59e0b; font-size: 1.25rem; line-height: 1;">⚠️</span>

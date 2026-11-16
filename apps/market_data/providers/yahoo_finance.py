@@ -337,9 +337,31 @@ class YahooMarketDataProvider(BaseMarketDataProvider):
             # Fallback anchor from prompt spot price
             prompt_obs = self.fetch_price_observations(symbol, range="5d")
             anchor = float(prompt_obs[-1].settlement_price) if prompt_obs else 80.0
-            # Standard backwardation curve fallback
             x_obs = [1, 2, 6, 12, 24]
-            y_obs = [anchor, anchor * 0.985, anchor * 0.93, anchor * 0.88, anchor * 0.82]
+
+            if clean_symbol in ["GOLD", "SILVER", "PLATINUM", "PALLADIUM"]:
+                # Precious metals: cost-of-carry contango (SOFR ~4.2% + storage)
+                y_obs = [anchor, anchor * 1.0035, anchor * 1.021, anchor * 1.042, anchor * 1.085]
+            elif clean_symbol in ["CORN", "SOYBEANS", "SOYOIL", "SOYMEAL", "WHEAT_SRW", "WHEAT_HRW"]:
+                # Grains: commercial grain elevator storage carry contango
+                y_obs = [anchor, anchor * 1.002, anchor * 1.012, anchor * 1.024, anchor * 1.048]
+            elif clean_symbol in ["NG", "NATURAL_GAS"]:
+                # Natural gas: winter peak / spring injection discount
+                m = ref_date.month
+                y_obs = [
+                    anchor,
+                    anchor * (1.05 if m in [11, 12, 1] else 0.96),
+                    anchor * (0.92 if m in [1, 2, 3] else 1.04),
+                    anchor * 1.02,
+                    anchor * 1.05,
+                ]
+            elif clean_symbol in ["CL", "BRENT", "HO", "RB", "GO"]:
+                # Petroleum: realistic mild backwardation
+                y_obs = [anchor, anchor * 0.992, anchor * 0.965, anchor * 0.940, anchor * 0.915]
+            else:
+                # Balanced carry
+                y_obs = [anchor, anchor * 1.001, anchor * 1.008, anchor * 1.018, anchor * 1.036]
+
             spline = PchipInterpolator(x_obs, y_obs, extrapolate=True)
 
         observations: list[RawPriceObservation] = []
